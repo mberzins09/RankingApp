@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             x:Class="RankingApp.Views.AddTournament"
+             Title="AddTournament">
+    <StackLayout>
+        <Label Text="Name"></Label>
+        <Entry x:Name="TournamentName"></Entry>
+        <DatePicker 
+                    x:Name="TournamentDate"
+                    MinimumDate="01/01/2024"
+                    MaximumDate="{x:Static sys:DateTime.Now}"
+                    Date="{x:Static sys:DateTime.Now}">
+        </DatePicker>
+        <Button x:Name="BtnAddGame"
+                Text="Add Game"
+                Clicked="BtnAddGame_OnClicked"></Button>
+        <Button x:Name="BtnEditGame"
+                Text="Edit Game"
+                Clicked="BtnEditGame_OnClicked"></Button>
+    </StackLayout>
+
+</ContentPage>

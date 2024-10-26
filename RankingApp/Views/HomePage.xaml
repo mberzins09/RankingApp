@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:RankingApp.Models"
+             x:Class="RankingApp.Views.HomePage"
+             Title="HomePage">
+        <StackLayout Padding="30" BackgroundColor="DarkSlateGray" Spacing="40" >
+            <Button Padding="20"
+                    BackgroundColor="Black"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    x:Name="BtnAddTournament"
+                    Text="Add Tournament"
+                    Clicked="BtnAddTournament_OnClicked"
+                    BorderColor="Gold"
+                    BorderWidth="4"></Button>
+            <Button Padding="20"
+                    BackgroundColor="Black"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    x:Name="BtnEditTournament"
+                    Text="Edit Tournament"
+                    Clicked="BtnEditTournament_OnClicked" 
+                    BorderColor="Green"
+                    BorderWidth="4"></Button>
+            <Button Padding="20"
+                    BackgroundColor="Black"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    x:Name="BtnTournamentList"
+                    Text="Tournament List"
+                    Clicked="BtnTournamentList_OnClicked"
+                    BorderColor="DarkRed"
+                    BorderWidth="4"></Button>
+            <Button Padding="20"
+                    BackgroundColor="Black"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    x:Name="BtnWomensRank"
+                    Text="Womens Ranking"
+                    Clicked="BtnWomensRank_OnClicked"
+                    BorderColor="Pink"
+                    BorderWidth="4"></Button>
+            <Button Padding="20"
+                    BackgroundColor="Black"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    x:Name="BtnMensRank"
+                    Text="Mens Ranking"
+                    Clicked="BtnMensRank_OnClicked"
+                    BorderColor="Blue"
+                    BorderWidth="4"></Button>
+    </StackLayout>
+</ContentPage>
