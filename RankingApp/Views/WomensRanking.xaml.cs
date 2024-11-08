@@ -1,4 +1,6 @@
-using RankingApp.Controllers;
+using RankingApp.ViewModels;
+using System.Collections.ObjectModel;
+using RankingApp.Models;
 
 namespace RankingApp.Views;
 
@@ -15,9 +17,19 @@ public partial class WomensRanking : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (_viewModel.Womens.Count == 0)
-        {
-            await _viewModel.LoadDataWomens(); // Load data when page appears
-        }
+
+        WomensSearchBar.Text = String.Empty;
+
+        Womens.ItemsSource = await _viewModel.GetWomenPlayers();
+    }
+
+    private void WomensSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var search = sender == null ? String.Empty : ((SearchBar)sender).Text;
+
+        var players = new ObservableCollection<PlayerDB>
+            (_viewModel.SearchPlayers(_viewModel.WomensList, search));
+
+        Womens.ItemsSource = players;
     }
 }

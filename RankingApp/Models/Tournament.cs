@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SQLite;
 
 namespace RankingApp.Models
 {
     public class Tournament
     {
-        public int TournamentId { get; set; }
-        public List<Game> Games { get; set; } = new List<Game>();
-
-        // Calculated property to sum RatingDifferences from all games in the tournament
-        public int RatingDifference => Games.Sum(game => game.RatingDifference);
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+        public float Coefficient { get; set; }
+        public string Name { get; set; }
+        public DateTime Date { get; set; }
+        public string DateToString => Date.ToString("d MMM yyyy");
+        public string TournamentPlayerName { get; set; }
+        public string TournamentPlayerSurname { get; set; }
+        public int TournamentPlayerPoints { get; set; }
+        public int PointsDifference { get; set; }
+        public string TournamentDisplay => 
+            $"{TournamentPlayerName} {TournamentPlayerSurname} - {DateToString} : {PointsDifference}";
     }
 }

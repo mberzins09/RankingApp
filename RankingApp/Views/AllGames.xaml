@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RankingApp.Views.AllGames"
+             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:model="using:RankingApp.Models"
+             x:DataType="viewmodel:AllGamesViewModel"
+             Title="All Games">
+    <StackLayout BackgroundColor="LightSlateGrey">
+        <Label 
+            Text="Games" 
+            FontSize="Title" 
+            TextColor="Black"
+            HorizontalOptions="Center"/>
+        <SearchBar
+            x:Name="GamesSearchBar"
+            Placeholder="Search Games"
+            TextChanged="GamesSearchBar_OnTextChanged"
+            BackgroundColor="Aquamarine"
+        ></SearchBar>
+        <ListView 
+            x:Name ="ListViewGames" 
+            BackgroundColor="Transparent"
+            SeparatorColor="Blue"
+            ItemsSource="{Binding Games}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:Game">
+                    <ViewCell>
+                        <VerticalStackLayout Spacing="2" Padding="1">
+                            <Label 
+                                Text="{Binding GameDisplayPlayers}"
+                                TextColor="Black"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                VerticalTextAlignment="Center"
+                                HorizontalTextAlignment="Center"></Label>
+                            <Label 
+                                Text="{Binding GameDisplayDetails}"
+                                TextColor="Black"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                VerticalTextAlignment="Center"
+                                HorizontalTextAlignment="Center"></Label>
+                        </VerticalStackLayout>
+                        <ViewCell.ContextActions>
+                            <MenuItem
+                                Text="Delete"
+                                IsDestructive="True"
+                                Clicked="MenuItem_OnClicked"
+                                CommandParameter="{Binding .}"></MenuItem>
+                        </ViewCell.ContextActions>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>

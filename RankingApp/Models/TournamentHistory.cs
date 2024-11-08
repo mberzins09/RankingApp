@@ -11,6 +11,6 @@ namespace RankingApp.Models
         public List<Tournament> Tournaments { get; set; } = new List<Tournament>();
 
         // Calculated property to sum RatingDifferences from all tournaments in history
-        public int RatingDifference => Tournaments.Sum(tournament => tournament.RatingDifference);
+        //public int RatingDifference => Tournaments.Sum(tournament => tournament.RatingDifference);
     }
 }

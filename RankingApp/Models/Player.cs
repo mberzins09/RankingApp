@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using SQLite;
 
 namespace RankingApp.Models
 {
     public class Player
     {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
         [JsonPropertyName("player_id")]
         public int PlayerId { get; set; }
 
@@ -20,9 +24,6 @@ namespace RankingApp.Models
 
         [JsonPropertyName("points_with_bonus")]
         public int PointsWithBonus { get; set; }
-
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
@@ -44,5 +45,7 @@ namespace RankingApp.Models
 
         [JsonPropertyName("last_played_date")]
         public string LastPlayedDate { get; set; }
+
+        public string Display => $"{Place} {Name} {Surname}";
     }
 }

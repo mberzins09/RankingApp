@@ -1,0 +1,12 @@
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\RankingApp.csproj.AssemblyReference.cache
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\mauiimage.inputs
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\mauifont.inputs
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\mauisplash.inputs
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\mauimanifest.stamp
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\Platforms\Windows\App.g.i.cs
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\Platforms\Windows\App.g.cs
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\XamlTypeInfo.g.cs
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\Platforms\Windows\App.xaml
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\Platforms\Windows\App.xbf
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\XamlSaveStateFile.xml
+D:\Projekti\RankingApp\RankingApp\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\RankingApp.GeneratedMSBuildEditorConfig.editorconfig

@@ -1,4 +1,6 @@
-using RankingApp.Controllers;
+using RankingApp.ViewModels;
+using System.Collections.ObjectModel;
+using RankingApp.Models;
 
 namespace RankingApp.Views;
 
@@ -15,9 +17,19 @@ public partial class MensRanking : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (_viewModel.Mens.Count == 0)
-        {
-            await _viewModel.LoadDataMens(); // Load data when page appears
-        }
+
+        MensSearchBar.Text = String.Empty;
+
+        Mens.ItemsSource = await _viewModel.GetMenPlayers();
+    }
+
+    private void MensSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var search = sender == null ? String.Empty : ((SearchBar)sender).Text;
+
+        var players = new ObservableCollection<PlayerDB>
+            (_viewModel.SearchPlayers(_viewModel.MensList, search));
+
+        Mens.ItemsSource = players;
     }
 }

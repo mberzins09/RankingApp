@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="RankingApp.Views.Games"
+             Title="Game"
+             BackgroundColor="Black">
+    <Grid Padding="5"
+          RowDefinitions="50,75,75,75,*,50,50"
+          ColumnDefinitions="150,*">
+        <Frame
+            Grid.Row="0"
+            Grid.Column="1" 
+            Padding="2,2,2,2"
+            BackgroundColor="Orange">
+            <SearchBar
+                    x:Name="PlayerSearchBar"
+                    Placeholder="Search Player"
+                    TextChanged="PlayerSearchBar_OnTextChanged"
+                    ></SearchBar>
+        </Frame>
+        <Frame
+            Grid.Row="1"
+            Grid.Column="1"
+            Grid.RowSpan="4"
+            Padding="2,2,2,2"
+            BackgroundColor="LightGrey">
+            <ListView 
+                x:Name ="ListPlayers" 
+                BackgroundColor="Transparent"
+                SeparatorColor="Black"
+                ItemSelected="ListPlayers_OnItemSelected">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                    <TextCell 
+                        Text ="{Binding Display}"
+                        Detail ="{Binding PointsWithBonus}">
+                    </TextCell>
+                </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
+        </Frame>
+        <Frame
+            Grid.Row="0"
+            Grid.Column="0"
+            Padding="10,2,10,2"
+            BackgroundColor="LightGray"
+            >
+            <Label 
+                x:Name="labelSelectedOpponent" 
+                Text="Opponent"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"></Label>
+        </Frame>
+        <Frame
+            Grid.Row="1"
+            Grid.Column="0"
+            Padding="10,2,10,2"
+            BackgroundColor="LightGreen">
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="My Sets" VerticalOptions="Center" FontSize="18"></Label>
+                    <Entry 
+                        x:Name="entryMySets" 
+                        VerticalOptions="Center" 
+                        Keyboard="Numeric"
+                        Placeholder="Sets"
+                        TextColor="Black"
+                        PlaceholderColor="Black"
+                        TextChanged="EntrySets_OnTextChanged">
+                    </Entry>
+            </HorizontalStackLayout>
+        </Frame>
+        <Frame
+            Grid.Row="2"
+            Grid.Column="0"
+            Padding="10,2,10,2"
+            BackgroundColor="LightCoral">
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="Op Sets" VerticalOptions="Center" FontSize="18"></Label>
+                <Entry 
+                    x:Name="entryOpponentSets" 
+                    VerticalOptions="Center" 
+                    Keyboard="Numeric"
+                    Placeholder="Sets"
+                    PlaceholderColor="Black"
+                    TextColor="Black" 
+                    TextChanged="EntrySets_OnTextChanged">
+                </Entry>
+            </HorizontalStackLayout>
+        </Frame>
+        <Frame
+            Grid.Row="3"
+            Grid.Column="0"
+            Padding="10,2,10,2"
+            BackgroundColor="Aquamarine">
+            <VerticalStackLayout>
+                <Label 
+                    Text="Rating Difference" 
+                    HorizontalOptions="Center"
+                    FontSize="15"></Label>
+                <Label x:Name ="LabelRatingDifference" 
+                       Text="0" 
+                       HorizontalOptions="Center" 
+                       VerticalOptions="End"
+                       FontSize="30"></Label>
+            </VerticalStackLayout>
+        </Frame>
+        <Button
+            Grid.Row="6"
+            Grid.Column="0"
+            x:Name="ButtonGameSave"
+            Text="Save"
+            FontSize="20"
+            TextColor="Black"
+            FontAttributes="Bold"
+            BackgroundColor="Green"
+            Clicked="ButtonGameSave_OnClicked"
+            >
+        </Button>
+        <Frame
+            Grid.Row="5"
+            Grid.Column="1"
+            Padding="10,2,10,2"
+            BackgroundColor="LightGray"
+        >
+            <Entry
+                x:Name="EntryOppName"
+                Placeholder="Name"
+                PlaceholderColor="Black"
+                TextChanged="EntryOppName_OnTextChanged"></Entry>
+        </Frame>
+        <Frame
+            Grid.Row="6"
+            Grid.Column="1"
+            Padding="10,2,10,2"
+            BackgroundColor="LightGray"
+        >
+            <Entry
+                x:Name="EntryOppSurname"
+                Placeholder="Surname"
+                PlaceholderColor="Black"
+                TextChanged="EntryOppName_OnTextChanged"></Entry>
+        </Frame>
+    </Grid>
+</ContentPage>

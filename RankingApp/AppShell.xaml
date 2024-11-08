@@ -9,8 +9,17 @@
     Title="RankingApp">
 
     <ShellContent
+        Shell.NavBarIsVisible="True"
         Title="Home"
         ContentTemplate="{DataTemplate views:HomePage}"
         Route="HomePage" />
+    <ShellContent
+        Title="Tournaments"
+        ContentTemplate="{DataTemplate views:Tournaments}"
+        Route="Tournaments"></ShellContent>
+    <ShellContent
+        Title="Games"
+        ContentTemplate="{DataTemplate views:Games}"
+        Route="Games"></ShellContent>
 
 </Shell>

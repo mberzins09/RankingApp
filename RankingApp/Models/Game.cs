@@ -1,22 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SQLite;
 
 namespace RankingApp.Models
 {
     public class Game
     {
-        public int GameID { get; set; }
-        public Player Me { get; set; }
-        public Player Opponent { get; set; }
-        public int MySets { get; set; }
-        public int OpponentSets { get; set; }
-        public float Coefficient { get; set; }
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+        public int MyPoints { get; set; }
+        public string MyName { get; set; }
+        public string MySurname { get; set; }
+        public string MyFullName => $"{MyName} {MySurname}";
+        public int OpponentPoints { get; set; }
+        public string? Name { get; set; }
+        public string? Surname { get; set; }
+        public int? MySets { get; set; }
+        public int? OpponentSets { get; set; }
+        public string? OpponentName => $"{Name} {Surname}";
         public bool IsWin => MySets > OpponentSets;
-
-        // This property calculates the RatingDifference dynamically using the RatingCalculator
-        public int RatingDifference => RatingCalculator.Calculate(Me.Points, Opponent.Points, IsWin, Coefficient);
+        public int TournamentId { get; set; }
+        public string? TournamentName { get; set; }
+        public DateTime TournamentDate { get; set; }
+        public string DateToString => TournamentDate.ToString("d MMM yyyy");
+        public float GameCoefficient { get; set; }
+        public string GameScore => $"{MySets} : {OpponentSets}";
+        public string GameName => $"{TournamentName} - {DateToString}";
+        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName} {GameScore}";
+        public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
+        public int RatingDifference => RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
     }
 }

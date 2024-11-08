@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:RankingApp.Models"
+             xmlns:views="clr-namespace:RankingApp.ViewModels"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             x:Class="RankingApp.Views.Tournaments"
+             Title="Tournament">
+    <Grid
+        BackgroundColor="Aquamarine">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="75" />
+            <RowDefinition Height="75" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Frame
+            Grid.Row="0"
+            Grid.Column="0"
+            BackgroundColor="Orange"
+            Padding="0">
+            <Label
+                x:Name="LabelTournamentDate"
+                FontSize="20"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
+            </Label>
+        </Frame>
+        <Frame 
+            Grid.Row="1"
+            Grid.Column="0"
+            BackgroundColor="Orange"
+            Padding="0">
+            <Label
+                Grid.Row="1"
+                Grid.Column="0"
+                x:Name="LabelTournamentName"
+                Text="Name"
+                FontSize="20"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"></Label>
+        </Frame>
+        <Frame
+            Grid.Row="2"
+            Grid.Column="0"
+            Padding="0"
+            BackgroundColor="Orange">
+            <Label
+                x:Name="LabelTournamentCoefficient"
+                Text="Coefficient"
+                FontSize="20"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"></Label>
+        </Frame>
+        <Frame
+            Grid.Row="3"
+            Grid.Column="0"
+            Padding="0"
+            BackgroundColor="Orange">
+            <Label
+                x:Name="LabelTournamentPlayer"
+                Text="Player"
+                FontSize="20"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"></Label>
+        </Frame>
+        <Frame
+            Grid.Row="6"
+            Grid.Column="1"
+            BackgroundColor="Orange"
+            Padding="0">
+            <Label
+                x:Name="LabelPointsDifference"
+                Text="Points Difference"
+                FontSize="30"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"></Label>
+        </Frame>
+        <Button 
+            Grid.Row="5"
+            Grid.Column="0"
+            x:Name="BtnAddGame"
+            BackgroundColor="Blue"
+            TextColor="Black"
+            FontSize="30"
+            Text="Add Game"
+            Clicked="BtnAddGame_OnClicked"
+            ></Button>
+        <Button 
+            Grid.Row="6"
+            Grid.Column="0"
+            x:Name="BtnSaveTournament"
+            Text="Save"
+            Clicked="BtnSave_OnClicked"
+            BackgroundColor="Crimson"
+            FontSize="30"
+            TextColor="Black"
+            ></Button>
+            <ListView 
+                x:DataType="views:TournamentViewModel"
+                x:Name="ListViewTournamentGames" 
+                ItemsSource="{Binding Games}" 
+                SeparatorColor="Black"
+                Grid.Row="0"
+                Grid.Column="1"
+                Grid.RowSpan="6"
+                BackgroundColor="Transparent"
+                >
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Game">
+                        <ViewCell>
+                            <VerticalStackLayout Spacing="5" Padding="5">
+                                <Label Text="{Binding OpponentName}"></Label>
+                                <HorizontalStackLayout Spacing="10">
+                                    <Label Text="{Binding GameScore}"
+                                           FontSize="12"></Label>
+                                    <Label Text="Points change"
+                                           FontSize="12"></Label>
+                                    <Label Text="{Binding RatingDifference}"
+                                           FontSize="12"></Label>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            <ViewCell.ContextActions>
+                                <MenuItem
+                                    Text="Delete"
+                                    IsDestructive="True"
+                                    Clicked="MenuItem_OnClicked"
+                                    CommandParameter="{Binding .}"></MenuItem>
+                            </ViewCell.ContextActions>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+    </Grid>
+</ContentPage>
