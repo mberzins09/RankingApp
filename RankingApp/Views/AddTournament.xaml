@@ -4,6 +4,7 @@
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
+             xmlns:rankingApp="using:RankingApp"
              x:DataType="viewmodel:AddTournamentViewModel"
              x:Class="RankingApp.Views.AddTournament"
              Title="Tournament Details">
@@ -17,14 +18,13 @@
             BackgroundColor="Brown"
             Padding="0"
             >
-            <DatePicker 
+            <rankingApp:FormDatePicker 
                 BackgroundColor="Brown"
                 x:Name="PickerTournamentDate"
-                MinimumDate="01/01/2024"
-                MaximumDate="{x:Static sys:DateTime.Now}"
-                Date="{x:Static sys:DateTime.Now}"
+                MinimumDate="01/01/2000"
+                MaximumDate="01/01/2200"
                 DateSelected="TournamentDate_OnDateSelected">
-            </DatePicker>
+            </rankingApp:FormDatePicker>
         </Frame>
         <Frame
             Grid.Row="0"

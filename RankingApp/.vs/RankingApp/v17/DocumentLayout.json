@@ -3,24 +3,84 @@
   "WorkspaceRootPath": "D:\\Projekti\\RankingApp\\RankingApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\rankingapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:rankingapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\tournaments.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\tournaments.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\games.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\games.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\addtournament.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\addtournament.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\addtournament.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\addtournament.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\formdatepicker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:formdatepicker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\mauiprogram.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:mauiprogram.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\addtournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\addtournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\alltournaments.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\alltournaments.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\games.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\games.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\gameviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\gameviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\rankingappsdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:rankingappsdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\tournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\tournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\playerviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\playerviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\mensranking.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\mensranking.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\tournament.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\tournament.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\allplayerranking.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\allplayerranking.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\rankingapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:rankingapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\tournaments.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\tournaments.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\allgames.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -43,36 +103,8 @@
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\tournaments.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\tournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\tournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\addtournament.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\addtournament.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\gameviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\gameviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\playerviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\playerviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\data storage\\playerrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:data storage\\playerrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -83,10 +115,6 @@
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\allplayerranking.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\allplayerranking.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\allplayerranking.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\playerdb.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\playerdb.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -95,28 +123,8 @@
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:appshell.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\mauiprogram.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:mauiprogram.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\viewmodels\\addtournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:viewmodels\\addtournamentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\tournament.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\tournament.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\rankingappsdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:rankingappsdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\models\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:models\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\views\\mensranking.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|solutionrelative:views\\mensranking.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B65DDF3F-785E-47D3-B99C-C21A375AE9A5}|RankingApp.csproj|d:\\projekti\\rankingapp\\rankingapp\\appshell.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -158,7 +166,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -169,38 +177,63 @@
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "RankingApp",
-              "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\RankingApp.csproj",
-              "RelativeDocumentMoniker": "RankingApp.csproj",
-              "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\RankingApp.csproj",
-              "RelativeToolTip": "RankingApp.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2024-11-08T11:16:45.713Z",
-              "EditorCaption": ""
-            },
-            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 2,
+              "Title": "FormDatePicker.cs",
+              "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\FormDatePicker.cs",
+              "RelativeDocumentMoniker": "FormDatePicker.cs",
+              "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\FormDatePicker.cs",
+              "RelativeToolTip": "FormDatePicker.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T20:53:46.23Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AllTournaments.xaml.cs",
+              "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AllTournaments.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\AllTournaments.xaml.cs",
+              "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AllTournaments.xaml.cs",
+              "RelativeToolTip": "Views\\AllTournaments.xaml.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAADwvzIAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-08T11:59:17.083Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "RankingApp.csproj",
+              "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\RankingApp.csproj",
+              "RelativeDocumentMoniker": "RankingApp.csproj",
+              "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\RankingApp.csproj",
+              "RelativeToolTip": "RankingApp.csproj",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAACUAAAByAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-11-08T11:16:45.713Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "GameViewModel.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\GameViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\GameViewModel.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\GameViewModel.cs",
               "RelativeToolTip": "ViewModels\\GameViewModel.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABIAAAAxAAAAAAAAAA==",
+              "ViewState": "AgIAAAoAAAAAAAAAAAA7wFEAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-07T18:53:47.409Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 27,
               "Title": "AllPlayerRanking.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AllPlayerRanking.xaml.cs",
               "RelativeDocumentMoniker": "Views\\AllPlayerRanking.xaml.cs",
@@ -212,57 +245,58 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 16,
               "Title": "AllPlayerRanking.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AllPlayerRanking.xaml",
               "RelativeDocumentMoniker": "Views\\AllPlayerRanking.xaml",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AllPlayerRanking.xaml",
               "RelativeToolTip": "Views\\AllPlayerRanking.xaml",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAACIAAAA9AAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABwAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2024-11-07T18:49:26.669Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "AddTournament.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AddTournament.xaml.cs",
               "RelativeDocumentMoniker": "Views\\AddTournament.xaml.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AddTournament.xaml.cs",
               "RelativeToolTip": "Views\\AddTournament.xaml.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAswCAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAswBsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T16:07:03.285Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 4,
               "Title": "AddTournamentViewModel.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\AddTournamentViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\AddTournamentViewModel.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\AddTournamentViewModel.cs",
               "RelativeToolTip": "ViewModels\\AddTournamentViewModel.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAC4AAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAnwFYAAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T16:04:08.023Z"
+              "WhenOpened": "2024-11-06T16:04:08.023Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 0,
               "Title": "AddTournament.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AddTournament.xaml",
               "RelativeDocumentMoniker": "Views\\AddTournament.xaml",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AddTournament.xaml",
               "RelativeToolTip": "Views\\AddTournament.xaml",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAAAEQAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2024-11-06T16:03:45.485Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 32,
               "Title": "App.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\App.xaml",
               "RelativeDocumentMoniker": "App.xaml",
@@ -274,7 +308,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 20,
               "Title": "AllGames.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AllGames.xaml.cs",
               "RelativeDocumentMoniker": "Views\\AllGames.xaml.cs",
@@ -282,12 +316,11 @@
               "RelativeToolTip": "Views\\AllGames.xaml.cs",
               "ViewState": "AgIAABQAAAAAAAAAAAAnwCcAAABAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T14:14:00.748Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-06T14:14:00.748Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 22,
               "Title": "AllGames.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\AllGames.xaml",
               "RelativeDocumentMoniker": "Views\\AllGames.xaml",
@@ -295,12 +328,11 @@
               "RelativeToolTip": "Views\\AllGames.xaml",
               "ViewState": "AgIAAB4AAAAAAAAAAAAAwDAAAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-11-06T14:13:52.192Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-06T14:13:52.192Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 21,
               "Title": "AllGamesViewModel.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\AllGamesViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\AllGamesViewModel.cs",
@@ -308,24 +340,24 @@
               "RelativeToolTip": "ViewModels\\AllGamesViewModel.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAgwDIAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T14:02:01.841Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-06T14:02:01.841Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 10,
               "Title": "DatabaseService.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Services\\DatabaseService.cs",
               "RelativeDocumentMoniker": "Services\\DatabaseService.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Services\\DatabaseService.cs",
               "RelativeToolTip": "Services\\DatabaseService.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAUwCMAAABGAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAUwCMAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-05T11:41:41.149Z"
+              "WhenOpened": "2024-11-05T11:41:41.149Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 28,
               "Title": "PlayerDB.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\PlayerDB.cs",
               "RelativeDocumentMoniker": "Models\\PlayerDB.cs",
@@ -337,7 +369,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 37,
               "Title": "RatingCalculator.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\RatingCalculator.cs",
               "RelativeDocumentMoniker": "Models\\RatingCalculator.cs",
@@ -349,7 +381,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 33,
               "Title": "AppUser.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\AppUser.cs",
               "RelativeDocumentMoniker": "Models\\AppUser.cs",
@@ -361,32 +393,32 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "Data.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\Data.cs",
               "RelativeDocumentMoniker": "Models\\Data.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\Data.cs",
               "RelativeToolTip": "Models\\Data.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAAAAwAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAAA0AAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-04T11:03:37.61Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-04T11:03:37.61Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 9,
               "Title": "RankingAppsDatabase.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\RankingAppsDatabase.cs",
               "RelativeDocumentMoniker": "RankingAppsDatabase.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\RankingAppsDatabase.cs",
               "RelativeToolTip": "RankingAppsDatabase.cs",
-              "ViewState": "AgIAAEYAAAAAAAAAAAAxwEwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADwAAAAAAAAAAAAIwEwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-01T11:30:52.155Z"
+              "WhenOpened": "2024-11-01T11:30:52.155Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 38,
               "Title": "TournamentHistory.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\TournamentHistory.cs",
               "RelativeDocumentMoniker": "Models\\TournamentHistory.cs",
@@ -398,7 +430,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 36,
               "Title": "Constants.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Constants.cs",
               "RelativeDocumentMoniker": "Constants.cs",
@@ -410,7 +442,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 31,
               "Title": "AppShell.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\AppShell.xaml",
               "RelativeDocumentMoniker": "AppShell.xaml",
@@ -422,7 +454,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 24,
               "Title": "Tournaments.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\Tournaments.xaml",
               "RelativeDocumentMoniker": "Views\\Tournaments.xaml",
@@ -430,12 +462,11 @@
               "RelativeToolTip": "Views\\Tournaments.xaml",
               "ViewState": "AgIAAC0AAAAAAAAAAAAAAEMAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-10-31T14:24:27.015Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-31T14:24:27.015Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 19,
               "Title": "Tournaments.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\Tournaments.xaml.cs",
               "RelativeDocumentMoniker": "Views\\Tournaments.xaml.cs",
@@ -443,12 +474,11 @@
               "RelativeToolTip": "Views\\Tournaments.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAqwBoAAABjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-30T14:49:16.908Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-30T14:49:16.908Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 29,
               "Title": "AppShell.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\AppShell.xaml.cs",
               "RelativeDocumentMoniker": "AppShell.xaml.cs",
@@ -460,7 +490,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 23,
               "Title": "Games.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\Games.xaml",
               "RelativeDocumentMoniker": "Views\\Games.xaml",
@@ -468,63 +498,62 @@
               "RelativeToolTip": "Views\\Games.xaml",
               "ViewState": "AgIAAD4AAAAAAAAAAAAowFcAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-10-30T14:27:15.726Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-30T14:27:15.726Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "TournamentViewModel.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\TournamentViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\TournamentViewModel.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\TournamentViewModel.cs",
               "RelativeToolTip": "ViewModels\\TournamentViewModel.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAB0AAAA/AAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAADwvx0AAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-30T12:13:54.073Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 7,
               "Title": "Games.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\Games.xaml.cs",
               "RelativeDocumentMoniker": "Views\\Games.xaml.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\Games.xaml.cs",
               "RelativeToolTip": "Views\\Games.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACkAAAAAAAAAAAAuwCwAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-29T14:24:29.143Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 15,
               "Title": "Tournament.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\Tournament.cs",
               "RelativeDocumentMoniker": "Models\\Tournament.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\Tournament.cs",
               "RelativeToolTip": "Models\\Tournament.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-29T12:04:32.257Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 5,
               "Title": "Game.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\Game.cs",
               "RelativeDocumentMoniker": "Models\\Game.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\Game.cs",
               "RelativeToolTip": "Models\\Game.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAA8wBwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-29T11:59:51.368Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 17,
               "Title": "HomePage.xaml",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\HomePage.xaml",
               "RelativeDocumentMoniker": "Views\\HomePage.xaml",
@@ -532,12 +561,11 @@
               "RelativeToolTip": "Views\\HomePage.xaml",
               "ViewState": "AgIAAFQAAAAAAAAAAAAAAG8AAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-10-30T13:24:31.646Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-30T13:24:31.646Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 30,
               "Title": "Player.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Models\\Player.cs",
               "RelativeDocumentMoniker": "Models\\Player.cs",
@@ -549,7 +577,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 25,
               "Title": "PlayerRepository.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Data Storage\\PlayerRepository.cs",
               "RelativeDocumentMoniker": "Data Storage\\PlayerRepository.cs",
@@ -561,7 +589,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 34,
               "Title": "WomensRanking.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\WomensRanking.xaml.cs",
               "RelativeDocumentMoniker": "Views\\WomensRanking.xaml.cs",
@@ -573,19 +601,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 13,
               "Title": "MensRanking.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\MensRanking.xaml.cs",
               "RelativeDocumentMoniker": "Views\\MensRanking.xaml.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\MensRanking.xaml.cs",
               "RelativeToolTip": "Views\\MensRanking.xaml.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAcwB4AAABEAAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAcwBgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-26T17:22:39.935Z"
+              "WhenOpened": "2024-10-26T17:22:39.935Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 26,
               "Title": "HomePage.xaml.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Views\\HomePage.xaml.cs",
               "RelativeDocumentMoniker": "Views\\HomePage.xaml.cs",
@@ -597,19 +626,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 12,
               "Title": "PlayerViewModel.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\PlayerViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\PlayerViewModel.cs",
               "ToolTip": "D:\\Projekti\\RankingApp\\RankingApp\\ViewModels\\PlayerViewModel.cs",
               "RelativeToolTip": "ViewModels\\PlayerViewModel.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAFkAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAIwDsAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-26T16:22:30.579Z"
+              "WhenOpened": "2024-10-26T16:22:30.579Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 3,
               "Title": "MauiProgram.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\MauiProgram.cs",
               "RelativeDocumentMoniker": "MauiProgram.cs",
@@ -617,11 +647,12 @@
               "RelativeToolTip": "MauiProgram.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAAswCMAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-26T16:18:17.453Z"
+              "WhenOpened": "2024-10-26T16:18:17.453Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 35,
               "Title": "PlayerService.cs",
               "DocumentMoniker": "D:\\Projekti\\RankingApp\\RankingApp\\Services\\PlayerService.cs",
               "RelativeDocumentMoniker": "Services\\PlayerService.cs",

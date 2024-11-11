@@ -26,21 +26,21 @@ namespace RankingApp.ViewModels
             var players = await _databaseService.GetPlayersAsync();
             MensList = players
                 .Where(x => x.Gender == "male")
-                .OrderByDescending(x => x.PointsWithBonus)
+                .OrderBy(x => x.Place)
                 .ToList();
 
             Mens = new ObservableCollection<PlayerDB>(MensList);
 
             WomensList = players
                 .Where(x => x.Gender == "female")
-                .OrderByDescending(x => x.PointsWithBonus)
+                .OrderBy(x => x.Place)
                 .ToList();
 
             Womens = new ObservableCollection<PlayerDB>(WomensList);
 
             PlayersList = players
                 .Where(x=>x.OverallPlace != 0)
-                .OrderByDescending(x=>x.PointsWithBonus)
+                .OrderBy(x=>x.OverallPlace)
                 .ToList();
 
             Players = new ObservableCollection<PlayerDB>(PlayersList);
@@ -54,7 +54,9 @@ namespace RankingApp.ViewModels
                 .Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
                              x.Name.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
                             (!string.IsNullOrWhiteSpace(x.Surname) &&
-                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
+                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.Place.ToString()) &&
+                            x.Place.ToString().StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
             return searchedPlayers;
@@ -65,7 +67,7 @@ namespace RankingApp.ViewModels
             var players = await _databaseService.GetPlayersAsync();
             var list = players
                 .Where(x => x.Gender == "male")
-                .OrderByDescending(x => x.PointsWithBonus)
+                .OrderBy(x => x.Place)
                 .ToList();
 
             return list;
@@ -76,7 +78,7 @@ namespace RankingApp.ViewModels
             var players = await _databaseService.GetPlayersAsync();
             var list = players
                 .Where(x => x.Gender == "female")
-                .OrderByDescending(x => x.PointsWithBonus)
+                .OrderBy(x => x.Place)
                 .ToList();
 
             return list;
@@ -87,7 +89,7 @@ namespace RankingApp.ViewModels
             var players = await _databaseService.GetPlayersAsync();
             var list = players
                 .Where(x => x.OverallPlace != 0)
-                .OrderByDescending(x => x.PointsWithBonus)
+                .OrderBy(x => x.OverallPlace)
                 .ToList();
 
             return list;

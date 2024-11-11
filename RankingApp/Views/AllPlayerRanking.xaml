@@ -6,7 +6,7 @@
              x:DataType="viewmodel:PlayerViewModel"
              x:Class="RankingApp.Views.AllPlayerRanking"
              Title="Players Ranking">
-    <StackLayout BackgroundColor="SeaGreen">
+    <StackLayout BackgroundColor="LightGrey">
         <Label 
             Text="Players Ranking" 
             FontSize="Title" 
@@ -26,7 +26,7 @@
         <ListView 
             x:Name="ListViewPlayers"
             ItemsSource="{Binding Players}"
-            BackgroundColor="SeaGreen">
+            BackgroundColor="LightGrey">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:PlayerDB">
                     <ViewCell>

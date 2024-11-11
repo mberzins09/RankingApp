@@ -55,7 +55,7 @@ public partial class Games : ContentPage
             _viewModel.MySets = int.Parse(entryMySets.Text);
             _viewModel.OpponentSets = int.Parse(entryOpponentSets.Text);
             LabelRatingDifference.Text = RatingCalculator.Calculate(
-                _viewModel.MyPoints,
+                Data.TournamentPlayerPoints,
                 _viewModel.GameOpponentPoints,
                 _viewModel.MySets > _viewModel.OpponentSets,
                 Data.Coefficient).ToString();

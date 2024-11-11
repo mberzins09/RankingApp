@@ -1,0 +1,96 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.MvvmToolkitEnableINotifyPropertyChangingSupport = true
+build_property.TargetFramework = net8.0-ios
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = RankingApp
+build_property.ProjectDir = D:\Projekti\RankingApp\RankingApp\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+
+[D:/Projekti/RankingApp/RankingApp/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[D:/Projekti/RankingApp/RankingApp/AppShell.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.AppShell.xaml
+build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
+build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Resources/Styles/Styles.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Resources.Styles.Styles.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/AddTournament.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.AddTournament.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\AddTournament.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\AddTournament.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/AllGames.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.AllGames.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\AllGames.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\AllGames.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/AllPlayerRanking.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.AllPlayerRanking.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\AllPlayerRanking.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\AllPlayerRanking.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/AllTournaments.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.AllTournaments.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\AllTournaments.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\AllTournaments.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/Games.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.Games.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Games.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Games.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/HomePage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.HomePage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\HomePage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\HomePage.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/MensRanking.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.MensRanking.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\MensRanking.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\MensRanking.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/Tournaments.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.Tournaments.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Tournaments.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Tournaments.xaml
+
+[D:/Projekti/RankingApp/RankingApp/Views/WomensRanking.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.WomensRanking.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\WomensRanking.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\WomensRanking.xaml

@@ -14,6 +14,7 @@ namespace RankingApp.Models
         public string TournamentPlayerSurname { get; set; }
         public int TournamentPlayerPoints { get; set; }
         public int PointsDifference { get; set; }
+        public int TournamentPlayerId { get; set; }
         public string TournamentDisplay => 
             $"{TournamentPlayerName} {TournamentPlayerSurname} - {DateToString} : {PointsDifference}";
     }

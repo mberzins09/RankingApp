@@ -11,5 +11,6 @@ namespace RankingApp.Models
         public static string TournamentPlayerName { get; set; }
         public static string TournamentPlayerSurname { get; set; }
         public static int TournamentPlayerPoints { get; set; }
+        public static int TournamentPlayerId { get; set; }
     }
 }

@@ -51,9 +51,7 @@ namespace RankingApp.ViewModels
             var players = await _databaseService.GetPlayersAsync();
             PlayerList = players
                 .Where(x=>
-                    x.Name != Data.TournamentPlayerName && 
-                    x.Surname != Data.TournamentPlayerSurname &&
-                    x.Points != Data.TournamentPlayerPoints)
+                    x.Id != Data.TournamentPlayerId)
                 .OrderByDescending(x => x.PointsWithBonus)
                 .ToList();
 
@@ -67,9 +65,7 @@ namespace RankingApp.ViewModels
             var players = await _databaseService.GetPlayersAsync();
             var list = players
                 .Where(x =>
-                    x.Name != Data.TournamentPlayerName &&
-                    x.Surname != Data.TournamentPlayerSurname &&
-                    x.Points != Data.TournamentPlayerPoints)
+                    x.Id != Data.TournamentPlayerId)
                 .OrderByDescending(x => x.PointsWithBonus)
                 .ToList();
 
@@ -81,7 +77,9 @@ namespace RankingApp.ViewModels
                 .Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
                              x.Name.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
                             (!string.IsNullOrWhiteSpace(x.Surname) &&
-                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
+                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.Place.ToString()) &&
+                             x.Place.ToString().StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
             return searchedPlayers;

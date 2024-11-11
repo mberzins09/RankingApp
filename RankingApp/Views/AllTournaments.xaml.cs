@@ -45,9 +45,10 @@ public partial class AllTournaments : ContentPage
             Data.TournamentPlayerName = tournament.TournamentPlayerName;
             Data.TournamentPlayerSurname = tournament.TournamentPlayerSurname;
             Data.TournamentPlayerPoints = tournament.TournamentPlayerPoints;
+            Data.TournamentPlayerId = tournament.TournamentPlayerId;
         }
 
-        Shell.Current.GoToAsync(nameof(Tournaments));
+        Shell.Current.GoToAsync(nameof(AddTournament));
     }
 
     private async void MenuItem_OnClicked(object? sender, EventArgs e)
