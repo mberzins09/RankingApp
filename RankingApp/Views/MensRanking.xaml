@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:RankingApp.Models"
+             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             x:DataType="viewmodel:PlayerViewModel"
+             x:Class="RankingApp.Views.MensRanking"
+             Title="MensRanking">
+    <StackLayout BackgroundColor="SeaGreen">
+        <Label 
+            Text="Mens Ranking" 
+            FontSize="Title" 
+            TextColor="White"
+            HorizontalOptions="Center"/>
+        <Label 
+            Text="Place Name Surname Points PointsWithBonus" 
+            FontSize="16" 
+            TextColor="White"
+            HorizontalOptions="Center"/>
+        <SearchBar
+            x:Name="MensSearchBar"
+            Placeholder="Search Player"
+            TextChanged="MensSearchBar_OnTextChanged"
+            BackgroundColor="Blue"
+            TextColor="OrangeRed"></SearchBar>
+        <ListView 
+            x:Name="Mens"
+            ItemsSource="{Binding Mens}"
+            BackgroundColor="SeaGreen">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:PlayerDB">
+                    <ViewCell>
+                        <HorizontalStackLayout Spacing="10" Padding="5">
+                            <Label 
+                                Text ="{Binding Display}" 
+                                TextColor="Black"
+                                FontSize="18"
+                                FontAttributes="Bold"
+                                VerticalTextAlignment="Center"
+                                HorizontalTextAlignment="Center"></Label>
+                                <Label 
+                                    Text ="{Binding Points}" 
+                                    TextColor="Black"
+                                    FontSize="16"
+                                    VerticalTextAlignment="Center"
+                                    HorizontalTextAlignment="Center"></Label>
+                                <Label 
+                                    Text ="{Binding PointsWithBonus}" 
+                                    TextColor="Black"
+                                    FontSize="16"
+                                    VerticalTextAlignment="Center"
+                                    HorizontalTextAlignment="Center"></Label>
+                        </HorizontalStackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:model="using:RankingApp.Models"
+             xmlns:rankingApp="using:RankingApp"
+             x:DataType="viewmodel:AddTournamentViewModel"
+             x:Class="RankingApp.Views.AddTournament"
+             Title="Tournament Details">
+    <Grid
+        RowDefinitions="50,50,50,*,50"
+        ColumnDefinitions="150,*"
+        BackgroundColor="LightSkyBlue"> 
+        <Frame
+            Grid.Row="2"
+            Grid.Column="0"
+            BackgroundColor="Brown"
+            Padding="0"
+            >
+            <rankingApp:FormDatePicker 
+                BackgroundColor="Brown"
+                x:Name="PickerTournamentDate"
+                MinimumDate="01/01/2000"
+                MaximumDate="01/01/2200"
+                DateSelected="TournamentDate_OnDateSelected">
+            </rankingApp:FormDatePicker>
+        </Frame>
+        <Frame
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Padding="0"
+            BackgroundColor="Brown">
+            <Entry 
+                x:Name="EntryTournamentName" 
+                Placeholder="Name"
+                TextChanged="EntryTournamentName_OnTextChanged"
+                BackgroundColor="Brown"
+                FontSize="12"
+                TextColor="Black"
+                PlaceholderColor="Black"
+                ></Entry>
+        </Frame>
+        <Frame
+            Grid.Row="1"
+            Grid.Column="0"
+            Padding="0">
+            <Entry 
+                BackgroundColor="Gray"
+                FontSize="12"
+                TextColor="Black"
+                PlaceholderColor="Black"
+                x:Name="EntryTournamentCoefficient" 
+                Placeholder="Coefficient"
+                Keyboard="Numeric"
+                TextChanged="EntryTournamentCoefficient_OnTextChanged"></Entry>
+        </Frame>
+        <Frame
+            Grid.Row="1"
+            Grid.Column="1"
+            Padding="0">
+            <SearchBar
+                BackgroundColor="Gray"
+                FontSize="12"
+                TextColor="Black"
+                PlaceholderColor="Black"
+                x:Name="TournamentPlayerSearchBar"
+                Placeholder="Search Player"
+                TextChanged="TournamentPlayerSearchBar_OnTextChanged"
+            ></SearchBar>
+        </Frame>
+        <ListView 
+            Grid.Row="2"
+            Grid.Column="1"
+            Grid.RowSpan="3"
+            x:Name ="AllPlayers" 
+            BackgroundColor="Transparent"
+            SeparatorColor="White"
+            ItemsSource="{Binding Players}"
+            ItemSelected="AllPlayers_OnItemSelected">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:PlayerDB">
+                    <TextCell 
+                        x:Name="PlayerFromList"
+                        TextColor="Black"
+                        Text ="{Binding Display}"
+                        Detail ="{Binding PointsWithBonus}">
+                    </TextCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
+        <Button
+            Grid.Row="4"
+            Grid.Column="0"
+            Text="Save"
+            x:Name="ButtonAdd"
+            Clicked="ButtonAdd_OnClicked">
+        </Button>
+    </Grid>
+</ContentPage>
