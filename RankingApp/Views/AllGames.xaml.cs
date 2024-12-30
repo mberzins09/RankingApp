@@ -17,9 +17,8 @@ public partial class AllGames : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
+        await _viewModel.LoadDataAsync();
         GamesSearchBar.Text = String.Empty;
-        ListViewGames.ItemsSource = await _viewModel.GetGames();
     }
 
     private void GamesSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
@@ -35,8 +34,15 @@ public partial class AllGames : ContentPage
     private async void MenuItem_OnClicked(object? sender, EventArgs e)
     {
         var menuItem = sender as MenuItem;
-        var game = menuItem.CommandParameter as Game;
-        await _viewModel.DeleteGame(game);
+        if (menuItem != null) 
+        {
+            var game = menuItem.CommandParameter as Game;
+            if (game != null)
+            {
+                await _viewModel.DeleteGame(game);
+            }
+        }
+
         ListViewGames.ItemsSource = await _viewModel.GetGames();
     }
 }

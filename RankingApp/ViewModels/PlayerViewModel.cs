@@ -4,47 +4,28 @@ using RankingApp.Services;
 
 namespace RankingApp.ViewModels
 {
-    public class PlayerViewModel : BaseViewModel
+    public class PlayerViewModel(DatabaseService databaseService) : BaseViewModel
     {
-        private readonly DatabaseService _databaseService;
+        private readonly DatabaseService _databaseService = databaseService;
 
-        public PlayerViewModel(DatabaseService databaseService)
-        {
-            _databaseService = databaseService;
-            _ = LoadPlayersAsyncFromDatabase();
-        }
-
-        public ObservableCollection<PlayerDB> Mens { get; set; }
-        public ObservableCollection<PlayerDB> Womens { get; set; }
-        public ObservableCollection<PlayerDB> Players { get; set; }
-        public List<PlayerDB> MensList { get; set; } = new List<PlayerDB>();
-        public List<PlayerDB> WomensList { get; set; } = new List<PlayerDB>();
-        public List<PlayerDB> PlayersList { get; set; } = new List<PlayerDB>();
-
-        private async Task LoadPlayersAsyncFromDatabase()
+        public ObservableCollection<PlayerDB>? Mens { get; set; }
+        public ObservableCollection<PlayerDB>? Womens { get; set; }
+        public ObservableCollection<PlayerDB>? Players { get; set; }
+        public async Task LoadPlayersAsyncFromDatabase()
         {
             var players = await _databaseService.GetPlayersAsync();
-            MensList = players
-                .Where(x => x.Gender == "male")
-                .OrderBy(x => x.Place)
-                .ToList();
-
-            Mens = new ObservableCollection<PlayerDB>(MensList);
-
-            WomensList = players
-                .Where(x => x.Gender == "female")
-                .OrderBy(x => x.Place)
-                .ToList();
-
-            Womens = new ObservableCollection<PlayerDB>(WomensList);
-
-            PlayersList = players
-                .Where(x=>x.OverallPlace != 0)
-                .OrderBy(x=>x.OverallPlace)
-                .ToList();
-
-            Players = new ObservableCollection<PlayerDB>(PlayersList);
-
+            Mens = new ObservableCollection<PlayerDB>(players
+                                                        .Where(x => x.Gender == "male")
+                                                        .OrderBy(x => x.Place)
+                                                        .ToList());
+            Womens = new ObservableCollection<PlayerDB>(players
+                                                        .Where(x => x.Gender == "female")
+                                                        .OrderBy(x => x.Place)
+                                                        .ToList());
+            Players = new ObservableCollection<PlayerDB>(players
+                                                        .Where(x => x.OverallPlace != 0)
+                                                        .OrderBy(x => x.OverallPlace)
+                                                        .ToList());
             OnPropertyChanged();
         }
 
@@ -57,6 +38,20 @@ namespace RankingApp.ViewModels
                              x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
                             (!string.IsNullOrWhiteSpace(x.Place.ToString()) &&
                             x.Place.ToString().StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            return searchedPlayers;
+        }
+
+        public List<PlayerDB> SearchPlayersAllRanking(List<PlayerDB> players, string filterText)
+        {
+            var searchedPlayers = players
+                .Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
+                             x.Name.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.Surname) &&
+                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.OverallPlace.ToString()) &&
+                             x.OverallPlace.ToString().StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
             return searchedPlayers;

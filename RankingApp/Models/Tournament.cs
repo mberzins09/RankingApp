@@ -6,7 +6,7 @@ namespace RankingApp.Models
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-        public float Coefficient { get; set; }
+        public string Coefficient { get; set; }
         public string Name { get; set; }
         public DateTime Date { get; set; }
         public string DateToString => Date.ToString("d MMM yyyy");

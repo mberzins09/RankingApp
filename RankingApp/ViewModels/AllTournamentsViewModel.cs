@@ -3,19 +3,13 @@ using RankingApp.Models;
 
 namespace RankingApp.ViewModels;
 
-public class AllTournamentsViewModel : BaseViewModel
+public class AllTournamentsViewModel(RankingAppsDatabase database) : BaseViewModel
 {
-    private readonly RankingAppsDatabase _database;
-    public ObservableCollection<Tournament> Tournaments { get; set; }
+    private readonly RankingAppsDatabase _database = database;
+    public ObservableCollection<Tournament>? Tournaments { get; set; }
     public List<Tournament> TournamentsList { get; set; } = new List<Tournament>();
 
-    public AllTournamentsViewModel(RankingAppsDatabase database)
-	{
-        _database = database;
-        _ = LoadTournamentsAsync();
-    }
-
-    public async Task LoadTournamentsAsync()
+    public async Task LoadDataAsync()
     {
         var tournaments = await _database.GetTournamentsAsync();
         TournamentsList = tournaments.OrderByDescending(x => x.Date).ToList();

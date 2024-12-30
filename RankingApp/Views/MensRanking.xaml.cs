@@ -17,18 +17,16 @@ public partial class MensRanking : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
+        await _viewModel.LoadPlayersAsyncFromDatabase();
         MensSearchBar.Text = String.Empty;
-
-        Mens.ItemsSource = await _viewModel.GetMenPlayers();
     }
 
-    private void MensSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
+    private async void MensSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
         var search = sender == null ? String.Empty : ((SearchBar)sender).Text;
-
+        var list = await _viewModel.GetMenPlayers();
         var players = new ObservableCollection<PlayerDB>
-            (_viewModel.SearchPlayers(_viewModel.MensList, search));
+            (_viewModel.SearchPlayers(list, search));
 
         Mens.ItemsSource = players;
     }

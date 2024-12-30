@@ -19,18 +19,29 @@ public partial class Tournaments : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadTournamentDifference();
         await _viewModel.LoadGamesAsync();
-        LabelTournamentDate.Text = Data.TournamentDate.ToString("d MMM yyyy");
-        LabelTournamentCoefficient.Text = Data.Coefficient.ToString();
-        LabelTournamentName.Text = Data.TournamentName;
-        LabelTournamentPlayer.Text = $"{Data.TournamentPlayerName} {Data.TournamentPlayerSurname}";
-        LabelPointsDifference.Text = _viewModel.TournamentDifference.ToString();
+        ListViewTournamentGames.ItemsSource = _viewModel.Games;
+        LabelTournamentDate.Text = _viewModel.Tournament.Date.ToString("d MMM yyyy");
+        LabelTournamentCoefficient.Text = _viewModel.Tournament.Coefficient;
+        LabelTournamentName.Text = _viewModel.Tournament.Name;
+        LabelTournamentPlayer.Text = $"{_viewModel.Tournament.TournamentPlayerName} {_viewModel.Tournament.TournamentPlayerSurname}";
+        LabelPointsDifference.Text = _viewModel.Tournament.PointsDifference.ToString();
     }
 
     private async void BtnAddGame_OnClicked(object? sender, EventArgs e)
     {
-        var game = new Models.Game();
+        var game = new Game()
+        {
+            MyName = _viewModel.Tournament.TournamentPlayerName,
+            MySurname = _viewModel.Tournament.TournamentPlayerSurname,
+            MyPoints = _viewModel.Tournament.TournamentPlayerPoints,
+            GameCoefficient = _viewModel.Tournament.Coefficient,
+            TournamentDate = _viewModel.Tournament.Date,
+            IsOpponentForeign = false,
+            OpponentPoints = 0,
+            TournamentId = _viewModel.Tournament.Id,
+            TournamentName = _viewModel.Tournament.Name
+        };
         await _database.SaveGameAsync(game);
         Data.GameId = game.Id;
         await Shell.Current.GoToAsync(nameof(Games));
@@ -45,10 +56,26 @@ public partial class Tournaments : ContentPage
     private async void MenuItem_OnClicked(object? sender, EventArgs e)
     {
         var menuItem = sender as MenuItem;
-        var game = menuItem.CommandParameter as Game;
-        await _database.DeleteGameAsync(game);
+        if (menuItem != null) 
+        {
+            var game = menuItem.CommandParameter as Game;
+            if (game != null) 
+            {
+                await _database.DeleteGameAsync(game);
+            }
+        }
+
         await _viewModel.LoadGamesAsync();
-        await _viewModel.LoadTournamentDifference();
-        LabelPointsDifference.Text = _viewModel.TournamentDifference.ToString();
+        ListViewTournamentGames.ItemsSource = _viewModel.Games;
+        LabelPointsDifference.Text = _viewModel.Tournament.PointsDifference.ToString();
+    }
+
+    private async void ListViewTournamentGames_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+    {
+        var game = ListViewTournamentGames.SelectedItem as Game;
+        if (game != null) { 
+        Data.GameId = game.Id;
+        }
+        await Shell.Current.GoToAsync(nameof(Games));
     }
 }

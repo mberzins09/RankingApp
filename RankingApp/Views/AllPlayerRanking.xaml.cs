@@ -17,19 +17,15 @@ public partial class AllPlayerRanking : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
+        await _viewModel.LoadPlayersAsyncFromDatabase();
         AllPlayerSearchBar.Text = String.Empty;
-
-        ListViewPlayers.ItemsSource = await _viewModel.GetAllPlayers();
     }
 
-    private void AllPlayerSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
+    private async void AllPlayerSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
         var search = sender == null ? String.Empty : ((SearchBar)sender).Text;
-
-        var players = new ObservableCollection<PlayerDB>
-            (_viewModel.SearchPlayers(_viewModel.PlayersList, search));
-
+        var list = await _viewModel.GetAllPlayers();
+        var players = new ObservableCollection<PlayerDB>(_viewModel.SearchPlayersAllRanking(list, search));
         ListViewPlayers.ItemsSource = players;
     }
 }

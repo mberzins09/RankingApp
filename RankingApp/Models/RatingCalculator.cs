@@ -2,10 +2,38 @@
 {
     public static class RatingCalculator
     {
-        public static int Calculate(int MyPoints, int OppPoints, bool isWin, float coef)
+        public static int Calculate(int MyPoints, int OppPoints, bool isWin, string c)
         {
             int rD = 0;
             int pD = MyPoints - OppPoints;
+            float coef;
+            switch (c)
+            {
+                case "0":
+                    coef = (float)0;
+                    break;
+                case "0.25":
+                    coef = 0.25f;
+                    break;
+                case "0.5":
+                    coef = 0.5f;
+                    break;
+                case "1":
+                    coef = (float)1;
+                    break;
+                case "1.5":
+                    coef = 1.5f;
+                    break;
+                case "2":
+                    coef = (float)2;
+                    break;
+                case "4":
+                    coef = (float)4;
+                    break;
+                default:
+                    coef = (float)0;
+                    break;
+            }
             
             if (isWin)
             {

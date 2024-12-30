@@ -1,7 +1,6 @@
 using RankingApp.ViewModels;
 using System.Collections.ObjectModel;
 using RankingApp.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace RankingApp.Views;
 
@@ -18,10 +17,81 @@ public partial class Games : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await _viewModel.LoadDataAsync();
+        if (_viewModel.Game != null) 
+        {
+            LabelOpponentName.Text = _viewModel.Game.Name;
+            LabelOpponentSurname.Text = _viewModel.Game.Surname;
+            LabelMyName.Text = _viewModel.Game.MyName;
+            LabelMySurname.Text = _viewModel.Game.MySurname;
+            LabelMySets.Text = _viewModel.Game.MySets.ToString();
+            LabelOpponentSets.Text = _viewModel.Game.OpponentSets.ToString();
+            UpdateRatingDifference();
+            if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null || _viewModel.Game.Name == null)
+            {
+                LabelRatingDifference.Text = "0";
+            }
+        }
 
         PlayerSearchBar.Text = String.Empty;
-
         ListPlayers.ItemsSource = await _viewModel.GetPlayers();
+        
+    }
+
+    private async void RadioButtonMy_CheckedChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        if (e.Value && sender is RadioButton radioButton)
+        {
+            _viewModel.Game.MySets = int.Parse(radioButton.Content.ToString() ?? "0");
+            LabelMySets.Text = _viewModel.Game.MySets.ToString();
+            UpdateRatingDifference();
+            if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null || _viewModel.Game.Name == null)
+            {
+                LabelRatingDifference.Text = "0";
+            }
+            await _viewModel.SaveGameAsync();
+        }
+    }
+
+    private async void RadioButtonOp_CheckedChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        if (e.Value && sender is RadioButton radioButton)
+        {
+            _viewModel.Game.OpponentSets = int.Parse(radioButton.Content.ToString() ?? "0");
+            LabelOpponentSets.Text = _viewModel.Game.OpponentSets.ToString();
+            UpdateRatingDifference();
+            if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null || _viewModel.Game.Name == null)
+            {
+                LabelRatingDifference.Text = "0";
+            }
+            await _viewModel.SaveGameAsync();
+        }
+    }
+
+    private async void RadioButtonIsForeign_Checked(object? sender, CheckedChangedEventArgs e)
+    {
+        if (e.Value && sender is RadioButton radioButton)
+        {
+            _viewModel.Game.IsOpponentForeign = radioButton.Content.ToString() == "Yes" ? true : false;
+            UpdateRatingDifference();
+            await _viewModel.SaveGameAsync();
+        }
+    }
+
+    private void UpdateRatingDifference()
+    {
+        if (!_viewModel.Game.IsOpponentForeign)
+        {
+            LabelRatingDifference.Text = RatingCalculator.Calculate(
+                _viewModel.Game.MyPoints,
+                _viewModel.Game.OpponentPoints,
+                _viewModel.Game.MySets > _viewModel.Game.OpponentSets,
+                _viewModel.Game.GameCoefficient).ToString();
+        }
+        else
+        {
+            LabelRatingDifference.Text = "0";
+        }
     }
 
     private void PlayerSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
@@ -40,59 +110,36 @@ public partial class Games : ContentPage
         await Shell.Current.GoToAsync(nameof(Tournaments));
     }
 
-    private void EntrySets_OnTextChanged(object? sender, TextChangedEventArgs e)
+    private async void ListPlayers_OnItemSelected(object? sender, SelectedItemChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(entryMySets.Text))
+        var opponent = ListPlayers.SelectedItem as PlayerDB;
+
+        if (opponent != null)
         {
-            _viewModel.MySets = 0;
+            _viewModel.Game.Name = opponent.Name;
+            _viewModel.Game.Surname = opponent.Surname;
+            _viewModel.Game.OpponentPoints = opponent.Points;
+            UpdateRatingDifference();
+            if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null)
+            {
+                LabelRatingDifference.Text = "0";
+            }
+            await _viewModel.SaveGameAsync();
         }
-        if (string.IsNullOrEmpty(entryOpponentSets.Text))
-        {
-            _viewModel.OpponentSets = 0;
-        }
-        else
-        {
-            _viewModel.MySets = int.Parse(entryMySets.Text);
-            _viewModel.OpponentSets = int.Parse(entryOpponentSets.Text);
-            LabelRatingDifference.Text = RatingCalculator.Calculate(
-                Data.TournamentPlayerPoints,
-                _viewModel.GameOpponentPoints,
-                _viewModel.MySets > _viewModel.OpponentSets,
-                Data.Coefficient).ToString();
-        }
+
+        LabelOpponentName.Text = _viewModel.Game.Name;
+        LabelOpponentSurname.Text = _viewModel.Game.Surname;
     }
 
-    private void ListPlayers_OnItemSelected(object? sender, SelectedItemChangedEventArgs e)
+    private async void EntryOppName_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        _viewModel.OpponentDb = ListPlayers.SelectedItem as PlayerDB;
-        var opponent = _viewModel.OpponentDb;
+        _viewModel.Game.Name = EntryOpponentName.Text;
+        _viewModel.Game.Surname = EntryOpponentSurname.Text;
+        _viewModel.Game.OpponentPoints = 0;
 
-        _viewModel.OpponentName = opponent.Name;
-        _viewModel.OpponentSurname = opponent.Surname;
-        _viewModel.GameOpponentPoints = opponent.Points;
-        _viewModel.MySets = 0;
-        _viewModel.OpponentSets = 0;
-        labelSelectedOpponent.Text = $"{_viewModel.OpponentName} {_viewModel.OpponentSurname}";
+        await _viewModel.SaveGameAsync();
 
-        _viewModel.OpponentDb = null;
-    }
-
-    private void EntryOppName_OnTextChanged(object? sender, TextChangedEventArgs e)
-    {
-            if (string.IsNullOrEmpty(EntryOppName.Text))
-            {
-                _viewModel.OpponentName = String.Empty;
-            }
-            if (string.IsNullOrEmpty(EntryOppSurname.Text))
-            {
-                _viewModel.OpponentSurname = String.Empty;
-            }
-
-            _viewModel.OpponentName = EntryOppName.Text;
-            _viewModel.OpponentSurname = EntryOppSurname.Text;
-            _viewModel.MySets = 0;
-            _viewModel.OpponentSets = 0;
-            _viewModel.GameOpponentPoints = 0;
-            labelSelectedOpponent.Text = $"{_viewModel.OpponentName} {_viewModel.OpponentSurname}";
+        LabelOpponentName.Text = _viewModel.Game.Name;
+        LabelOpponentSurname.Text = _viewModel.Game.Surname;
     }
 }

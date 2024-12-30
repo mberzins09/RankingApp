@@ -9,7 +9,7 @@ namespace RankingApp.Services
 
         public DatabaseService()
         {
-            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "Players.db3");
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "AllP.db3");
             _database = new SQLiteAsyncConnection(dbPath);
 
             _database.CreateTableAsync<PlayerDB>().Wait();
@@ -18,6 +18,13 @@ namespace RankingApp.Services
         public async Task<List<PlayerDB>> GetPlayersAsync()
         {
             return await _database.Table<PlayerDB>().ToListAsync();
+        }
+
+        public async Task<PlayerDB> GetPlayerAsync(int id)
+        {
+            var player = await _database.Table<PlayerDB>().Where(x => x.Id == id).FirstOrDefaultAsync();
+
+            return player;
         }
 
         public async Task UpsertPlayersAsync(List<PlayerDB> players)

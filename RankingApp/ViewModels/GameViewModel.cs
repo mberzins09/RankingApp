@@ -4,54 +4,23 @@ using RankingApp.Services;
 
 namespace RankingApp.ViewModels
 {
-    public class GameViewModel : BaseViewModel
+    public class GameViewModel(DatabaseService databaseService, RankingAppsDatabase database) : BaseViewModel
     {
-        private readonly DatabaseService _databaseService;
-        private readonly RankingAppsDatabase _database;
-        public ObservableCollection<PlayerDB> Players { get; set; }
+        private readonly DatabaseService _databaseService = databaseService;
+        private readonly RankingAppsDatabase _database = database;
+        public ObservableCollection<PlayerDB>? Players { get; set; }
         public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
-        public string OpponentName { get; set; }
-        public string OpponentSurname { get; set; }
-        public int GameOpponentPoints { get; set; }
-        public int MySets { get; set; }
-        public int OpponentSets { get; set; }
-        public int MyPoints { get; set; }
-        public PlayerDB? OpponentDb { get; set; }
+        public bool IsOpponentForeign { get; set; }
+        public required Game Game { get; set; }
 
-        public GameViewModel(DatabaseService databaseService, RankingAppsDatabase database)
+        public async Task LoadDataAsync()
         {
-            _database = database;
-            _databaseService = databaseService;
-            MyPoints = Data.TournamentPlayerPoints == null ? 0 : Data.TournamentPlayerPoints;
-            _ = LoadPlayersAsync();
-        }
-
-        public async Task SaveGameAsync()
-        {
-            var gameId = Data.GameId;
-            var game = await _database.GetGameAsync(gameId);
-            game.TournamentId = Data.TournamentId;
-            game.GameCoefficient = Data.Coefficient;
-            game.TournamentName = Data.TournamentName;
-            game.TournamentDate = Data.TournamentDate;
-            game.MyPoints = Data.TournamentPlayerPoints;
-            game.Name = OpponentName;
-            game.Surname = OpponentSurname;
-            game.OpponentPoints = GameOpponentPoints;
-            game.MySets = MySets;
-            game.OpponentSets = OpponentSets;
-            game.MyName = Data.TournamentPlayerName;
-            game.MySurname = Data.TournamentPlayerSurname;
-
-            await _database.SaveGameAsync(game);
-        }
-
-        public async Task LoadPlayersAsync()
-        {
+            Game = await _database.GetGameAsync(Data.GameId);
+            var tournament = await _database.GetTournamentAsync(Game.TournamentId);
             var players = await _databaseService.GetPlayersAsync();
             PlayerList = players
-                .Where(x=>
-                    x.Id != Data.TournamentPlayerId)
+                .Where(x =>
+                    x.Id != tournament.TournamentPlayerId)
                 .OrderByDescending(x => x.PointsWithBonus)
                 .ToList();
 
@@ -60,12 +29,18 @@ namespace RankingApp.ViewModels
             OnPropertyChanged(nameof(Players));
         }
 
+        public async Task SaveGameAsync()
+        {
+            await _database.SaveGameAsync(Game);
+        }
+
         public async Task<List<PlayerDB>> GetPlayers()
         {
+            var tournament = await _database.GetTournamentAsync(Game.TournamentId);
             var players = await _databaseService.GetPlayersAsync();
             var list = players
                 .Where(x =>
-                    x.Id != Data.TournamentPlayerId)
+                    x.Id != tournament.TournamentPlayerId)
                 .OrderByDescending(x => x.PointsWithBonus)
                 .ToList();
 

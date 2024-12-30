@@ -7,96 +7,76 @@
              xmlns:rankingApp="using:RankingApp"
              x:DataType="viewmodel:AddTournamentViewModel"
              x:Class="RankingApp.Views.AddTournament"
-             Title="Tournament Details">
+             Title="Tournament Details"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
     <Grid
-        RowDefinitions="50,50,50,*,50"
-        ColumnDefinitions="150,*"
-        BackgroundColor="LightSkyBlue"> 
-        <Frame
-            Grid.Row="2"
-            Grid.Column="0"
-            BackgroundColor="Brown"
-            Padding="0"
-            >
-            <rankingApp:FormDatePicker 
-                BackgroundColor="Brown"
-                x:Name="PickerTournamentDate"
-                MinimumDate="01/01/2000"
-                MaximumDate="01/01/2200"
-                DateSelected="TournamentDate_OnDateSelected">
-            </rankingApp:FormDatePicker>
-        </Frame>
-        <Frame
-            Grid.Row="0"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Padding="0"
-            BackgroundColor="Brown">
-            <Entry 
-                x:Name="EntryTournamentName" 
-                Placeholder="Name"
-                TextChanged="EntryTournamentName_OnTextChanged"
-                BackgroundColor="Brown"
-                FontSize="12"
-                TextColor="Black"
-                PlaceholderColor="Black"
-                ></Entry>
-        </Frame>
-        <Frame
-            Grid.Row="1"
-            Grid.Column="0"
-            Padding="0">
-            <Entry 
-                BackgroundColor="Gray"
-                FontSize="12"
-                TextColor="Black"
-                PlaceholderColor="Black"
-                x:Name="EntryTournamentCoefficient" 
-                Placeholder="Coefficient"
-                Keyboard="Numeric"
-                TextChanged="EntryTournamentCoefficient_OnTextChanged"></Entry>
-        </Frame>
-        <Frame
-            Grid.Row="1"
-            Grid.Column="1"
-            Padding="0">
-            <SearchBar
-                BackgroundColor="Gray"
-                FontSize="12"
-                TextColor="Black"
-                PlaceholderColor="Black"
-                x:Name="TournamentPlayerSearchBar"
-                Placeholder="Search Player"
-                TextChanged="TournamentPlayerSearchBar_OnTextChanged"
-            ></SearchBar>
-        </Frame>
-        <ListView 
-            Grid.Row="2"
-            Grid.Column="1"
-            Grid.RowSpan="3"
-            x:Name ="AllPlayers" 
-            BackgroundColor="Transparent"
-            SeparatorColor="White"
-            ItemsSource="{Binding Players}"
-            ItemSelected="AllPlayers_OnItemSelected">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="model:PlayerDB">
-                    <TextCell 
-                        x:Name="PlayerFromList"
-                        TextColor="Black"
-                        Text ="{Binding Display}"
-                        Detail ="{Binding PointsWithBonus}">
-                    </TextCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-
-        </ListView>
-        <Button
-            Grid.Row="4"
-            Grid.Column="0"
-            Text="Save"
-            x:Name="ButtonAdd"
-            Clicked="ButtonAdd_OnClicked">
-        </Button>
+        ColumnDefinitions="*,*"
+        BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
+        <Grid RowDefinitions="220,20,*">
+            <Frame Grid.Row="0" Padding="0">
+                <Grid Grid.Row="0" RowDefinitions="50,50,40,40,40" ColumnDefinitions="*,*,*"
+                      BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
+                    <Entry Grid.Row="0" Grid.ColumnSpan="3" x:Name="EntryTournamentName" Placeholder="Tournament Name" TextChanged="EntryTournamentName_OnTextChanged" FontSize="12" 
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" 
+                           PlaceholderColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                           HorizontalOptions="Center" VerticalOptions="Center"></Entry>
+                    <rankingApp:FormDatePicker Grid.Row="1" Grid.ColumnSpan="3" x:Name="PickerTournamentDate" MinimumDate="01/01/2000" MaximumDate="01/01/2200" 
+                                               DateSelected="TournamentDate_OnDateSelected" HorizontalOptions="Center" VerticalOptions="Center"></rankingApp:FormDatePicker>
+                    <RadioButton Grid.Row="2" Grid.Column="0" Content="0" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                    <RadioButton Grid.Row="2" Grid.Column="1" Content="0.25" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                    <RadioButton Grid.Row="2" Grid.Column="2" Content="0.5" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                    <RadioButton Grid.Row="3" Grid.Column="0" Content="1" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                    <RadioButton Grid.Row="3" Grid.Column="1" Content="1.5" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                    <RadioButton Grid.Row="3" Grid.Column="2" Content="2" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                    <RadioButton Grid.Row="4" Grid.Column="1" Content="4" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                </Grid>
+            </Frame>
+            <Frame Grid.Row="2" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
+                <Grid Grid.Row="2" RowDefinitions="80,40,40,80">
+                    <Label Grid.Row="0" x:Name="LabelSelectedTournamentName"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                           FontSize="20"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"></Label>
+                    <Label Grid.Row="1" x:Name="LabelSelectedTournamentDate"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                           FontSize="20"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"></Label>
+                    <Label Grid.Row="2" x:Name="LabelSelectedTournamentCoefficient"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                           FontSize="20"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"></Label>
+                    <Label Grid.Row="3" x:Name="LabelSelectedTournamentPlayer"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                           FontSize="20"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"></Label>
+                </Grid>
+            </Frame>
+        </Grid>
+        <Grid Grid.Column="1" RowDefinitions="50,*,10,50">
+            <Frame Grid.Row="0" Grid.RowSpan="2" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
+                   Padding="0">
+                <Grid RowDefinitions="40,*" >
+                    <SearchBar Grid.Row="0" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" 
+                                PlaceholderColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" 
+                                x:Name="TournamentPlayerSearchBar" Placeholder="Search Player" 
+                                TextChanged="TournamentPlayerSearchBar_OnTextChanged"></SearchBar>
+                    <ListView Grid.Row="3" Grid.Column="0" Grid.RowSpan="2" 
+                            x:Name ="AllPlayers" SeparatorColor="White" ItemsSource="{Binding Players}" ItemSelected="AllPlayers_OnItemSelected">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="model:PlayerDB">
+                                <TextCell x:Name="PlayerFromList" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                          Text ="{Binding Display}" Detail ="{Binding PointsWithBonus}" 
+                          DetailColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></TextCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Frame>
+            <Button Grid.Row="3" Text="OK" x:Name="ButtonAdd" Clicked="ButtonAdd_OnClicked"></Button>
+        </Grid>
     </Grid>
 </ContentPage>

@@ -5,22 +5,25 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllGamesViewModel"
-             Title="All Games">
-    <StackLayout BackgroundColor="LightSlateGrey">
+             Title="All Games"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
+    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
         <Label 
             Text="Games" 
             FontSize="Title" 
-            TextColor="Black"
+            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
             HorizontalOptions="Center"/>
         <SearchBar
             x:Name="GamesSearchBar"
             Placeholder="Search Games"
             TextChanged="GamesSearchBar_OnTextChanged"
-            BackgroundColor="Aquamarine"
+            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
+            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
         ></SearchBar>
         <ListView 
             x:Name ="ListViewGames" 
-            BackgroundColor="Transparent"
+            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
             SeparatorColor="Blue"
             ItemsSource="{Binding Games}">
             <ListView.ItemTemplate>
@@ -29,14 +32,14 @@
                         <VerticalStackLayout Spacing="2" Padding="1">
                             <Label 
                                 Text="{Binding GameDisplayPlayers}"
-                                TextColor="Black"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
                                 FontSize="15"
                                 FontAttributes="Bold"
                                 VerticalTextAlignment="Center"
                                 HorizontalTextAlignment="Center"></Label>
                             <Label 
                                 Text="{Binding GameDisplayDetails}"
-                                TextColor="Black"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
                                 FontSize="12"
                                 FontAttributes="Bold"
                                 VerticalTextAlignment="Center"

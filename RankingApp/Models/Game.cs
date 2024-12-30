@@ -21,11 +21,12 @@ namespace RankingApp.Models
         public string? TournamentName { get; set; }
         public DateTime TournamentDate { get; set; }
         public string DateToString => TournamentDate.ToString("d MMM yyyy");
-        public float GameCoefficient { get; set; }
+        public string GameCoefficient { get; set; }
         public string GameScore => $"{MySets} : {OpponentSets}";
         public string GameName => $"{TournamentName} - {DateToString}";
         public string GameDisplayPlayers => $"{MyFullName} - {OpponentName} {GameScore}";
         public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
-        public int RatingDifference => RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
+        public bool IsOpponentForeign {  get; set; }
+        public int RatingDifference => IsOpponentForeign ? 0 : RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
     }
 }
