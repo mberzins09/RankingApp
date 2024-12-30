@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using SQLite;
+﻿using System.Text.Json.Serialization;
 
 namespace RankingApp.Models
 {
@@ -32,7 +26,7 @@ namespace RankingApp.Models
         public string Surname { get; set; }
 
         [JsonPropertyName("dzimsanas_dat")]
-        public string BirthDate { get; set; }
+        public string? BirthDate { get; set; }
 
         [JsonPropertyName("club_name")]
         public string ClubName { get; set; }

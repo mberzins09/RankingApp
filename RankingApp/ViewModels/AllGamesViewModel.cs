@@ -3,25 +3,17 @@ using RankingApp.Models;
 
 namespace RankingApp.ViewModels
 {
-    public class AllGamesViewModel : BaseViewModel
+    public class AllGamesViewModel(RankingAppsDatabase database) : BaseViewModel
     {
-        private readonly RankingAppsDatabase _database;
-        public ObservableCollection<Game> Games { get; set; }
+        private readonly RankingAppsDatabase _database = database;
+        public ObservableCollection<Game>? Games { get; set; }
         public List<Game> GamesList { get; set; } = new List<Game>();
 
-        public AllGamesViewModel(RankingAppsDatabase database)
-        {
-            _database = database;
-            _ = LoadGamesAsync();
-        }
-
-        public async Task LoadGamesAsync()
+        public async Task LoadDataAsync()
         {
             var games = await _database.GetGamesAsync();
             GamesList = games.OrderByDescending(x => x.TournamentDate).ToList();
-
             Games = new ObservableCollection<Game>(GamesList);
-
             OnPropertyChanged();
         }
 

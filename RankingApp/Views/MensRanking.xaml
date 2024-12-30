@@ -5,48 +5,44 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              x:DataType="viewmodel:PlayerViewModel"
              x:Class="RankingApp.Views.MensRanking"
-             Title="MensRanking">
-    <StackLayout BackgroundColor="SeaGreen">
+             Title="MensRanking"
+             BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}">
+    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}">
         <Label 
             Text="Mens Ranking" 
             FontSize="Title" 
-            TextColor="White"
-            HorizontalOptions="Center"/>
-        <Label 
-            Text="Place Name Surname Points PointsWithBonus" 
-            FontSize="16" 
-            TextColor="White"
+            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
             HorizontalOptions="Center"/>
         <SearchBar
             x:Name="MensSearchBar"
             Placeholder="Search Player"
             TextChanged="MensSearchBar_OnTextChanged"
-            BackgroundColor="Blue"
-            TextColor="OrangeRed"></SearchBar>
+            BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}"
+            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></SearchBar>
         <ListView 
             x:Name="Mens"
-            ItemsSource="{Binding Mens}"
-            BackgroundColor="SeaGreen">
+            BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}"
+            ItemsSource="{Binding Mens}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:PlayerDB">
                     <ViewCell>
                         <HorizontalStackLayout Spacing="10" Padding="5">
                             <Label 
                                 Text ="{Binding Display}" 
-                                TextColor="Black"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
                                 FontSize="18"
                                 FontAttributes="Bold"
                                 VerticalTextAlignment="Center"
                                 HorizontalTextAlignment="Center"></Label>
-                                <Label 
+                            <Label 
                                     Text ="{Binding Points}" 
-                                    TextColor="Black"
+                                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
                                     FontSize="16"
                                     VerticalTextAlignment="Center"
                                     HorizontalTextAlignment="Center"></Label>
-                                <Label 
+                            <Label 
                                     Text ="{Binding PointsWithBonus}" 
-                                    TextColor="Black"
+                                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
                                     FontSize="16"
                                     VerticalTextAlignment="Center"
                                     HorizontalTextAlignment="Center"></Label>

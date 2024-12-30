@@ -22,7 +22,8 @@ namespace RankingApp.Data_Storage
                     Surname = player.Surname,
                     Place = player.Place,
                     Points = player.Points,
-                    PointsWithBonus = player.PointsWithBonus
+                    PointsWithBonus = player.PointsWithBonus,
+                    BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
                 })
                 .ToList();
 
@@ -34,8 +35,9 @@ namespace RankingApp.Data_Storage
                     Surname = player.Surname,
                     Place = player.Place,
                     Points = player.Points,
-                    PointsWithBonus = player.PointsWithBonus
-                })
+                    PointsWithBonus = player.PointsWithBonus,
+                    BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
+            })
                 .ToList();
 
             _players = malesDb.Concat(femalesDb)

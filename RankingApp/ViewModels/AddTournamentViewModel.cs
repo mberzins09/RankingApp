@@ -4,22 +4,17 @@ using RankingApp.Models;
 
 namespace RankingApp.ViewModels
 {
-    public class AddTournamentViewModel : BaseViewModel
+    public class AddTournamentViewModel(DatabaseService databaseService, RankingAppsDatabase database) : BaseViewModel
     {
-        private readonly DatabaseService _databaseService;
-        private readonly RankingAppsDatabase _database;
-        public ObservableCollection<PlayerDB> Players { get; set; }
+        private readonly DatabaseService _databaseService = databaseService;
+        private readonly RankingAppsDatabase _database = database;
+        public required ObservableCollection<PlayerDB> Players { get; set; }
         public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
+        public required Tournament Tournament { get; set; }
 
-        public AddTournamentViewModel(DatabaseService databaseService, RankingAppsDatabase database)
+        public async Task LoadDataAsync()
         {
-            _databaseService = databaseService;
-            _database = database;
-            _ = LoadPlayersAsync();
-        }
-
-        public async Task LoadPlayersAsync()
-        {
+            Tournament = await _database.GetTournamentAsync(Data.TournamentId);
             var players = await _databaseService.GetPlayersAsync();
             PlayerList = players.OrderByDescending(x => x.PointsWithBonus).ToList();
 
@@ -48,7 +43,7 @@ namespace RankingApp.ViewModels
             return searchedPlayers;
         }
 
-        public async Task EditGamesDate(DateTime date)
+        public async Task EditDate(DateTime date)
         {
             var games = await _database.GetGamesAsync();
             var dateGames = games.Where(x => x.TournamentId == Data.TournamentId).ToList();
@@ -58,9 +53,11 @@ namespace RankingApp.ViewModels
 
                 await _database.SaveGameAsync(game);
             }
+
+            await _database.SaveTournamentAsync(Tournament);
         }
 
-        public async Task EditGamesCoefficient(float coef)
+        public async Task EditCoefficient(string coef)
         {
             var games = await _database.GetGamesAsync();
             var coefGames = games.Where(x => x.TournamentId == Data.TournamentId).ToList();
@@ -70,9 +67,11 @@ namespace RankingApp.ViewModels
 
                 await _database.SaveGameAsync(game);
             }
+
+            await _database.SaveTournamentAsync(Tournament);
         }
 
-        public async Task EditGamesTournamentName(string name)
+        public async Task EditTournamentName(string name)
         {
             var games = await _database.GetGamesAsync();
             var nameGames = games.Where(x => x.TournamentId == Data.TournamentId).ToList();
@@ -82,9 +81,11 @@ namespace RankingApp.ViewModels
 
                 await _database.SaveGameAsync(game);
             }
+
+            await _database.SaveTournamentAsync(Tournament);
         }
 
-        public async Task EditGamesMe(string name, string surname, int points)
+        public async Task EditMe(string name, string surname, int points)
         {
             var games = await _database.GetGamesAsync();
             var nameGames = games.Where(x => x.TournamentId == Data.TournamentId).ToList();
@@ -96,6 +97,8 @@ namespace RankingApp.ViewModels
 
                 await _database.SaveGameAsync(game);
             }
+
+            await _database.SaveTournamentAsync(Tournament);
         }
     }
 }

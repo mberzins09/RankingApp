@@ -1,7 +1,6 @@
-using RankingApp.Data_Storage;
+﻿using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
-using RankingApp.ViewModels;
 
 namespace RankingApp.Views;
 
@@ -36,7 +35,28 @@ public partial class HomePage : ContentPage
 
     private async void BtnAddTournament_OnClicked(object? sender, EventArgs e)
     {
-        var tournament = new Models.Tournament();
+            var player = new PlayerDB()
+            {
+                Id = 10000,
+                Place = 10000,
+                Points = 0,
+                PointsWithBonus = 0,
+                Name = "Vārds",
+                Surname = "Uzvārds",
+                Gender = "male",
+                OverallPlace = 10000,
+                BirthDate = ""
+            };
+        var tournament = new Tournament() 
+        {
+            Coefficient = "0.5",
+            Name = "Namejs 1+",
+            Date = DateTime.Now,
+            TournamentPlayerName = player.Name,
+            TournamentPlayerSurname = player.Surname,
+            TournamentPlayerPoints = player.Points,
+            TournamentPlayerId = player.Id
+        };
         await _database.SaveTournamentAsync(tournament);
         Data.TournamentId = tournament.Id;
         await Shell.Current.GoToAsync(nameof(AddTournament));

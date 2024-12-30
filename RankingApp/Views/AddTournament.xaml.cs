@@ -17,28 +17,38 @@ public partial class AddTournament : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
+        await _viewModel.LoadDataAsync();
         TournamentPlayerSearchBar.Text = String.Empty;
 
         AllPlayers.ItemsSource = await _viewModel.GetPlayers();
+        LabelSelectedTournamentName.Text = _viewModel.Tournament.Name;
+        LabelSelectedTournamentDate.Text = _viewModel.Tournament.Date.ToString("d MMM yyyy");
+        LabelSelectedTournamentCoefficient.Text = _viewModel.Tournament.Coefficient;
+        LabelSelectedTournamentPlayer.Text = $"{_viewModel.Tournament.TournamentPlayerName} {_viewModel.Tournament.TournamentPlayerSurname}";
     }
 
     private async void TournamentDate_OnDateSelected(object? sender, DateChangedEventArgs e)
     {
-        Data.TournamentDate = PickerTournamentDate.Date;
-        await _viewModel.EditGamesDate(Data.TournamentDate);
+        _viewModel.Tournament.Date = PickerTournamentDate.Date;
+        LabelSelectedTournamentDate.Text = _viewModel.Tournament.Date.ToString("d MMM yyyy");
+        await _viewModel.EditDate(_viewModel.Tournament.Date);
     }
 
     private async void EntryTournamentName_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        Data.TournamentName = string.IsNullOrEmpty(EntryTournamentName.Text) ? String.Empty : EntryTournamentName.Text;
-        await _viewModel.EditGamesTournamentName(Data.TournamentName);
+        _viewModel.Tournament.Name = string.IsNullOrEmpty(EntryTournamentName.Text) ? String.Empty : EntryTournamentName.Text;
+        LabelSelectedTournamentName.Text = _viewModel.Tournament.Name;
+        await _viewModel.EditTournamentName(_viewModel.Tournament.Name);
     }
 
-    private async void EntryTournamentCoefficient_OnTextChanged(object? sender, TextChangedEventArgs e)
+    private async void Coefficient_CheckedChanged(object? sender, CheckedChangedEventArgs e)
     {
-        Data.Coefficient = string.IsNullOrEmpty(EntryTournamentCoefficient.Text) ? 0f : float.Parse(EntryTournamentCoefficient.Text);
-        await _viewModel.EditGamesCoefficient(Data.Coefficient);
+        if (e.Value && sender is RadioButton radioButton)
+        {
+            _viewModel.Tournament.Coefficient = radioButton.Content.ToString() ?? "0";
+            LabelSelectedTournamentCoefficient.Text = radioButton.Content.ToString();
+            await _viewModel.EditCoefficient(_viewModel.Tournament.Coefficient);
+        }
     }
 
     private async void ButtonAdd_OnClicked(object? sender, EventArgs e)
@@ -59,14 +69,17 @@ public partial class AddTournament : ContentPage
     private async void AllPlayers_OnItemSelected(object? sender, SelectedItemChangedEventArgs e)
     {
         var player = AllPlayers.SelectedItem as PlayerDB;
-        Data.TournamentPlayerName = player.Name;
-        Data.TournamentPlayerSurname = player.Surname;
-        Data.TournamentPlayerPoints = player.Points;
-        Data.TournamentPlayerId = player.Id;
+        if (player != null) 
+        {
+            _viewModel.Tournament.TournamentPlayerName = player.Name;
+            _viewModel.Tournament.TournamentPlayerSurname = player.Surname;
+            _viewModel.Tournament.TournamentPlayerPoints = player.Points;
+        }
+        LabelSelectedTournamentPlayer.Text = $"{_viewModel.Tournament.TournamentPlayerName} {_viewModel.Tournament.TournamentPlayerSurname}";
 
-        await _viewModel.EditGamesMe(
-            Data.TournamentPlayerName, 
-            Data.TournamentPlayerSurname,
-            Data.TournamentPlayerPoints);
+        await _viewModel.EditMe(
+            _viewModel.Tournament.TournamentPlayerName,
+            _viewModel.Tournament.TournamentPlayerSurname,
+            _viewModel.Tournament.TournamentPlayerPoints);
     }
 }

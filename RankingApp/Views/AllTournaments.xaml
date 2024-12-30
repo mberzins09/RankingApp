@@ -5,22 +5,23 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllTournamentsViewModel"
-             Title="All Tournaments">
-    <StackLayout BackgroundColor="LightGrey">
+             Title="All Tournaments"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
+    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
         <Label 
             Text="Tournaments" 
             FontSize="Title" 
-            TextColor="Black"
+            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
             HorizontalOptions="Center"/>
         <SearchBar
             x:Name="TournamentsSearchBar"
             Placeholder="Search Tournaments"
             TextChanged="TournamentsSearchBar_OnTextChanged"
-            BackgroundColor="Coral"
+            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
         ></SearchBar>
         <ListView 
             x:Name ="ListViewTournaments" 
-            BackgroundColor="Transparent"
+            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
             SeparatorColor="Green"
             ItemsSource="{Binding Tournaments}"
             ItemSelected="ListViewTournaments_OnItemSelected">
@@ -30,14 +31,14 @@
                         <VerticalStackLayout Spacing="2" Padding="1">
                             <Label
                                 Text ="{Binding Name}"
-                                TextColor="Black"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
                                 FontSize="16"
                                 FontAttributes="Bold"
                                 VerticalTextAlignment="Center"
                                 HorizontalTextAlignment="Center"></Label>
                             <Label
                                 Text ="{Binding TournamentDisplay}"
-                                TextColor="Black"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
                                 FontSize="14"
                                 VerticalTextAlignment="Center"
                                 HorizontalTextAlignment="Center"></Label>
