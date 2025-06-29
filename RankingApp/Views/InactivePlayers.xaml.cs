@@ -4,12 +4,12 @@ using RankingApp.Models;
 
 namespace RankingApp.Views;
 
-public partial class MensRanking : ContentPage
+public partial class InactivePlayers : ContentPage
 {
     private readonly PlayerViewModel _viewModel;
-    public MensRanking(PlayerViewModel viewModel)
-	{
-		InitializeComponent();
+    public InactivePlayers(PlayerViewModel viewModel)
+    {
+        InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
     }
@@ -18,16 +18,16 @@ public partial class MensRanking : ContentPage
     {
         base.OnAppearing();
         await _viewModel.LoadPlayersAsyncFromDatabase();
-        MensSearchBar.Text = String.Empty;
+        InactivePlayersSearchBar.Text = String.Empty;
     }
 
-    private async void MensSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
+    private async void InactivePlayersSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
         var search = sender == null ? String.Empty : ((SearchBar)sender).Text;
-        var list = await _viewModel.GetMenPlayers();
+        var list = await _viewModel.GetAllInactivePlayers();
         var players = new ObservableCollection<PlayerDB>
             (_viewModel.SearchPlayers(list, search));
 
-        Mens.ItemsSource = players;
+        Inactives.ItemsSource = players;
     }
 }

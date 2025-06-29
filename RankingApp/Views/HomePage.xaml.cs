@@ -52,7 +52,7 @@ public partial class HomePage : ContentPage
         var p = await _databaseService.GetPlayerAsync(694);
         if (p != null)
         {
-            player.Id = 694;
+            player.Id = 1977;
             player.Place = p.Place;
             player.Points = p.Points;
             player.PointsWithBonus = p.PointsWithBonus;

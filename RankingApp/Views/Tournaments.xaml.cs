@@ -1,4 +1,5 @@
 using RankingApp.Models;
+using RankingApp.Services;
 using RankingApp.ViewModels;
 
 namespace RankingApp.Views;
@@ -6,11 +7,11 @@ namespace RankingApp.Views;
 public partial class Tournaments : ContentPage
 {
     private readonly TournamentViewModel _viewModel;
-    private readonly RankingAppsDatabase _database;
+    private readonly DatabaseService _database;
 
-    public Tournaments(TournamentViewModel viewModel, RankingAppsDatabase database)
-	{
-		InitializeComponent();
+    public Tournaments(TournamentViewModel viewModel, DatabaseService database)
+    {
+        InitializeComponent();
         _viewModel = viewModel;
         _database = database;
         BindingContext = _viewModel;
@@ -56,10 +57,10 @@ public partial class Tournaments : ContentPage
     private async void MenuItem_OnClicked(object? sender, EventArgs e)
     {
         var menuItem = sender as MenuItem;
-        if (menuItem != null) 
+        if (menuItem != null)
         {
             var game = menuItem.CommandParameter as Game;
-            if (game != null) 
+            if (game != null)
             {
                 await _database.DeleteGameAsync(game);
             }
@@ -73,8 +74,9 @@ public partial class Tournaments : ContentPage
     private async void ListViewTournamentGames_ItemSelected(object sender, SelectedItemChangedEventArgs e)
     {
         var game = ListViewTournamentGames.SelectedItem as Game;
-        if (game != null) { 
-        Data.GameId = game.Id;
+        if (game != null)
+        {
+            Data.GameId = game.Id;
         }
         await Shell.Current.GoToAsync(nameof(Games));
     }
