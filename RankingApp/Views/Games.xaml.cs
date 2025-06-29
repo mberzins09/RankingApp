@@ -8,17 +8,17 @@ public partial class Games : ContentPage
 {
     private readonly GameViewModel _viewModel;
     public Games(GameViewModel viewmodel)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         _viewModel = viewmodel;
         BindingContext = _viewModel;
-	}
+    }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         await _viewModel.LoadDataAsync();
-        if (_viewModel.Game != null) 
+        if (_viewModel.Game != null)
         {
             LabelOpponentName.Text = _viewModel.Game.Name;
             LabelOpponentSurname.Text = _viewModel.Game.Surname;
@@ -35,7 +35,7 @@ public partial class Games : ContentPage
 
         PlayerSearchBar.Text = String.Empty;
         ListPlayers.ItemsSource = await _viewModel.GetPlayers();
-        
+
     }
 
     private async void RadioButtonMy_CheckedChanged(object? sender, CheckedChangedEventArgs e)

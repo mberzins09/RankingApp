@@ -4,10 +4,9 @@ using RankingApp.Services;
 
 namespace RankingApp.ViewModels
 {
-    public class GameViewModel(DatabaseService databaseService, RankingAppsDatabase database) : BaseViewModel
+    public class GameViewModel(DatabaseService databaseService) : BaseViewModel
     {
         private readonly DatabaseService _databaseService = databaseService;
-        private readonly RankingAppsDatabase _database = database;
         public ObservableCollection<PlayerDB>? Players { get; set; }
         public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
         public bool IsOpponentForeign { get; set; }
@@ -15,8 +14,8 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
-            Game = await _database.GetGameAsync(Data.GameId);
-            var tournament = await _database.GetTournamentAsync(Game.TournamentId);
+            Game = await _databaseService.GetGameAsync(Data.GameId);
+            var tournament = await _databaseService.GetTournamentAsync(Game.TournamentId);
             var players = await _databaseService.GetPlayersAsync();
             PlayerList = players
                 .Where(x =>
@@ -31,12 +30,12 @@ namespace RankingApp.ViewModels
 
         public async Task SaveGameAsync()
         {
-            await _database.SaveGameAsync(Game);
+            await _databaseService.SaveGameAsync(Game);
         }
 
         public async Task<List<PlayerDB>> GetPlayers()
         {
-            var tournament = await _database.GetTournamentAsync(Game.TournamentId);
+            var tournament = await _databaseService.GetTournamentAsync(Game.TournamentId);
             var players = await _databaseService.GetPlayersAsync();
             var list = players
                 .Where(x =>

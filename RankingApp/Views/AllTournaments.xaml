@@ -43,12 +43,18 @@
                                 VerticalTextAlignment="Center"
                                 HorizontalTextAlignment="Center"></Label>
                         </VerticalStackLayout>
-                        
+
                         <ViewCell.ContextActions>
                             <MenuItem
                                 Text="Delete"
                                 IsDestructive="True"
-                                Clicked="MenuItem_OnClicked"
+                                Clicked="MenuItemDelete_OnClicked"
+                                CommandParameter="{Binding .}"></MenuItem>
+
+                            <MenuItem
+                                Text="Edit"
+                                IsDestructive="False"
+                                Clicked="MenuItemEdit_OnClicked"
                                 CommandParameter="{Binding .}"></MenuItem>
                         </ViewCell.ContextActions>
                     </ViewCell>

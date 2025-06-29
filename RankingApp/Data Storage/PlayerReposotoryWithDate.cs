@@ -1,18 +1,17 @@
-﻿using RankingApp.Services;
-using RankingApp.Models;
+﻿using RankingApp.Models;
+using RankingApp.Services;
 
 namespace RankingApp.Data_Storage
 {
-    public class PlayerRepository(PlayerService dataService)
+    public class PlayerReposotoryWithDate(PlayerServiceWithDate dataService)
     {
-
-        private readonly PlayerService _dataService = dataService;
+        private readonly PlayerServiceWithDate _dataService = dataService;
         private List<PlayerDB>? _players;
 
-        public async Task<List<PlayerDB>> GetPlayersAsync()
+        public async Task<List<PlayerDB>> GetPlayersAsync(string date)
         {
-            var males = await _dataService.GetPlayersAsync("virietis");
-            var females = await _dataService.GetPlayersAsync("sieviete");
+            var males = await _dataService.GetPlayersAsync("virietis", date);
+            var females = await _dataService.GetPlayersAsync("sieviete", date);
 
             var malesDb = males.Select(player => new PlayerDB()
             {

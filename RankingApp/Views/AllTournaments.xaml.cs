@@ -8,11 +8,11 @@ public partial class AllTournaments : ContentPage
 {
     private readonly AllTournamentsViewModel _viewModel;
     public AllTournaments(AllTournamentsViewModel viewModel)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
-	}
+    }
 
     protected override async void OnAppearing()
     {
@@ -38,16 +38,16 @@ public partial class AllTournaments : ContentPage
             Data.TournamentId = tournament.Id;
         }
 
-        Shell.Current.GoToAsync(nameof(AddTournament));
+        Shell.Current.GoToAsync(nameof(Tournaments));
     }
 
-    private async void MenuItem_OnClicked(object? sender, EventArgs e)
+    private async void MenuItemDelete_OnClicked(object? sender, EventArgs e)
     {
         var menuItem = sender as MenuItem;
-        if (menuItem != null) 
+        if (menuItem != null)
         {
             var tournament = menuItem.CommandParameter as Tournament;
-            if (tournament != null) 
+            if (tournament != null)
             {
                 var games = await _viewModel.GetGames(tournament.Id);
                 for (int i = 0; i < games.Count; i++)
@@ -59,5 +59,20 @@ public partial class AllTournaments : ContentPage
         }
 
         ListViewTournaments.ItemsSource = await _viewModel.GetTournaments();
+    }
+
+    private async void MenuItemEdit_OnClicked(object? sender, EventArgs e)
+    {
+        var menuItem = sender as MenuItem;
+        if (menuItem != null)
+        {
+            var tournament = menuItem.CommandParameter as Tournament;
+            if (tournament != null)
+            {
+                Data.TournamentId = tournament.Id;
+
+                await Shell.Current.GoToAsync(nameof(AddTournament));
+            }
+        }
     }
 }
