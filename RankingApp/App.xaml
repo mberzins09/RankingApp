@@ -9,6 +9,122 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <!-- Label -->
+            <Style TargetType="Label" x:Key="PrimaryLabel">
+                <Setter Property="TextColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                                         Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <!-- Label in ListItem-->
+            <Style TargetType="Label" x:Key="ListItemLabel">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}" Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <!-- SearchBar -->
+            <Style TargetType="SearchBar" x:Key="PrimarySearchBar">
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                                         Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+                
+                <Setter Property="TextColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                                         Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="Placeholder" Value="Search..." />
+            </Style>
+
+            <!-- ListView -->
+            <Style TargetType="ListView" x:Key="PrimaryListView">
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                             Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="SeparatorColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                             Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Grid -->
+            <Style TargetType="Grid" x:Key="PrimaryGrid">
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                                         Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Picker -->
+            <Style TargetType="Picker" x:Key="PrimaryPicker">
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                             Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="TextColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                                         Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <!-- Entry -->
+            <Style TargetType="Entry" x:Key="PrimaryEntry">
+                <Setter Property="TextColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                                         Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="PlaceholderColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                         Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <!-- ImageButton -->
+            <Style TargetType="ImageButton" x:Key="PrimaryImageButton">
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+            </Style>
+
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

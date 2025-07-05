@@ -5,80 +5,76 @@
              x:Class="RankingApp.Views.Games"
              Title="Game"
              BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-    <Grid ColumnDefinitions="*,230" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-        <Frame Grid.Column="1" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-            <Grid RowDefinitions="*,200">
-                <Frame Grid.Row="0" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Margin="0">
-                    <Grid RowDefinitions="40,*">
-                        <SearchBar x:Name="PlayerSearchBar" Placeholder="Search Player" TextChanged="PlayerSearchBar_OnTextChanged" Grid.Row="0" HorizontalOptions="FillAndExpand"
-                                   BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"/>
-                        <ListView x:Name ="ListPlayers" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" 
-                                  Grid.Row="1" SeparatorColor="Black" ItemSelected="ListPlayers_OnItemSelected">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <TextCell Text ="{Binding Display}" 
-                                              TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                            Detail ="{Binding PointsWithBonus}" DetailColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}">
-                                    </TextCell>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Grid>
-                </Frame>
-                <Frame Grid.Row="1" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Margin="0">
-                    <Grid RowDefinitions="*,*,*,*">
-                        <Entry x:Name="EntryOpponentName" Placeholder="Opponent Name" Grid.Row="0" TextChanged="EntryOppName_OnTextChanged"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Entry x:Name="EntryOpponentSurname" Placeholder="Opponent Surname" Grid.Row="1" TextChanged="EntryOppName_OnTextChanged"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Label Text="Is Foreign?" Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <StackLayout Orientation="Horizontal" Grid.Row="3" HorizontalOptions="Center" VerticalOptions="Center">
-                            <RadioButton x:Name="RadioButtonYes" Content="Yes" GroupName="IsForeign" CheckedChanged="RadioButtonIsForeign_Checked"/>
-                            <RadioButton x:Name="RadioButtonNo" Content="No" GroupName="IsForeign" CheckedChanged="RadioButtonIsForeign_Checked"/>
-                        </StackLayout>
-                    </Grid>
-                </Frame>
-            </Grid>
-        </Frame>
-        <Frame Grid.Column="0" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Margin="0">
-            <Grid RowDefinitions="200,200,40,100,*,50" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-                <Frame Grid.Row="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Padding="0" Margin="0">
-                    <Grid RowDefinitions="*,*,*,*" ColumnDefinitions="*,*,*">
-                        <HorizontalStackLayout Grid.Row="0" Grid.ColumnSpan="3" HorizontalOptions="Center" VerticalOptions="Center" Spacing="7" Padding="0" Margin="0">
-                            <Label x:Name="LabelMyName" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" FontSize="12"></Label>
-                            <Label x:Name="LabelMySurname" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" FontSize="12"></Label>
-                        </HorizontalStackLayout>
-                        <RadioButton Grid.Row="1" Grid.Column="0" Content="0" GroupName="MySetsGroup" CheckedChanged="RadioButtonMy_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="1" Grid.Column="1" Content="1" GroupName="MySetsGroup" CheckedChanged="RadioButtonMy_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="1" Grid.Column="2" Content="2" GroupName="MySetsGroup" CheckedChanged="RadioButtonMy_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="2" Grid.Column="0" Content="3" GroupName="MySetsGroup" CheckedChanged="RadioButtonMy_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="2" Grid.Column="1" Content="4" GroupName="MySetsGroup" CheckedChanged="RadioButtonMy_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <Label Grid.Row="3" Grid.ColumnSpan="3" HorizontalOptions="Center" VerticalOptions="Center" Padding="0" Margin="0" Text="0"
-                               x:Name="LabelMySets" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" FontSize="16"></Label>
-                    </Grid>
-                </Frame>
-                <Frame Grid.Row="1" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Margin="0" Padding="0">
-                    <Grid RowDefinitions="*,*,*,*" ColumnDefinitions="*,*,*">
-                        <HorizontalStackLayout Grid.Row="0" Grid.ColumnSpan="3" HorizontalOptions="Center" VerticalOptions="Center" Spacing="7" Padding="0" Margin="0">
-                            <Label x:Name="LabelOpponentName" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" FontSize="12"></Label>
-                            <Label x:Name="LabelOpponentSurname" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" FontSize="12"></Label>
-                        </HorizontalStackLayout>
-                        <RadioButton Grid.Row="1" Grid.Column="0" Content="0" GroupName="OpponentSetsGroup" CheckedChanged="RadioButtonOp_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="1" Grid.Column="1" Content="1" GroupName="OpponentSetsGroup" CheckedChanged="RadioButtonOp_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="1" Grid.Column="2" Content="2" GroupName="OpponentSetsGroup" CheckedChanged="RadioButtonOp_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="2" Grid.Column="0" Content="3" GroupName="OpponentSetsGroup" CheckedChanged="RadioButtonOp_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <RadioButton Grid.Row="2" Grid.Column="1" Content="4" GroupName="OpponentSetsGroup" CheckedChanged="RadioButtonOp_CheckedChanged" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
-                        <Label Grid.Row="3" Grid.ColumnSpan="3" HorizontalOptions="Center" VerticalOptions="Center" Padding="0" Margin="0" Text="0"
-                               x:Name="LabelOpponentSets" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" FontSize="16"></Label>
-                    </Grid>
-                </Frame>
-                <Frame Grid.Row="3" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-                    <Label x:Name ="LabelRatingDifference" Text="0" Grid.Row="0" FontSize="20" 
-                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" 
-                            HorizontalOptions="Center" VerticalOptions="Center"/>
-                </Frame>
-                <Button x:Name="ButtonGameSave" Text="Save" Grid.Row="5" Clicked="ButtonGameSave_OnClicked" BackgroundColor="{StaticResource Primary}" TextColor="White"/>
-            </Grid>
-        </Frame>
+    <Grid RowDefinitions="50, 50, *, 50" ColumnDefinitions="5, 100, 100, *, 50" Style="{StaticResource PrimaryGrid}">
+        <!-- Row 0 -->
+        <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="80" HeightRequest="40" Source="racketsnoborder.png"
+                     x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryImageButton}" />
+        <HorizontalStackLayout Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Spacing="3">
+            <Label x:Name="LabelMyName" Style="{StaticResource PrimaryLabel}"/>
+            <Label x:Name="LabelMySurname" Style="{StaticResource PrimaryLabel}"/>
+        </HorizontalStackLayout>
+        <Picker Grid.Row="0" Grid.Column="4" x:Name="MySetsPicker" Title="Sets" 
+                SelectedIndexChanged="OnMySetsChanged" Style="{StaticResource PrimaryPicker}">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:Int32}">
+                        <x:Int32>0</x:Int32>
+                        <x:Int32>1</x:Int32>
+                        <x:Int32>2</x:Int32>
+                        <x:Int32>3</x:Int32>
+                        <x:Int32>4</x:Int32>
+                    </x:Array>
+                </Picker.ItemsSource>
+        </Picker>
+
+        <!-- Row 1 -->
+        <Label Grid.Row="1" Grid.Column="1" x:Name ="LabelRatingDifference" Style="{StaticResource PrimaryLabel}" Text="0"  FontSize="20"/>
+        <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Spacing="3">
+            <Label x:Name="LabelOpponentName" Style="{StaticResource PrimaryLabel}"/>
+            <Label x:Name="LabelOpponentSurname" Style="{StaticResource PrimaryLabel}"/>
+        </HorizontalStackLayout>
+        <Picker Grid.Row="1" Grid.Column="4" x:Name="OpponentSetsPicker" Title="Sets"
+                SelectedIndexChanged="OnOpponentSetsChanged" Style="{StaticResource PrimaryPicker}">
+            <Picker.ItemsSource>
+                <x:Array Type="{x:Type x:Int32}">
+                    <x:Int32>0</x:Int32>
+                    <x:Int32>1</x:Int32>
+                    <x:Int32>2</x:Int32>
+                    <x:Int32>3</x:Int32>
+                    <x:Int32>4</x:Int32>
+                </x:Array>
+            </Picker.ItemsSource>
+        </Picker>
+        
+        <!-- Row 2 -->
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" RowDefinitions="40,*" Style="{StaticResource PrimaryGrid}">
+            <SearchBar Grid.Row="0" x:Name="PlayerSearchBar" TextChanged="PlayerSearchBar_OnTextChanged" Style="{StaticResource PrimarySearchBar}"/>
+            <ListView Grid.Row="1" x:Name ="ListPlayers" ItemSelected="ListPlayers_OnItemSelected" Style="{StaticResource PrimaryListView}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid ColumnDefinitions="*, 50">
+                                <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                <Label Grid.Column="1" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}"/>
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+        
+        <!-- Row 3 -->
+        <Entry Grid.Row="3" Grid.Column="1" x:Name="EntryOpponentName" Placeholder="Name" TextChanged="EntryOppName_OnTextChanged"
+               Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
+        <Entry Grid.Row="3" Grid.Column="2" x:Name="EntryOpponentSurname" Placeholder="Surname" TextChanged="EntryOppName_OnTextChanged"
+               Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
+        <Picker Grid.Row="3" Grid.Column="4" x:Name="IsForeignPicker" SelectedIndexChanged="IsForeignPicker_SelectedIndexChanged"
+                Style="{StaticResource PrimaryPicker}">
+            <Picker.ItemsSource>
+                <x:Array Type="{x:Type x:String}">
+                    <x:String>Yes</x:String>
+                    <x:String>No</x:String>
+                </x:Array>
+            </Picker.ItemsSource>
+        </Picker>
     </Grid>
 </ContentPage>

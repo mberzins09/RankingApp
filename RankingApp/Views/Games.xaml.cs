@@ -24,8 +24,13 @@ public partial class Games : ContentPage
             LabelOpponentSurname.Text = _viewModel.Game.Surname;
             LabelMyName.Text = _viewModel.Game.MyName;
             LabelMySurname.Text = _viewModel.Game.MySurname;
-            LabelMySets.Text = _viewModel.Game.MySets.ToString();
-            LabelOpponentSets.Text = _viewModel.Game.OpponentSets.ToString();
+            if (_viewModel.Game.MySets != null && _viewModel.Game.OpponentSets != null)
+            {
+                MySetsPicker.SelectedItem = _viewModel.Game.MySets;
+                OpponentSetsPicker.SelectedItem = _viewModel.Game.OpponentSets;
+                IsForeignPicker.SelectedItem = _viewModel.Game.IsOpponentForeign ? "Yes" : "No";
+            }
+            
             UpdateRatingDifference();
             if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null || _viewModel.Game.Name == null)
             {
@@ -35,62 +40,33 @@ public partial class Games : ContentPage
 
         PlayerSearchBar.Text = String.Empty;
         ListPlayers.ItemsSource = await _viewModel.GetPlayers();
-
     }
 
-    private async void RadioButtonMy_CheckedChanged(object? sender, CheckedChangedEventArgs e)
+    private async void OnMySetsChanged(object sender, EventArgs e)
     {
-        if (e.Value && sender is RadioButton radioButton)
+        if (MySetsPicker.SelectedItem is int selectedValue)
         {
-            _viewModel.Game.MySets = int.Parse(radioButton.Content.ToString() ?? "0");
-            LabelMySets.Text = _viewModel.Game.MySets.ToString();
-            UpdateRatingDifference();
-            if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null || _viewModel.Game.Name == null)
-            {
-                LabelRatingDifference.Text = "0";
-            }
-            await _viewModel.SaveGameAsync();
+            _viewModel.Game.MySets = selectedValue;
+            await HandleRatingAndSaveAsync();
         }
     }
 
-    private async void RadioButtonOp_CheckedChanged(object? sender, CheckedChangedEventArgs e)
+    private async void OnOpponentSetsChanged(object sender, EventArgs e)
     {
-        if (e.Value && sender is RadioButton radioButton)
+        if (OpponentSetsPicker.SelectedItem is int selectedValue)
         {
-            _viewModel.Game.OpponentSets = int.Parse(radioButton.Content.ToString() ?? "0");
-            LabelOpponentSets.Text = _viewModel.Game.OpponentSets.ToString();
-            UpdateRatingDifference();
-            if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null || _viewModel.Game.Name == null)
-            {
-                LabelRatingDifference.Text = "0";
-            }
-            await _viewModel.SaveGameAsync();
+            _viewModel.Game.OpponentSets = selectedValue;
+            await HandleRatingAndSaveAsync();
         }
     }
 
-    private async void RadioButtonIsForeign_Checked(object? sender, CheckedChangedEventArgs e)
+    private async void IsForeignPicker_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        if (e.Value && sender is RadioButton radioButton)
+        if (IsForeignPicker.SelectedItem is string selection)
         {
-            _viewModel.Game.IsOpponentForeign = radioButton.Content.ToString() == "Yes" ? true : false;
+            _viewModel.Game.IsOpponentForeign = selection == "Yes";
             UpdateRatingDifference();
             await _viewModel.SaveGameAsync();
-        }
-    }
-
-    private void UpdateRatingDifference()
-    {
-        if (!_viewModel.Game.IsOpponentForeign)
-        {
-            LabelRatingDifference.Text = RatingCalculator.Calculate(
-                _viewModel.Game.MyPoints,
-                _viewModel.Game.OpponentPoints,
-                _viewModel.Game.MySets > _viewModel.Game.OpponentSets,
-                _viewModel.Game.GameCoefficient).ToString();
-        }
-        else
-        {
-            LabelRatingDifference.Text = "0";
         }
     }
 
@@ -141,5 +117,35 @@ public partial class Games : ContentPage
 
         LabelOpponentName.Text = _viewModel.Game.Name;
         LabelOpponentSurname.Text = _viewModel.Game.Surname;
+    }
+
+    private async Task HandleRatingAndSaveAsync()
+    {
+        UpdateRatingDifference();
+
+        if (_viewModel.Game.MySets == null ||
+            _viewModel.Game.OpponentSets == null ||
+            string.IsNullOrEmpty(_viewModel.Game.Name))
+        {
+            LabelRatingDifference.Text = "0";
+        }
+
+        await _viewModel.SaveGameAsync();
+    }
+
+    private void UpdateRatingDifference()
+    {
+        if (!_viewModel.Game.IsOpponentForeign)
+        {
+            LabelRatingDifference.Text = RatingCalculator.Calculate(
+                _viewModel.Game.MyPoints,
+                _viewModel.Game.OpponentPoints,
+                _viewModel.Game.MySets > _viewModel.Game.OpponentSets,
+                _viewModel.Game.GameCoefficient).ToString();
+        }
+        else
+        {
+            LabelRatingDifference.Text = "0";
+        }
     }
 }
