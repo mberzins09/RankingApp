@@ -7,12 +7,12 @@ namespace RankingApp.Views;
 public partial class AddTournament : ContentPage
 {
     private readonly AddTournamentViewModel _viewModel;
-	public AddTournament(AddTournamentViewModel viewModel)
-	{
-		InitializeComponent();
+    public AddTournament(AddTournamentViewModel viewModel)
+    {
+        InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
-	}
+    }
 
     protected override async void OnAppearing()
     {
@@ -69,7 +69,7 @@ public partial class AddTournament : ContentPage
     private async void AllPlayers_OnItemSelected(object? sender, SelectedItemChangedEventArgs e)
     {
         var player = AllPlayers.SelectedItem as PlayerDB;
-        if (player != null) 
+        if (player != null)
         {
             _viewModel.Tournament.TournamentPlayerName = player.Name;
             _viewModel.Tournament.TournamentPlayerSurname = player.Surname;

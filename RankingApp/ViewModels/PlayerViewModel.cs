@@ -11,20 +11,25 @@ namespace RankingApp.ViewModels
         public ObservableCollection<PlayerDB>? Mens { get; set; }
         public ObservableCollection<PlayerDB>? Womens { get; set; }
         public ObservableCollection<PlayerDB>? Players { get; set; }
+        public ObservableCollection<PlayerDB>? InactivePlayers { get; set; }
         public async Task LoadPlayersAsyncFromDatabase()
         {
             var players = await _databaseService.GetPlayersAsync();
             Mens = new ObservableCollection<PlayerDB>(players
-                                                        .Where(x => x.Gender == "male")
+                                                        .Where(x => x.Gender == "male" & x.Place < 5000)
                                                         .OrderBy(x => x.Place)
                                                         .ToList());
             Womens = new ObservableCollection<PlayerDB>(players
-                                                        .Where(x => x.Gender == "female")
+                                                        .Where(x => x.Gender == "female" & x.Place < 5000)
                                                         .OrderBy(x => x.Place)
                                                         .ToList());
             Players = new ObservableCollection<PlayerDB>(players
-                                                        .Where(x => x.OverallPlace != 0)
+                                                        .Where(x => x.OverallPlace != 0 & x.OverallPlace < 5000)
                                                         .OrderBy(x => x.OverallPlace)
+                                                        .ToList());
+            InactivePlayers = new ObservableCollection<PlayerDB>(players
+                                                        .Where(x => x.OverallPlace != 0 & x.OverallPlace > 5000)
+                                                        .OrderByDescending(x => x.PointsWithBonus)
                                                         .ToList());
             OnPropertyChanged();
         }
@@ -61,7 +66,7 @@ namespace RankingApp.ViewModels
         {
             var players = await _databaseService.GetPlayersAsync();
             var list = players
-                .Where(x => x.Gender == "male")
+                .Where(x => x.Gender == "male" & x.Place < 5000)
                 .OrderBy(x => x.Place)
                 .ToList();
 
@@ -72,7 +77,7 @@ namespace RankingApp.ViewModels
         {
             var players = await _databaseService.GetPlayersAsync();
             var list = players
-                .Where(x => x.Gender == "female")
+                .Where(x => x.Gender == "female" & x.Place < 5000)
                 .OrderBy(x => x.Place)
                 .ToList();
 
@@ -83,8 +88,19 @@ namespace RankingApp.ViewModels
         {
             var players = await _databaseService.GetPlayersAsync();
             var list = players
-                .Where(x => x.OverallPlace != 0)
+                .Where(x => x.OverallPlace != 0 & x.OverallPlace < 5000)
                 .OrderBy(x => x.OverallPlace)
+                .ToList();
+
+            return list;
+        }
+
+        public async Task<List<PlayerDB>> GetAllInactivePlayers()
+        {
+            var players = await _databaseService.GetPlayersAsync();
+            var list = players
+                .Where(x => x.OverallPlace != 0 & x.OverallPlace > 5000)
+                .OrderByDescending(x => x.PointsWithBonus)
                 .ToList();
 
             return list;

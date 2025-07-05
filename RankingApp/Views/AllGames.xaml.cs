@@ -8,9 +8,9 @@ public partial class AllGames : ContentPage
 {
     private readonly AllGamesViewModel _viewModel;
     public AllGames(AllGamesViewModel viewModel)
-	{
-		InitializeComponent();
-		_viewModel = viewModel;
+    {
+        InitializeComponent();
+        _viewModel = viewModel;
         BindingContext = _viewModel;
     }
 
@@ -34,7 +34,7 @@ public partial class AllGames : ContentPage
     private async void MenuItem_OnClicked(object? sender, EventArgs e)
     {
         var menuItem = sender as MenuItem;
-        if (menuItem != null) 
+        if (menuItem != null)
         {
             var game = menuItem.CommandParameter as Game;
             if (game != null)

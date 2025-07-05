@@ -7,41 +7,41 @@ namespace RankingApp.Data_Storage
     {
 
         private readonly PlayerService _dataService = dataService;
-        private List<PlayerDB> _players;
+        private List<PlayerDB>? _players;
 
         public async Task<List<PlayerDB>> GetPlayersAsync()
         {
-            var males =await _dataService.GetPlayersAsync("virietis");
-            var females =await _dataService.GetPlayersAsync("sieviete");
+            var males = await _dataService.GetPlayersAsync("virietis");
+            var females = await _dataService.GetPlayersAsync("sieviete");
 
             var malesDb = males.Select(player => new PlayerDB()
-                {
-                    Gender = "male",
-                    Id = player.Id,
-                    Name = player.Name,
-                    Surname = player.Surname,
-                    Place = player.Place,
-                    Points = player.Points,
-                    PointsWithBonus = player.PointsWithBonus,
-                    BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
-                })
+            {
+                Gender = "male",
+                Id = player.Id,
+                Name = player.Name,
+                Surname = player.Surname,
+                Place = player.Place,
+                Points = player.Points,
+                PointsWithBonus = player.PointsWithBonus,
+                BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
+            })
                 .ToList();
 
             var femalesDb = females.Select(player => new PlayerDB()
-                {
-                    Gender = "female",
-                    Id = player.Id,
-                    Name = player.Name,
-                    Surname = player.Surname,
-                    Place = player.Place,
-                    Points = player.Points,
-                    PointsWithBonus = player.PointsWithBonus,
-                    BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
+            {
+                Gender = "female",
+                Id = player.Id,
+                Name = player.Name,
+                Surname = player.Surname,
+                Place = player.Place,
+                Points = player.Points,
+                PointsWithBonus = player.PointsWithBonus,
+                BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
             })
                 .ToList();
 
             _players = malesDb.Concat(femalesDb)
-                .OrderByDescending(x=>x.PointsWithBonus)
+                .OrderByDescending(x => x.PointsWithBonus)
                 .ToList();
             int place = 1;
             foreach (var p in _players)

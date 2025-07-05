@@ -8,8 +8,8 @@ public partial class AllPlayerRanking : ContentPage
 {
     private readonly PlayerViewModel _viewModel;
     public AllPlayerRanking(PlayerViewModel viewModel)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
     }

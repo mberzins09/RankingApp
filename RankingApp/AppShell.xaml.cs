@@ -5,11 +5,10 @@ namespace RankingApp
 
     public partial class AppShell : Shell
     {
-
         public AppShell()
         {
             InitializeComponent();
-            
+
             Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
             Routing.RegisterRoute(nameof(WomensRanking), typeof(WomensRanking));
             Routing.RegisterRoute(nameof(MensRanking), typeof(MensRanking));
@@ -19,7 +18,7 @@ namespace RankingApp
             Routing.RegisterRoute(nameof(AllTournaments), typeof(AllTournaments));
             Routing.RegisterRoute(nameof(AllGames), typeof(AllGames));
             Routing.RegisterRoute(nameof(AddTournament), typeof(AddTournament));
+            Routing.RegisterRoute(nameof(InactivePlayers), typeof(InactivePlayers));
         }
-
     }
 }

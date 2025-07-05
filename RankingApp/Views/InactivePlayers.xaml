@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:RankingApp.Models"
+             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             x:DataType="viewmodel:PlayerViewModel"
+             x:Class="RankingApp.Views.InactivePlayers"
+             Title="InactivePlayers"
+             BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}">
+    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}">
+        <Label 
+         Text="Inactive Players Ranking" 
+         FontSize="Title" 
+         TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+         HorizontalOptions="Center"/>
+        <SearchBar
+         x:Name="InactivePlayersSearchBar"
+         Placeholder="Search Player"
+         TextChanged="InactivePlayersSearchBar_OnTextChanged"
+         BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}"
+         TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></SearchBar>
+        <ListView 
+         x:Name="Inactives"
+         BackgroundColor="{AppThemeBinding Light={StaticResource DGreen}, Dark={StaticResource Gray900}}"
+         ItemsSource="{Binding InactivePlayers}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:PlayerDB">
+                    <ViewCell>
+                        <HorizontalStackLayout Spacing="10" Padding="5">
+                            <Label 
+                             Text ="{Binding Display}" 
+                             TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                             FontSize="18"
+                             FontAttributes="Bold"
+                             VerticalTextAlignment="Center"
+                             HorizontalTextAlignment="Center"></Label>
+                            <Label 
+                                 Text ="{Binding Points}" 
+                                 TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                                 FontSize="16"
+                                 VerticalTextAlignment="Center"
+                                 HorizontalTextAlignment="Center"></Label>
+                            <Label 
+                                 Text ="{Binding PointsWithBonus}" 
+                                 TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
+                                 FontSize="16"
+                                 VerticalTextAlignment="Center"
+                                 HorizontalTextAlignment="Center"></Label>
+                        </HorizontalStackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>
