@@ -9,8 +9,21 @@ namespace RankingApp.ViewModels
         private readonly DatabaseService _databaseService = databaseService;
         public ObservableCollection<PlayerDB>? Players { get; set; }
         public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
+        public ObservableCollection<int> SetsOptions { get; } = new ObservableCollection<int> { 0, 1, 2, 3, 4 };
         public bool IsOpponentForeign { get; set; }
-        public required Game Game { get; set; }
+        private Game _game;
+        public Game Game
+        {
+            get => _game;
+            set
+            {
+                if (_game != value)
+                {
+                    _game = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public async Task LoadDataAsync()
         {
@@ -58,5 +71,10 @@ namespace RankingApp.ViewModels
 
             return searchedPlayers;
         }
+    }
+
+    public static class BoolValues
+    {
+        public static readonly bool[] Values = { true, false };
     }
 }

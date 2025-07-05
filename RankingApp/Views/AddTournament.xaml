@@ -8,7 +8,7 @@
              x:DataType="viewmodel:AddTournamentViewModel"
              x:Class="RankingApp.Views.AddTournament"
              Title="Tournament Details"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
+             Style="{StaticResource PrimaryContentPage}">
     <Grid
         ColumnDefinitions="*,*"
         BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
@@ -22,13 +22,9 @@
                            HorizontalOptions="Center" VerticalOptions="Center"></Entry>
                     <rankingApp:FormDatePicker Grid.Row="1" Grid.ColumnSpan="3" x:Name="PickerTournamentDate" MinimumDate="01/01/2000" MaximumDate="01/01/2200" 
                                                DateSelected="TournamentDate_OnDateSelected" HorizontalOptions="Center" VerticalOptions="Center"></rankingApp:FormDatePicker>
-                    <RadioButton Grid.Row="2" Grid.Column="0" Content="0" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
-                    <RadioButton Grid.Row="2" Grid.Column="1" Content="0.25" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
-                    <RadioButton Grid.Row="2" Grid.Column="2" Content="0.5" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
-                    <RadioButton Grid.Row="3" Grid.Column="0" Content="1" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
-                    <RadioButton Grid.Row="3" Grid.Column="1" Content="1.5" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
-                    <RadioButton Grid.Row="3" Grid.Column="2" Content="2" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
-                    <RadioButton Grid.Row="4" Grid.Column="1" Content="4" GroupName="Coefficient" CheckedChanged="Coefficient_CheckedChanged" FontSize="16" Scale="0.75" />
+                    <Picker Grid.Row="2" Grid.ColumnSpan="3" Title="Select Coefficient" ItemsSource="{Binding CoefficientOptions}"
+                            SelectedItem="{Binding Tournament.Coefficient}" FontSize="16" Scale="0.75" Style="{StaticResource PrimaryPicker}"
+                            SelectedIndexChanged="Picker_SelectedIndexChanged"/>
                 </Grid>
             </Frame>
             <Frame Grid.Row="2" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">

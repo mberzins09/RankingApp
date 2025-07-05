@@ -2,47 +2,34 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:model="using:RankingApp.Models"
+             x:DataType="viewmodel:GameViewModel"
              x:Class="RankingApp.Views.Games"
              Title="Game"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
+             Style="{StaticResource PrimaryContentPage}">
     <Grid RowDefinitions="50, 50, *, 50" ColumnDefinitions="5, 100, 100, *, 50" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
         <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="80" HeightRequest="40" Source="racketsnoborder.png"
                      x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryImageButton}" />
         <HorizontalStackLayout Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Spacing="3">
-            <Label x:Name="LabelMyName" Style="{StaticResource PrimaryLabel}"/>
-            <Label x:Name="LabelMySurname" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding Game.MyName}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding Game.MySurname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>
         <Picker Grid.Row="0" Grid.Column="4" x:Name="MySetsPicker" Title="Sets" 
-                SelectedIndexChanged="OnMySetsChanged" Style="{StaticResource PrimaryPicker}">
-                <Picker.ItemsSource>
-                    <x:Array Type="{x:Type x:Int32}">
-                        <x:Int32>0</x:Int32>
-                        <x:Int32>1</x:Int32>
-                        <x:Int32>2</x:Int32>
-                        <x:Int32>3</x:Int32>
-                        <x:Int32>4</x:Int32>
-                    </x:Array>
-                </Picker.ItemsSource>
+                SelectedIndexChanged="OnMySetsChanged" Style="{StaticResource PrimaryPicker}"
+                ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding Game.MySets}">
         </Picker>
 
         <!-- Row 1 -->
-        <Label Grid.Row="1" Grid.Column="1" x:Name ="LabelRatingDifference" Style="{StaticResource PrimaryLabel}" Text="0"  FontSize="20"/>
+        <Label Grid.Row="1" Grid.Column="1" x:Name ="LabelRatingDifference" Style="{StaticResource PrimaryLabel}" Text="0"  FontSize="24"/>
         <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Spacing="3">
-            <Label x:Name="LabelOpponentName" Style="{StaticResource PrimaryLabel}"/>
-            <Label x:Name="LabelOpponentSurname" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding Game.Name}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding Game.Surname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>
         <Picker Grid.Row="1" Grid.Column="4" x:Name="OpponentSetsPicker" Title="Sets"
-                SelectedIndexChanged="OnOpponentSetsChanged" Style="{StaticResource PrimaryPicker}">
-            <Picker.ItemsSource>
-                <x:Array Type="{x:Type x:Int32}">
-                    <x:Int32>0</x:Int32>
-                    <x:Int32>1</x:Int32>
-                    <x:Int32>2</x:Int32>
-                    <x:Int32>3</x:Int32>
-                    <x:Int32>4</x:Int32>
-                </x:Array>
-            </Picker.ItemsSource>
+                SelectedIndexChanged="OnOpponentSetsChanged" Style="{StaticResource PrimaryPicker}"
+                ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding Game.OpponentSets}">
         </Picker>
         
         <!-- Row 2 -->
@@ -50,7 +37,7 @@
             <SearchBar Grid.Row="0" x:Name="PlayerSearchBar" TextChanged="PlayerSearchBar_OnTextChanged" Style="{StaticResource PrimarySearchBar}"/>
             <ListView Grid.Row="1" x:Name ="ListPlayers" ItemSelected="ListPlayers_OnItemSelected" Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>
                             <Grid ColumnDefinitions="*, 50">
                                 <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1"/>
@@ -68,13 +55,7 @@
         <Entry Grid.Row="3" Grid.Column="2" x:Name="EntryOpponentSurname" Placeholder="Surname" TextChanged="EntryOppName_OnTextChanged"
                Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
         <Picker Grid.Row="3" Grid.Column="4" x:Name="IsForeignPicker" SelectedIndexChanged="IsForeignPicker_SelectedIndexChanged"
-                Style="{StaticResource PrimaryPicker}">
-            <Picker.ItemsSource>
-                <x:Array Type="{x:Type x:String}">
-                    <x:String>Yes</x:String>
-                    <x:String>No</x:String>
-                </x:Array>
-            </Picker.ItemsSource>
+                Style="{StaticResource PrimaryPicker}" ItemsSource="{x:Static viewmodel:BoolValues.Values}" SelectedItem="{Binding Game.IsOpponentForeign}">
         </Picker>
     </Grid>
 </ContentPage>

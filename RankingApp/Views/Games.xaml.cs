@@ -20,17 +20,6 @@ public partial class Games : ContentPage
         await _viewModel.LoadDataAsync();
         if (_viewModel.Game != null)
         {
-            LabelOpponentName.Text = _viewModel.Game.Name;
-            LabelOpponentSurname.Text = _viewModel.Game.Surname;
-            LabelMyName.Text = _viewModel.Game.MyName;
-            LabelMySurname.Text = _viewModel.Game.MySurname;
-            if (_viewModel.Game.MySets != null && _viewModel.Game.OpponentSets != null)
-            {
-                MySetsPicker.SelectedItem = _viewModel.Game.MySets;
-                OpponentSetsPicker.SelectedItem = _viewModel.Game.OpponentSets;
-                IsForeignPicker.SelectedItem = _viewModel.Game.IsOpponentForeign ? "Yes" : "No";
-            }
-            
             UpdateRatingDifference();
             if (_viewModel.Game.MySets == null || _viewModel.Game.OpponentSets == null || _viewModel.Game.Name == null)
             {
@@ -44,30 +33,18 @@ public partial class Games : ContentPage
 
     private async void OnMySetsChanged(object sender, EventArgs e)
     {
-        if (MySetsPicker.SelectedItem is int selectedValue)
-        {
-            _viewModel.Game.MySets = selectedValue;
-            await HandleRatingAndSaveAsync();
-        }
+        await HandleRatingAndSaveAsync();
     }
 
     private async void OnOpponentSetsChanged(object sender, EventArgs e)
     {
-        if (OpponentSetsPicker.SelectedItem is int selectedValue)
-        {
-            _viewModel.Game.OpponentSets = selectedValue;
-            await HandleRatingAndSaveAsync();
-        }
+        await HandleRatingAndSaveAsync();
     }
 
     private async void IsForeignPicker_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        if (IsForeignPicker.SelectedItem is string selection)
-        {
-            _viewModel.Game.IsOpponentForeign = selection == "Yes";
-            UpdateRatingDifference();
-            await _viewModel.SaveGameAsync();
-        }
+        UpdateRatingDifference();
+        await _viewModel.SaveGameAsync();
     }
 
     private void PlayerSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
@@ -102,9 +79,6 @@ public partial class Games : ContentPage
             }
             await _viewModel.SaveGameAsync();
         }
-
-        LabelOpponentName.Text = _viewModel.Game.Name;
-        LabelOpponentSurname.Text = _viewModel.Game.Surname;
     }
 
     private async void EntryOppName_OnTextChanged(object? sender, TextChangedEventArgs e)
@@ -112,11 +86,9 @@ public partial class Games : ContentPage
         _viewModel.Game.Name = EntryOpponentName.Text;
         _viewModel.Game.Surname = EntryOpponentSurname.Text;
         _viewModel.Game.OpponentPoints = 0;
+        UpdateRatingDifference();
 
         await _viewModel.SaveGameAsync();
-
-        LabelOpponentName.Text = _viewModel.Game.Name;
-        LabelOpponentSurname.Text = _viewModel.Game.Surname;
     }
 
     private async Task HandleRatingAndSaveAsync()

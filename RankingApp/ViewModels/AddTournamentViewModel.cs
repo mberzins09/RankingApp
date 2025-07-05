@@ -1,6 +1,7 @@
-﻿using RankingApp.Services;
+﻿using RankingApp.Models;
+using RankingApp.Services;
 using System.Collections.ObjectModel;
-using RankingApp.Models;
+using System.ComponentModel;
 
 namespace RankingApp.ViewModels
 {
@@ -10,6 +11,11 @@ namespace RankingApp.ViewModels
         public required ObservableCollection<PlayerDB> Players { get; set; }
         public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
         public required Tournament Tournament { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public List<string> CoefficientOptions { get; } = new()
+    {
+        "0", "0.25", "0.5", "1", "1.5", "2", "4"
+    };
 
         public async Task LoadDataAsync()
         {

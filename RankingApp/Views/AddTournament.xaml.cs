@@ -41,16 +41,6 @@ public partial class AddTournament : ContentPage
         await _viewModel.EditTournamentName(_viewModel.Tournament.Name);
     }
 
-    private async void Coefficient_CheckedChanged(object? sender, CheckedChangedEventArgs e)
-    {
-        if (e.Value && sender is RadioButton radioButton)
-        {
-            _viewModel.Tournament.Coefficient = radioButton.Content.ToString() ?? "0";
-            LabelSelectedTournamentCoefficient.Text = radioButton.Content.ToString();
-            await _viewModel.EditCoefficient(_viewModel.Tournament.Coefficient);
-        }
-    }
-
     private async void ButtonAdd_OnClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync(nameof(Tournaments));
@@ -81,5 +71,10 @@ public partial class AddTournament : ContentPage
             _viewModel.Tournament.TournamentPlayerName,
             _viewModel.Tournament.TournamentPlayerSurname,
             _viewModel.Tournament.TournamentPlayerPoints);
+    }
+
+    private async void Picker_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        await _viewModel.EditCoefficient(_viewModel.Tournament.Coefficient);
     }
 }
