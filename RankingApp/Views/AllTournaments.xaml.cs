@@ -26,11 +26,7 @@ public partial class AllTournaments : ContentPage
 
     private void TournamentsSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        var search = sender == null ? String.Empty : ((SearchBar)sender).Text;
-        var tournaments = new ObservableCollection<Tournament>
-            (_viewModel.SearchTournaments(_viewModel.TournamentsList, search));
-
-        ListViewTournaments.ItemsSource = tournaments;
+        _viewModel.FilterTournaments(e.NewTextValue);
     }
 
     private void ListViewTournaments_OnItemSelected(object? sender, SelectedItemChangedEventArgs e)
@@ -87,8 +83,8 @@ public partial class AllTournaments : ContentPage
             Place = 10000,
             Points = 0,
             PointsWithBonus = 0,
-            Name = "V?rds",
-            Surname = "Uzv?rds",
+            Name = "Name",
+            Surname = "Surname",
             Gender = "male",
             OverallPlace = 10000,
             BirthDate = ""
@@ -109,7 +105,7 @@ public partial class AllTournaments : ContentPage
         var tournament = new Tournament()
         {
             Coefficient = "0.5",
-            Name = "Jauns turn?rs",
+            Name = "New Tournament",
             Date = DateTime.Now,
             TournamentPlayerName = player.Name,
             TournamentPlayerSurname = player.Surname,

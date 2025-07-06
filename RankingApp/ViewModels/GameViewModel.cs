@@ -1,6 +1,7 @@
-﻿using System.Collections.ObjectModel;
-using RankingApp.Models;
+﻿using RankingApp.Models;
 using RankingApp.Services;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace RankingApp.ViewModels
 {
@@ -35,6 +36,8 @@ namespace RankingApp.ViewModels
                     x.Id != tournament.TournamentPlayerId)
                 .OrderByDescending(x => x.PointsWithBonus)
                 .ToList();
+            Game.GameCoefficient = tournament.Coefficient;
+            await _databaseService.SaveGameAsync(Game);
 
             Players = new ObservableCollection<PlayerDB>(PlayerList);
 

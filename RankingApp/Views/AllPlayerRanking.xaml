@@ -6,8 +6,9 @@
              x:DataType="viewmodel:PlayerViewModel"
              x:Class="RankingApp.Views.AllPlayerRanking"
              Title="Players Ranking"
-             BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}">
+             Style="{StaticResource PrimaryContentPage}">
     <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}">
+        <ImageButton Style="{StaticResource PrimaryImageButton}" Source="plusnoborder.png" Clicked="ImageButton_Clicked"></ImageButton>
         <Label 
             Text="Players Ranking" 
             FontSize="Title" 

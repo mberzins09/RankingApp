@@ -1,1 +1,1 @@
-D:\Projekti\RankingApp\RankingApp\RankingApp.csproj;x64
+C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\RankingApp.csproj;x64

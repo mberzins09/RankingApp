@@ -1,6 +1,7 @@
-﻿using System.Collections.ObjectModel;
-using RankingApp.Models;
+﻿using RankingApp.Models;
 using RankingApp.Services;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Game = RankingApp.Models.Game;
 
 namespace RankingApp.ViewModels
@@ -9,6 +10,7 @@ namespace RankingApp.ViewModels
     {
         private readonly DatabaseService _database = database;
         public ObservableCollection<Game> Games { get; set; } = new();
+        public event PropertyChangedEventHandler? PropertyChanged;
         private Tournament _tournament;
         public required Tournament Tournament
         {

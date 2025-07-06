@@ -1,23 +1,23 @@
-using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using RankingApp.Models;
 using RankingApp.Services;
+using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels;
 
-public class AllTournamentsViewModel(DatabaseService database) : BaseViewModel
+public partial class AllTournamentsViewModel(DatabaseService database) : BaseViewModel
 {
     private readonly DatabaseService _database = database;
-    public ObservableCollection<Tournament>? Tournaments { get; set; }
-    public List<Tournament> TournamentsList { get; set; } = new List<Tournament>();
+    private List<Tournament> _allTournaments = new();
+    
+    [ObservableProperty]
+    private ObservableCollection<Tournament> tournaments;
 
     public async Task LoadDataAsync()
     {
         var tournaments = await _database.GetTournamentsAsync();
-        TournamentsList = tournaments.OrderByDescending(x => x.Date).ToList();
-
-        Tournaments = new ObservableCollection<Tournament>(TournamentsList);
-
-        OnPropertyChanged();
+        _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
+        Tournaments = new ObservableCollection<Tournament>(_allTournaments);
     }
 
     public async Task<List<Tournament>> GetTournaments()
@@ -36,16 +36,22 @@ public class AllTournamentsViewModel(DatabaseService database) : BaseViewModel
         return list;
     }
 
-    public List<Tournament> SearchTournaments(List<Tournament> tournaments, string filterText)
+    public void FilterTournaments(string searchText)
     {
-        var searchedTournaments = tournaments
-            .Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
-                         x.Name.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
-                        (!string.IsNullOrWhiteSpace(x.Date.ToString("d MMM yyyy")) &&
-                         x.Date.ToString("d MMM yyyy").StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            Tournaments = new ObservableCollection<Tournament>(_allTournaments);
+            return;
+        }
+
+        var filtered = _allTournaments
+            .Where(x =>
+                (!string.IsNullOrWhiteSpace(x.Name) &&
+                 x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                x.Date.ToString("d MMM yyyy").StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        return searchedTournaments;
+        Tournaments = new ObservableCollection<Tournament>(filtered);
     }
 
     public async Task DeleteTournament(Tournament tournament)
