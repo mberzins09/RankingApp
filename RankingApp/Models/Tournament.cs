@@ -89,7 +89,21 @@ namespace RankingApp.Models
         }
 
         public int TournamentPlayerPoints { get; set; }
-        public int PointsDifference { get; set; }
+        
+        private int _pointsDifference;
+        public int PointsDifference 
+        { 
+            get => _pointsDifference;
+            set
+            {
+                if (_pointsDifference != value)
+                {
+                    _pointsDifference = value;
+                    OnPropertyChanged(nameof(PointsDifference));
+                    OnPropertyChanged(nameof(TournamentDisplay)); // Because it depends on PointsDifference
+                }
+            }
+        }
         public int TournamentPlayerId { get; set; }
 
         public string TournamentDisplay =>

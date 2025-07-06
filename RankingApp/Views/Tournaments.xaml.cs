@@ -22,11 +22,6 @@ public partial class Tournaments : ContentPage
         base.OnAppearing();
         await _viewModel.LoadGamesAsync();
         ListViewTournamentGames.ItemsSource = _viewModel.Games;
-        LabelTournamentDate.Text = _viewModel.Tournament.Date.ToString("d MMM yyyy");
-        LabelTournamentCoefficient.Text = _viewModel.Tournament.Coefficient;
-        LabelTournamentName.Text = _viewModel.Tournament.Name;
-        LabelTournamentPlayer.Text = $"{_viewModel.Tournament.TournamentPlayerName} {_viewModel.Tournament.TournamentPlayerSurname}";
-        LabelPointsDifference.Text = _viewModel.Tournament.PointsDifference.ToString();
     }
 
     private async void BtnAddGame_OnClicked(object? sender, EventArgs e)
@@ -68,7 +63,6 @@ public partial class Tournaments : ContentPage
 
         await _viewModel.LoadGamesAsync();
         ListViewTournamentGames.ItemsSource = _viewModel.Games;
-        LabelPointsDifference.Text = _viewModel.Tournament.PointsDifference.ToString();
     }
 
     private async void ListViewTournamentGames_ItemSelected(object sender, SelectedItemChangedEventArgs e)

@@ -41,15 +41,20 @@
                                          Dark="{StaticResource Gray900}" />
                     </Setter.Value>
                 </Setter>
-                
                 <Setter Property="TextColor">
                     <Setter.Value>
                         <AppThemeBinding Light="{StaticResource Gray900}"
                                          Dark="{StaticResource Gray200}" />
                     </Setter.Value>
                 </Setter>
-
+                <Setter Property="PlaceholderColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                                         Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="Placeholder" Value="Search..." />
+                <Setter Property="FontSize" Value="14" />
             </Style>
 
             <!-- ListView -->
@@ -133,8 +138,33 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            
-            
+
+            <!-- HorizontalStackLayout -->
+            <Style TargetType="HorizontalStackLayout" x:Key="PrimaryHorizontal">
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                             Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="Spacing" Value="5" />
+            </Style>
+
+            <!-- VerticalStackLayout -->
+            <Style TargetType="VerticalStackLayout" x:Key="PrimaryVertical">
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                                         Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="Spacing" Value="3" />
+                <Setter Property="Padding" Value="3" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

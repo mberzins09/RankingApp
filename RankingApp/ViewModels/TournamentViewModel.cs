@@ -9,7 +9,19 @@ namespace RankingApp.ViewModels
     {
         private readonly DatabaseService _database = database;
         public ObservableCollection<Game> Games { get; set; } = new();
-        public required Tournament Tournament { get; set; }
+        private Tournament _tournament;
+        public required Tournament Tournament
+        {
+            get => _tournament;
+            set
+            {
+                if (_tournament != value)
+                {
+                    _tournament = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public async Task SaveTournamentAsync()
         {
@@ -19,12 +31,12 @@ namespace RankingApp.ViewModels
         public async Task LoadGamesAsync()
         {
             Tournament = await _database.GetTournamentAsync(Data.TournamentId);
-            var list = await _database.GetGamesAsync();
-            var tgames = list.Where(x => x.TournamentId == Data.TournamentId).ToList();
-            Games = new ObservableCollection<Game>(tgames);
-            Tournament.PointsDifference = list
-                .Where(x => x.TournamentId == Data.TournamentId)
-                .Sum(x => x.RatingDifference);
+            var allGames = await _database.GetGamesAsync();
+            var tournamentGames = allGames.Where(x => x.TournamentId == Data.TournamentId).ToList();
+            Games = new ObservableCollection<Game>(tournamentGames);
+            Tournament.PointsDifference = allGames
+                                          .Where(x => x.TournamentId == Data.TournamentId)
+                                          .Sum(x => x.RatingDifference);
 
             OnPropertyChanged();
         }

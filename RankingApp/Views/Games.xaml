@@ -17,13 +17,13 @@
             <Label Text="{Binding Game.MySurname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>
         <Picker Grid.Row="0" Grid.Column="4" x:Name="MySetsPicker" Title="Sets" 
-                SelectedIndexChanged="OnMySetsChanged" Style="{StaticResource PrimaryPicker}"
+                SelectedIndexChanged="OnMySetsChanged" Style="{StaticResource PrimaryPicker}" 
                 ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding Game.MySets}">
         </Picker>
 
         <!-- Row 1 -->
         <Label Grid.Row="1" Grid.Column="1" x:Name ="LabelRatingDifference" Style="{StaticResource PrimaryLabel}" Text="0"  FontSize="24"/>
-        <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Spacing="3">
+        <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
             <Label Text="{Binding Game.Name}" Style="{StaticResource PrimaryLabel}"/>
             <Label Text="{Binding Game.Surname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>

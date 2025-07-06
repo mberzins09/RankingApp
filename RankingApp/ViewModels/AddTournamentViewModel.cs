@@ -10,7 +10,19 @@ namespace RankingApp.ViewModels
         private readonly DatabaseService _databaseService = databaseService;
         public required ObservableCollection<PlayerDB> Players { get; set; }
         public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
-        public required Tournament Tournament { get; set; }
+        private Tournament _tournament;
+        public required Tournament Tournament {
+            get => _tournament;
+            set
+            {
+                if (_tournament != value)
+                {
+                    _tournament = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
         public List<string> CoefficientOptions { get; } = new()
     {
