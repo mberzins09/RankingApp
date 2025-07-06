@@ -46,7 +46,7 @@ public partial class Tournaments : ContentPage
     private async void BtnSave_OnClicked(object? sender, EventArgs e)
     {
         await _viewModel.SaveTournamentAsync();
-        await Shell.Current.GoToAsync($"//{nameof(HomePage)}");
+        await Shell.Current.GoToAsync(nameof(AllTournaments));
     }
 
     private async void MenuItem_OnClicked(object? sender, EventArgs e)

@@ -5,62 +5,31 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllTournamentsViewModel"
-             Title="All Tournaments"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-        <Label 
-            Text="Tournaments" 
-            FontSize="Title" 
-            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-            HorizontalOptions="Center"/>
-        <SearchBar
-            x:Name="TournamentsSearchBar"
-            Placeholder="Search Tournaments"
-            TextChanged="TournamentsSearchBar_OnTextChanged"
-            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
-        ></SearchBar>
-        <ListView 
-            x:Name ="ListViewTournaments" 
-            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
-            SeparatorColor="Green"
-            ItemsSource="{Binding Tournaments}"
-            ItemSelected="ListViewTournaments_OnItemSelected">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="model:Tournament">
-                    <ViewCell>
-                        <VerticalStackLayout Spacing="2" Padding="1">
-                            <Label
-                                Text ="{Binding Name}"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                FontSize="16"
-                                FontAttributes="Bold"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"></Label>
-                            <Label
-                                Text ="{Binding TournamentDisplay}"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                FontSize="14"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"></Label>
-                        </VerticalStackLayout>
+             Title="Rankings"
+             Style="{StaticResource PrimaryContentPage}">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, *" ColumnDefinitions="10, 100, *, 100, *, 100, 10">
+        <ImageButton Grid.Column="1" Source="ranksnoborder.png" Clicked="ImageButtonRankings_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
+        <ImageButton Grid.Column="3" Source="gamesnoborder.png" Clicked="ImageButtonAllGames_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
+        <ImageButton Grid.Column="5" Source="plusnoborder.png" Clicked="ImageButtonAdd_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
 
-                        <ViewCell.ContextActions>
-                            <MenuItem
-                                Text="Delete"
-                                IsDestructive="True"
-                                Clicked="MenuItemDelete_OnClicked"
-                                CommandParameter="{Binding .}"></MenuItem>
-
-                            <MenuItem
-                                Text="Edit"
-                                IsDestructive="False"
-                                Clicked="MenuItemEdit_OnClicked"
-                                CommandParameter="{Binding .}"></MenuItem>
-                        </ViewCell.ContextActions>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-
-        </ListView>
-    </StackLayout>
+        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="7" RowDefinitions="40, *">
+            <SearchBar Style="{StaticResource PrimarySearchBar}" x:Name="TournamentsSearchBar" TextChanged="TournamentsSearchBar_OnTextChanged"/>
+            <ListView Grid.Row="1" Style="{StaticResource PrimaryListView}" x:Name ="ListViewTournaments" ItemsSource="{Binding Tournaments}" ItemSelected="ListViewTournaments_OnItemSelected">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Tournament">
+                        <ViewCell>
+                            <VerticalStackLayout Style="{StaticResource PrimaryVertical}">
+                                <Label Text ="{Binding Name}" Style="{StaticResource ListItemLabel}" FontSize="16" FontAttributes="Bold"/>
+                                <Label Text ="{Binding TournamentDisplay}" Style="{StaticResource ListItemLabel}"/>
+                            </VerticalStackLayout>
+                            <ViewCell.ContextActions>
+                                <MenuItem Text="Delete" IsDestructive="True" Clicked="MenuItemDelete_OnClicked" CommandParameter="{Binding .}"></MenuItem>
+                                <MenuItem Text="Edit" IsDestructive="False" Clicked="MenuItemEdit_OnClicked" CommandParameter="{Binding .}"></MenuItem>
+                            </ViewCell.ContextActions>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
 </ContentPage>

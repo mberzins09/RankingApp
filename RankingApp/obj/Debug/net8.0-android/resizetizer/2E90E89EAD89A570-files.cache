@@ -1,5 +1,7 @@
-﻿obj\Debug\net8.0-android\resizetizer\r\drawable\plusnoborder.png
+﻿obj\Debug\net8.0-android\resizetizer\r\drawable\gamesnoborder.png
+obj\Debug\net8.0-android\resizetizer\r\drawable\plusnoborder.png
 obj\Debug\net8.0-android\resizetizer\r\drawable\racketsnoborder.png
+obj\Debug\net8.0-android\resizetizer\r\drawable\ranksnoborder.png
 obj\Debug\net8.0-android\resizetizer\r\drawable-hdpi\dotnet_bot.png
 obj\Debug\net8.0-android\resizetizer\r\drawable-mdpi\dotnet_bot.png
 obj\Debug\net8.0-android\resizetizer\r\drawable-xhdpi\dotnet_bot.png

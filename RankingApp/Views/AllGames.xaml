@@ -6,55 +6,24 @@
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllGamesViewModel"
              Title="All Games"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-        <Label 
-            Text="Games" 
-            FontSize="Title" 
-            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
-            HorizontalOptions="Center"/>
-        <SearchBar
-            x:Name="GamesSearchBar"
-            Placeholder="Search Games"
-            TextChanged="GamesSearchBar_OnTextChanged"
-            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
-            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-        ></SearchBar>
-        <ListView 
-            x:Name ="ListViewGames" 
-            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
-            SeparatorColor="Blue"
-            ItemsSource="{Binding Games}">
+             Style="{StaticResource PrimaryContentPage}">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="30, 40, *">
+        <Label Grid.Row="0" Style="{StaticResource PrimaryLabel}" Text="Games" FontSize="Title" />
+        <SearchBar Grid.Row="1" Style="{StaticResource PrimarySearchBar}" x:Name="GamesSearchBar" TextChanged="GamesSearchBar_OnTextChanged" />
+        <ListView Grid.Row="2" x:Name ="ListViewGames" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Games}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:Game">
                     <ViewCell>
-                        <VerticalStackLayout Spacing="2" Padding="1">
-                            <Label 
-                                Text="{Binding GameDisplayPlayers}"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                FontSize="15"
-                                FontAttributes="Bold"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"></Label>
-                            <Label 
-                                Text="{Binding GameDisplayDetails}"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                FontSize="12"
-                                FontAttributes="Bold"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"></Label>
+                        <VerticalStackLayout Style="{StaticResource PrimaryVertical}">
+                            <Label Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" FontSize="15" FontAttributes="Bold"/>
+                            <Label Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
                         </VerticalStackLayout>
                         <ViewCell.ContextActions>
-                            <MenuItem
-                                Text="Delete"
-                                IsDestructive="True"
-                                Clicked="MenuItem_OnClicked"
-                                CommandParameter="{Binding .}"></MenuItem>
+                            <MenuItem Text="Delete" IsDestructive="True" Clicked="MenuItem_OnClicked" CommandParameter="{Binding .}"></MenuItem>
                         </ViewCell.ContextActions>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-    </StackLayout>
+    </Grid>
 </ContentPage>
