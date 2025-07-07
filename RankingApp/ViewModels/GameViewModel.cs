@@ -1,78 +1,77 @@
-﻿using RankingApp.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace RankingApp.ViewModels
 {
-    public class GameViewModel(DatabaseService databaseService) : BaseViewModel
+    public partial class GameViewModel(DatabaseService databaseService) : BaseViewModel
     {
         private readonly DatabaseService _databaseService = databaseService;
-        public ObservableCollection<PlayerDB>? Players { get; set; }
-        public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
-        public ObservableCollection<int> SetsOptions { get; } = new ObservableCollection<int> { 0, 1, 2, 3, 4 };
-        public bool IsOpponentForeign { get; set; }
-        private Game _game;
-        public Game Game
+        
+        [ObservableProperty]
+        private ObservableCollection<PlayerDB>? players;
+
+        [ObservableProperty]
+        private Game? oneGame;
+
+        [ObservableProperty]
+        private PlayerDB? selectedOpponent;
+
+        private List<PlayerDB> _players = [];
+        public ObservableCollection<int> SetsOptions { get; } = [0, 1, 2, 3, 4];
+
+        partial void OnSelectedOpponentChanged(PlayerDB? value)
         {
-            get => _game;
-            set
-            {
-                if (_game != value)
-                {
-                    _game = value;
-                    OnPropertyChanged();
-                }
-            }
+            if (value is null || OneGame is null)
+                return;
+
+            OneGame.Name = value.Name;
+            OneGame.Surname = value.Surname;
+            OneGame.OpponentPoints = value.Points;
         }
 
         public async Task LoadDataAsync()
         {
-            Game = await _databaseService.GetGameAsync(Data.GameId);
-            var tournament = await _databaseService.GetTournamentAsync(Game.TournamentId);
+            OneGame = await _databaseService.GetGameAsync(Data.GameId);
             var players = await _databaseService.GetPlayersAsync();
-            PlayerList = players
-                .Where(x =>
-                    x.Id != tournament.TournamentPlayerId)
-                .OrderByDescending(x => x.PointsWithBonus)
-                .ToList();
-            Game.GameCoefficient = tournament.Coefficient;
-            await _databaseService.SaveGameAsync(Game);
+            var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
+            _players = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
+            Players = new ObservableCollection<PlayerDB>(_players);
 
-            Players = new ObservableCollection<PlayerDB>(PlayerList);
-
-            OnPropertyChanged(nameof(Players));
+            OneGame.GameCoefficient = tournament.Coefficient;
+            await _databaseService.SaveGameAsync(OneGame);
         }
 
         public async Task SaveGameAsync()
         {
-            await _databaseService.SaveGameAsync(Game);
+            await _databaseService.SaveGameAsync(OneGame);
         }
 
         public async Task<List<PlayerDB>> GetPlayers()
         {
-            var tournament = await _databaseService.GetTournamentAsync(Game.TournamentId);
+            var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
             var players = await _databaseService.GetPlayersAsync();
-            var list = players
-                .Where(x =>
-                    x.Id != tournament.TournamentPlayerId)
-                .OrderByDescending(x => x.PointsWithBonus)
-                .ToList();
+            var list = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
 
             return list;
         }
-        public List<PlayerDB> SearchPlayers(List<PlayerDB> players, string filterText)
-        {
-            var searchedPlayers = players
-                .Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
-                             x.Name.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Surname) &&
-                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Place.ToString()) &&
-                             x.Place.ToString().StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
-                .ToList();
 
-            return searchedPlayers;
+        public void FilterPlayers(string searchText)
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                Players = new ObservableCollection<PlayerDB>(_players);
+                return;
+            }
+
+            var filtered = _players.Where(x => (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.Place.ToString()) && x.Place.ToString().StartsWith(searchText, StringComparison.OrdinalIgnoreCase)))
+                            .ToList();
+            
+            Players = new ObservableCollection<PlayerDB>(filtered);
         }
     }
 

@@ -13,29 +13,29 @@
         <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="80" HeightRequest="40" Source="racketsnoborder.png"
                      x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryImageButton}" />
         <HorizontalStackLayout Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Spacing="3">
-            <Label Text="{Binding Game.MyName}" Style="{StaticResource PrimaryLabel}"/>
-            <Label Text="{Binding Game.MySurname}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding OneGame.MyName}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding OneGame.MySurname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>
         <Picker Grid.Row="0" Grid.Column="4" x:Name="MySetsPicker" Title="Sets" 
-                SelectedIndexChanged="OnMySetsChanged" Style="{StaticResource PrimaryPicker}" 
-                ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding Game.MySets}">
+                Style="{StaticResource PrimaryPicker}" 
+                ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.MySets}">
         </Picker>
 
         <!-- Row 1 -->
-        <Label Grid.Row="1" Grid.Column="1" x:Name ="LabelRatingDifference" Style="{StaticResource PrimaryLabel}" Text="0"  FontSize="24"/>
+        <Label Grid.Row="1" Grid.Column="1" x:Name ="LabelRatingDifference" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.RatingDifference}"  FontSize="24"/>
         <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-            <Label Text="{Binding Game.Name}" Style="{StaticResource PrimaryLabel}"/>
-            <Label Text="{Binding Game.Surname}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding OneGame.Name}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding OneGame.Surname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>
         <Picker Grid.Row="1" Grid.Column="4" x:Name="OpponentSetsPicker" Title="Sets"
-                SelectedIndexChanged="OnOpponentSetsChanged" Style="{StaticResource PrimaryPicker}"
-                ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding Game.OpponentSets}">
+                Style="{StaticResource PrimaryPicker}"
+                ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.OpponentSets}">
         </Picker>
         
         <!-- Row 2 -->
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" RowDefinitions="40,*" Style="{StaticResource PrimaryGrid}">
             <SearchBar Grid.Row="0" x:Name="PlayerSearchBar" TextChanged="PlayerSearchBar_OnTextChanged" Style="{StaticResource PrimarySearchBar}"/>
-            <ListView Grid.Row="1" x:Name ="ListPlayers" ItemSelected="ListPlayers_OnItemSelected" Style="{StaticResource PrimaryListView}">
+            <ListView Grid.Row="1" x:Name ="ListPlayers" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedOpponent}" Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>
@@ -54,8 +54,8 @@
                Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
         <Entry Grid.Row="3" Grid.Column="2" x:Name="EntryOpponentSurname" Placeholder="Surname" TextChanged="EntryOppName_OnTextChanged"
                Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
-        <Picker Grid.Row="3" Grid.Column="4" x:Name="IsForeignPicker" SelectedIndexChanged="IsForeignPicker_SelectedIndexChanged"
-                Style="{StaticResource PrimaryPicker}" ItemsSource="{x:Static viewmodel:BoolValues.Values}" SelectedItem="{Binding Game.IsOpponentForeign}">
+        <Picker Grid.Row="3" Grid.Column="4" Style="{StaticResource PrimaryPicker}" 
+                ItemsSource="{x:Static viewmodel:BoolValues.Values}" SelectedItem="{Binding OneGame.IsOpponentForeign}">
         </Picker>
     </Grid>
 </ContentPage>

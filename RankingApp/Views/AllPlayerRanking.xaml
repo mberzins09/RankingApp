@@ -8,7 +8,7 @@
              Title="Players Ranking"
              Style="{StaticResource PrimaryContentPage}">
     <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}">
-        <ImageButton Style="{StaticResource PrimaryImageButton}" Source="plusnoborder.png" Clicked="ImageButton_Clicked"></ImageButton>
+        <ImageButton Style="{StaticResource PrimaryImageButton}" Source="plusnoborder.png" Clicked="ImageButton_Clicked" HeightRequest="50" WidthRequest="50"></ImageButton>
         <Label 
             Text="Players Ranking" 
             FontSize="Title" 

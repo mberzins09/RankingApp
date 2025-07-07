@@ -1,202 +1,83 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SQLite;
 
 namespace RankingApp.Models
 {
-    public class Game : INotifyPropertyChanged
+    public partial class Game : ObservableObject
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        private int _myPoints;
-        public int MyPoints
-        {
-            get => _myPoints;
-            set
-            {
-                if (_myPoints != value)
-                {
-                    _myPoints = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(RatingDifference));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int myPoints;
 
-        private string _myName;
-        public string MyName
-        {
-            get => _myName;
-            set
-            {
-                if (_myName != value)
-                {
-                    _myName = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(MyFullName));
-                    OnPropertyChanged(nameof(GameDisplayPlayers));
-                }
-            }
-        }
 
-        private string _mySurname;
-        public string MySurname
-        {
-            get => _mySurname;
-            set
-            {
-                if (_mySurname != value)
-                {
-                    _mySurname = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(MyFullName));
-                    OnPropertyChanged(nameof(GameDisplayPlayers));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MyFullName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string myName;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MyFullName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string mySurname;
 
         public string MyFullName => $"{MyName} {MySurname}";
 
-        private int _opponentPoints;
-        public int OpponentPoints
-        {
-            get => _opponentPoints;
-            set
-            {
-                if (_opponentPoints != value)
-                {
-                    _opponentPoints = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(RatingDifference));
-                }
-            }
-        }
 
-        private string? _name;
-        public string? Name
-        {
-            get => _name;
-            set
-            {
-                if (_name != value)
-                {
-                    _name = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(OpponentName));
-                    OnPropertyChanged(nameof(GameDisplayPlayers));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int opponentPoints;
 
-        private string? _surname;
-        public string? Surname
-        {
-            get => _surname;
-            set
-            {
-                if (_surname != value)
-                {
-                    _surname = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(OpponentName));
-                    OnPropertyChanged(nameof(GameDisplayPlayers));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(OpponentName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string? name;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(OpponentName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string? surname;
 
         public string? OpponentName => $"{Name} {Surname}";
 
-        private int? _mySets;
-        public int? MySets
-        {
-            get => _mySets;
-            set
-            {
-                if (_mySets != value)
-                {
-                    _mySets = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(GameScore));
-                    OnPropertyChanged(nameof(IsWin));
-                    OnPropertyChanged(nameof(GameDisplayPlayers));
-                    OnPropertyChanged(nameof(GameDisplayDetails));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameScore))]
+        [NotifyPropertyChangedFor(nameof(IsWin))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int? mySets;
 
-        private int? _opponentSets;
-        public int? OpponentSets
-        {
-            get => _opponentSets;
-            set
-            {
-                if (_opponentSets != value)
-                {
-                    _opponentSets = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(GameScore));
-                    OnPropertyChanged(nameof(IsWin));
-                    OnPropertyChanged(nameof(GameDisplayPlayers));
-                    OnPropertyChanged(nameof(GameDisplayDetails));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameScore))]
+        [NotifyPropertyChangedFor(nameof(IsWin))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int? opponentSets;
 
         public bool IsWin => (MySets ?? 0) > (OpponentSets ?? 0);
 
         public int TournamentId { get; set; }
 
-        private string? _tournamentName;
-        public string? TournamentName
-        {
-            get => _tournamentName;
-            set
-            {
-                if (_tournamentName != value)
-                {
-                    _tournamentName = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(GameName));
-                    OnPropertyChanged(nameof(GameDisplayDetails));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameName))]
+        private string? tournamentName;
 
-        private DateTime _tournamentDate;
-        public DateTime TournamentDate
-        {
-            get => _tournamentDate;
-            set
-            {
-                if (_tournamentDate != value)
-                {
-                    _tournamentDate = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(DateToString));
-                    OnPropertyChanged(nameof(GameName));
-                    OnPropertyChanged(nameof(GameDisplayDetails));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameName))]
+        [NotifyPropertyChangedFor(nameof(DateToString))]
+        private DateTime tournamentDate;
 
         public string DateToString => TournamentDate.ToString("d MMM yyyy");
 
-        private string _gameCoefficient;
-        public string GameCoefficient
-        {
-            get => _gameCoefficient;
-            set
-            {
-                if (_gameCoefficient != value)
-                {
-                    _gameCoefficient = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(RatingDifference));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private string gameCoefficient;
 
         public string GameScore => $"{MySets} : {OpponentSets}";
 
@@ -206,26 +87,25 @@ namespace RankingApp.Models
 
         public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
 
-        private bool _isOpponentForeign;
-        public bool IsOpponentForeign
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private bool isOpponentForeign;
+
+        public int RatingDifference
         {
-            get => _isOpponentForeign;
-            set
+            get
             {
-                if (_isOpponentForeign != value)
+                if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Surname) ||
+                    MySets is null || OpponentSets is null)
                 {
-                    _isOpponentForeign = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(RatingDifference));
-                    OnPropertyChanged(nameof(GameDisplayDetails));
+                    return 0;
                 }
+
+                return IsOpponentForeign
+                    ? 0
+                    : RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
             }
         }
-
-        public int RatingDifference => IsOpponentForeign ? 0 : RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
