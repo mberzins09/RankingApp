@@ -19,9 +19,33 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private PlayerDB? selectedOpponent;
 
-        private List<PlayerDB> _players = [];
-        public ObservableCollection<int> SetsOptions { get; } = [0, 1, 2, 3, 4];
+        [ObservableProperty]
+        private string? searchText;
 
+        [ObservableProperty]
+        private BoolOption? selectedOpponentForeignOption;
+
+        private List<PlayerDB> _allPlayers = [];
+        public ObservableCollection<int> SetsOptions { get; } = [0, 1, 2, 3, 4];
+        public List<BoolOption> IsOpponentForeignOptions { get; } = new()
+        {
+            new BoolOption { Value = true, Label = "Yes" },
+            new BoolOption { Value = false, Label = "No" }
+        };
+
+        partial void OnSelectedOpponentForeignOptionChanged(BoolOption? value)
+        {
+            if (OneGame is null || value is null)
+                return;
+
+            OneGame.IsOpponentForeign = value.Value;
+        }
+
+        partial void OnSearchTextChanged(string? value)
+        {
+            FilterPlayers(value ?? string.Empty);
+        }
+        
         partial void OnSelectedOpponentChanged(PlayerDB? value)
         {
             if (value is null || OneGame is null)
@@ -37,10 +61,11 @@ namespace RankingApp.ViewModels
             OneGame = await _databaseService.GetGameAsync(Data.GameId);
             var players = await _databaseService.GetPlayersAsync();
             var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
-            _players = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
-            Players = new ObservableCollection<PlayerDB>(_players);
+            _allPlayers = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
+            Players = new ObservableCollection<PlayerDB>(_allPlayers);
 
             OneGame.GameCoefficient = tournament.Coefficient;
+            SelectedOpponentForeignOption = IsOpponentForeignOptions.FirstOrDefault(x => x.Value == OneGame.IsOpponentForeign);
             await _databaseService.SaveGameAsync(OneGame);
         }
 
@@ -58,25 +83,20 @@ namespace RankingApp.ViewModels
             return list;
         }
 
-        public void FilterPlayers(string searchText)
+        public void FilterPlayers(string? searchText)
         {
             if (string.IsNullOrWhiteSpace(searchText))
             {
-                Players = new ObservableCollection<PlayerDB>(_players);
+                Players = new ObservableCollection<PlayerDB>(_allPlayers);
                 return;
             }
 
-            var filtered = _players.Where(x => (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+            var filtered = _allPlayers.Where(x => (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
                             (!string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
                             (!string.IsNullOrWhiteSpace(x.Place.ToString()) && x.Place.ToString().StartsWith(searchText, StringComparison.OrdinalIgnoreCase)))
                             .ToList();
-            
+
             Players = new ObservableCollection<PlayerDB>(filtered);
         }
-    }
-
-    public static class BoolValues
-    {
-        public static readonly bool[] Values = { true, false };
     }
 }

@@ -19,12 +19,7 @@ public partial class Games : ContentPage
         base.OnAppearing();
         await _viewModel.LoadDataAsync();
 
-        PlayerSearchBar.Text = String.Empty;
-    }
-
-    private void PlayerSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
-    {
-        _viewModel.FilterPlayers(e.NewTextValue);
+        _viewModel.SearchText = String.Empty;
     }
 
     private async void ButtonGameSave_OnClicked(object? sender, EventArgs e)

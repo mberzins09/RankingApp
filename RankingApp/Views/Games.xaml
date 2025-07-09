@@ -34,7 +34,7 @@
         
         <!-- Row 2 -->
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" RowDefinitions="40,*" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" x:Name="PlayerSearchBar" TextChanged="PlayerSearchBar_OnTextChanged" Style="{StaticResource PrimarySearchBar}"/>
+            <SearchBar Grid.Row="0" x:Name="PlayerSearchBar" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"/>
             <ListView Grid.Row="1" x:Name ="ListPlayers" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedOpponent}" Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">
@@ -55,7 +55,8 @@
         <Entry Grid.Row="3" Grid.Column="2" x:Name="EntryOpponentSurname" Placeholder="Surname" TextChanged="EntryOppName_OnTextChanged"
                Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
         <Picker Grid.Row="3" Grid.Column="4" Style="{StaticResource PrimaryPicker}" 
-                ItemsSource="{x:Static viewmodel:BoolValues.Values}" SelectedItem="{Binding OneGame.IsOpponentForeign}">
+                ItemsSource="{Binding IsOpponentForeignOptions}" SelectedItem="{Binding SelectedOpponentForeignOption, Mode=TwoWay}"
+                ItemDisplayBinding="{Binding Label}" >
         </Picker>
     </Grid>
 </ContentPage>
