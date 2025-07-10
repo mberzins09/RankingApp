@@ -10,7 +10,7 @@
              Style="{StaticResource PrimaryContentPage}">
     <Grid RowDefinitions="50, 50, *, 50" ColumnDefinitions="5, 100, 100, *, 50" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
-        <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="80" HeightRequest="40" Source="racketsnoborder.png"
+        <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="80" HeightRequest="40" Source="savenoborder.png"
                      x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryImageButton}" />
         <HorizontalStackLayout Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Spacing="3">
             <Label Text="{Binding OneGame.MyName}" Style="{StaticResource PrimaryLabel}"/>

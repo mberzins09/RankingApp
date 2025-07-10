@@ -152,7 +152,7 @@
                 </Setter>
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
-                <Setter Property="Spacing" Value="5" />
+                <Setter Property="Spacing" Value="3" />
             </Style>
 
             <!-- VerticalStackLayout -->

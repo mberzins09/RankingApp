@@ -43,6 +43,27 @@
         <member name="P:RankingApp.Models.Game.IsOpponentForeign">
             <inheritdoc cref="F:RankingApp.Models.Game.isOpponentForeign"/>
         </member>
+        <member name="T:RankingApp.Models.Tournament">
+            <inheritdoc/>
+        </member>
+        <member name="P:RankingApp.Models.Tournament.Coefficient">
+            <inheritdoc cref="F:RankingApp.Models.Tournament.coefficient"/>
+        </member>
+        <member name="P:RankingApp.Models.Tournament.Name">
+            <inheritdoc cref="F:RankingApp.Models.Tournament.name"/>
+        </member>
+        <member name="P:RankingApp.Models.Tournament.Date">
+            <inheritdoc cref="F:RankingApp.Models.Tournament.date"/>
+        </member>
+        <member name="P:RankingApp.Models.Tournament.TournamentPlayerName">
+            <inheritdoc cref="F:RankingApp.Models.Tournament.tournamentPlayerName"/>
+        </member>
+        <member name="P:RankingApp.Models.Tournament.TournamentPlayerSurname">
+            <inheritdoc cref="F:RankingApp.Models.Tournament.tournamentPlayerSurname"/>
+        </member>
+        <member name="P:RankingApp.Models.Tournament.PointsDifference">
+            <inheritdoc cref="F:RankingApp.Models.Tournament.pointsDifference"/>
+        </member>
         <member name="T:RankingApp.ViewModels.AllTournamentsViewModel">
             <inheritdoc/>
         </member>
@@ -81,6 +102,30 @@
             <summary>Executes the logic for when <see cref="P:RankingApp.ViewModels.GameViewModel.SelectedOpponentForeignOption"/> just changed.</summary>
             <param name="value">The new property value that was set.</param>
             <remarks>This method is invoked right after the value of <see cref="P:RankingApp.ViewModels.GameViewModel.SelectedOpponentForeignOption"/> is changed.</remarks>
+        </member>
+        <member name="T:RankingApp.ViewModels.TournamentViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:RankingApp.ViewModels.TournamentViewModel.Games">
+            <inheritdoc cref="F:RankingApp.ViewModels.TournamentViewModel.games"/>
+        </member>
+        <member name="P:RankingApp.ViewModels.TournamentViewModel.OneTournament">
+            <inheritdoc cref="F:RankingApp.ViewModels.TournamentViewModel.oneTournament"/>
+        </member>
+        <member name="P:RankingApp.ViewModels.TournamentViewModel.SelectedGame">
+            <inheritdoc cref="F:RankingApp.ViewModels.TournamentViewModel.selectedGame"/>
+        </member>
+        <member name="M:RankingApp.ViewModels.TournamentViewModel.OnSelectedGameChanged(RankingApp.Models.Game)">
+            <summary>Executes the logic for when <see cref="P:RankingApp.ViewModels.TournamentViewModel.SelectedGame"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:RankingApp.ViewModels.TournamentViewModel.SelectedGame"/> is changed.</remarks>
+        </member>
+        <member name="F:RankingApp.ViewModels.TournamentViewModel.deleteGameCommand">
+            <summary>The backing field for <see cref="P:RankingApp.ViewModels.TournamentViewModel.DeleteGameCommand"/>.</summary>
+        </member>
+        <member name="P:RankingApp.ViewModels.TournamentViewModel.DeleteGameCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:RankingApp.ViewModels.TournamentViewModel.DeleteGameAsync(RankingApp.Models.Game)"/>.</summary>
         </member>
         <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs">
             <summary>
@@ -151,6 +196,24 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsOpponentForeign">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsOpponentForeign" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Coefficient">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Coefficient" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Date">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Date" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.TournamentPlayerName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "TournamentPlayerName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.TournamentDisplay">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "TournamentDisplay" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.TournamentPlayerSurname">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "TournamentPlayerSurname" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.PointsDifference">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "PointsDifference" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Tournaments">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Tournaments" generated properties.</summary>
         </member>
@@ -168,6 +231,15 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedOpponentForeignOption">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedOpponentForeignOption" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Games">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Games" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.OneTournament">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "OneTournament" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedGame">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedGame" generated properties.</summary>
         </member>
         <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
             <summary>
@@ -238,6 +310,24 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsOpponentForeign">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsOpponentForeign" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Coefficient">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Coefficient" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Date">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Date" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.TournamentPlayerName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "TournamentPlayerName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.TournamentDisplay">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "TournamentDisplay" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.TournamentPlayerSurname">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "TournamentPlayerSurname" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.PointsDifference">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "PointsDifference" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Tournaments">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Tournaments" generated properties.</summary>
         </member>
@@ -255,6 +345,15 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedOpponentForeignOption">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedOpponentForeignOption" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Games">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Games" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.OneTournament">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "OneTournament" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedGame">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedGame" generated properties.</summary>
         </member>
     </members>
 </doc>

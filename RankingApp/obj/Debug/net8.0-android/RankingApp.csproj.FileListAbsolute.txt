@@ -1094,8 +1094,9 @@ C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\D
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\f\OpenSans-Regular.ttf
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\f\OpenSans-Semibold.ttf
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable\racketsnoborder.png
-C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable\ranksnoborder.png
+C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable\savenoborder.png
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable\plusnoborder.png
+C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable\ranksnoborder.png
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable\gamesnoborder.png
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable-xxxhdpi\dotnet_bot.png
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\resizetizer\r\drawable-xxhdpi\dotnet_bot.png
@@ -1363,7 +1364,6 @@ C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\D
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.Numerics.dll
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.Numerics.Vectors.dll
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.ObjectModel.dll
-C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.Private.CoreLib.dll
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.Private.DataContractSerialization.dll
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.Private.Uri.dll
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.Private.Xml.dll
@@ -2127,3 +2127,4 @@ C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\D
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\stamp\_GenerateJavaStubs.stamp
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\stamp\_GeneratePackageManagerJava.stamp
 C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\stamp\_ResolveLibraryProjectImports.stamp
+C:\Users\Berzini\Desktop\Programesana\LastRankingApp\RankingApp\RankingApp\obj\Debug\net8.0-android\android\assets\System.Private.CoreLib.dll

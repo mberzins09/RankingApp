@@ -8,40 +8,43 @@
              x:Class="RankingApp.Views.Tournaments"
              Title="Tournament"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 50, 50, *" ColumnDefinitions="10, *, 70, 100">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 50, 50, *" ColumnDefinitions="10, 100, *, 100, 100">
         <!-- Row 0 -->
-        <Label Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding Tournament.Name}" FontSize="24"/>
+        <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
+                     Source="savenoborder.png" x:Name="BtnSaveTournament" Clicked="BtnSave_OnClicked" />
+        <Label Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.PointsDifference}" FontSize="30"/>
+        <ImageButton Grid.Row="0" Grid.Column="4" HorizontalOptions="Start" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
+                     Source="plusnoborder.png" x:Name="BtnAddGame" Clicked="BtnAddGame_OnClicked" />
         
         <!-- Row 1 -->
-        <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Style="{StaticResource PrimaryHorizontal}">
-            <Label Text="{Binding Tournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" />
-            <Label Text="{Binding Tournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" />
-        </HorizontalStackLayout>
-        <Label Grid.Row="1" Grid.Column="2" Style="{StaticResource PrimaryLabel}" Text="{Binding Tournament.Coefficient}" />
-        <Label Grid.Row="1" Grid.Column="3" Style="{StaticResource PrimaryLabel}" Text="{Binding Tournament.DateToString}" />
+        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.Name}" FontSize="28"/>
         
         <!-- Row 2 -->
-        <ImageButton Grid.Row="2" Grid.Column="1" HorizontalOptions="Start" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
-                     Source="plusnoborder.png" x:Name="BtnAddGame" Clicked="BtnAddGame_OnClicked" />
-        <Label Grid.Row="2" Grid.Column="2" Style="{StaticResource PrimaryLabel}" Text="{Binding Tournament.PointsDifference}" FontSize="30"/>
-        <ImageButton Grid.Row="2" Grid.Column="3" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
-                     Source="racketsnoborder.png" x:Name="BtnSaveTournament" Clicked="BtnSave_OnClicked" />
+        <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
+            <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" FontSize="20"/>
+            <Label Text="{Binding OneTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" FontSize="20"/>
+        </HorizontalStackLayout>
+        <Label Grid.Row="2" Grid.Column="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.Coefficient}" FontSize="18"/>
+        <Label Grid.Row="2" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.DateToString}" FontSize="18"/>
+        
         <!-- Row 3 -->
-        <ListView x:Name="ListViewTournamentGames" ItemsSource="{Binding Games}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"
-                  Style="{StaticResource PrimaryListView}" ItemSelected="ListViewTournamentGames_ItemSelected">
+        <ListView x:Name="ListViewTournamentGames" ItemsSource="{Binding Games}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4"
+                  Style="{StaticResource PrimaryListView}" SelectedItem="{Binding SelectedGame, Mode=TwoWay}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:Game">
                     <ViewCell>
                         <VerticalStackLayout Style="{StaticResource PrimaryVertical}">
                             <Label Text="{Binding OpponentName}" Padding="0" Style="{StaticResource ListItemLabel}" FontSize="16"/>
-                            <HorizontalStackLayout Spacing="7" Style="{StaticResource PrimaryHorizontal}">
+                            <HorizontalStackLayout Spacing="2" Style="{StaticResource PrimaryHorizontal}">
                                 <Label Text="{Binding GameScore}" Style="{StaticResource ListItemLabel}"/>
                                 <Label Text="Points change" Style="{StaticResource ListItemLabel}"/>
                                 <Label Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}"/>
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
                         <ViewCell.ContextActions>
-                            <MenuItem Text="Delete" IsDestructive="True" Clicked="MenuItem_OnClicked" CommandParameter="{Binding .}"></MenuItem>
+                            <MenuItem Text="Delete" IsDestructive="True" 
+                                      Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteGameCommand}" 
+                                      CommandParameter="{Binding .}"></MenuItem>
                         </ViewCell.ContextActions>
                     </ViewCell>
                 </DataTemplate>

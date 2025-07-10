@@ -92,7 +92,7 @@ public partial class AllTournaments : ContentPage
         var playerDB = await _databaseService.GetPlayerAsync(694);
         if (playerDB != null)
         {
-            player.Id = 1977;
+            player.Id = playerDB.Id;
             player.Place = playerDB.Place;
             player.Points = playerDB.Points;
             player.PointsWithBonus = playerDB.PointsWithBonus;

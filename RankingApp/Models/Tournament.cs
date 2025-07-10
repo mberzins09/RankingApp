@@ -1,109 +1,40 @@
-﻿using System.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SQLite;
+using System.ComponentModel;
 
 namespace RankingApp.Models
 {
-    public class Tournament : INotifyPropertyChanged
+    public partial class Tournament : ObservableObject
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        private void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        private string _coefficient;
-        public string Coefficient
-        {
-            get => _coefficient;
-            set
-            {
-                if (_coefficient != value)
-                {
-                    _coefficient = value;
-                    OnPropertyChanged(nameof(Coefficient));
-                }
-            }
-        }
+        [ObservableProperty]
+        private string coefficient;
 
-        private string _name;
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                if (_name != value)
-                {
-                    _name = value;
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
-        }
+        [ObservableProperty]
+        private string name;
 
-        private DateTime _date;
-        public DateTime Date
-        {
-            get => _date;
-            set
-            {
-                if (_date != value)
-                {
-                    _date = value;
-                    OnPropertyChanged(nameof(Date));
-                    OnPropertyChanged(nameof(DateToString)); // Because it depends on Date
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DateToString))]
+        private DateTime date;
 
         public string DateToString => Date.ToString("d MMM yyyy");
 
-        private string _tournamentPlayerName;
-        public string TournamentPlayerName
-        {
-            get => _tournamentPlayerName;
-            set
-            {
-                if (_tournamentPlayerName != value)
-                {
-                    _tournamentPlayerName = value;
-                    OnPropertyChanged(nameof(TournamentPlayerName));
-                    OnPropertyChanged(nameof(TournamentDisplay));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TournamentDisplay))]
+        private string tournamentPlayerName;
 
-        private string _tournamentPlayerSurname;
-        public string TournamentPlayerSurname
-        {
-            get => _tournamentPlayerSurname;
-            set
-            {
-                if (_tournamentPlayerSurname != value)
-                {
-                    _tournamentPlayerSurname = value;
-                    OnPropertyChanged(nameof(TournamentPlayerSurname));
-                    OnPropertyChanged(nameof(TournamentDisplay));
-                }
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TournamentDisplay))]
+        private string tournamentPlayerSurname;
 
         public int TournamentPlayerPoints { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TournamentDisplay))]
+        private int pointsDifference;
         
-        private int _pointsDifference;
-        public int PointsDifference 
-        { 
-            get => _pointsDifference;
-            set
-            {
-                if (_pointsDifference != value)
-                {
-                    _pointsDifference = value;
-                    OnPropertyChanged(nameof(PointsDifference));
-                    OnPropertyChanged(nameof(TournamentDisplay)); // Because it depends on PointsDifference
-                }
-            }
-        }
         public int TournamentPlayerId { get; set; }
 
         public string TournamentDisplay =>
