@@ -125,7 +125,7 @@ public partial class HomePage : ContentPage
 
     private async void BtnData_OnClicked(object sender, EventArgs e)
     {
-        await MigrateOldDatabaseAsync();
+        await _databaseService.MigrateOldDatabaseAsync();
     }
 
     private async Task GetLastestRankings()
@@ -179,46 +179,5 @@ public partial class HomePage : ContentPage
         await _databaseService.UpsertPlayersAsync(distinctPlayers);
 
         await GetLastestRankings();
-    }
-
-    private async Task MigrateOldDatabaseAsync()
-    {
-        var appDataDir = FileSystem.AppDataDirectory;
-
-        var mainDbPath = Path.Combine(appDataDir, "AllP.db3");
-        var oldDbPath = Path.Combine(appDataDir, "Data3.db3");
-
-        var mainDb = new SQLiteAsyncConnection(mainDbPath);
-        await mainDb.CreateTableAsync<Game>();
-        await mainDb.CreateTableAsync<Tournament>();
-
-        if (File.Exists(oldDbPath))
-        {
-            var oldDb = new SQLiteAsyncConnection(oldDbPath);
-
-            // Ensure old DB has tables
-            await oldDb.CreateTableAsync<Game>();
-            await oldDb.CreateTableAsync<Tournament>();
-
-            var oldGames = await oldDb.Table<Game>().ToListAsync();
-            var oldTournaments = await oldDb.Table<Tournament>().ToListAsync();
-
-            foreach (var game in oldGames)
-                await mainDb.InsertOrReplaceAsync(game);
-
-            foreach (var tournament in oldTournaments)
-                await mainDb.InsertOrReplaceAsync(tournament);
-
-            // Optional: delete old DB
-            File.Delete(oldDbPath);
-
-            // Optional: show success message
-            await Application.Current.MainPage.DisplayAlert("Migration Complete", "Game and Tournament data migrated. Old Databse deleted", "OK");
-        }
-        else
-        {
-            // Optional: show info message
-            await Application.Current.MainPage.DisplayAlert("No Migration Needed", "old database not found.", "OK");
-        }
     }
 }

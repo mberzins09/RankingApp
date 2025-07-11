@@ -107,5 +107,23 @@ namespace RankingApp.Models
                     : RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
             }
         }
+
+        [ObservableProperty]
+        private int myPointsWithBonus;
+
+        [ObservableProperty]
+        private int opponentPointsWithBonus;
+
+        [ObservableProperty]
+        private int myAge;
+
+        [ObservableProperty]
+        private int opponentAge;
+        
+        [ObservableProperty]
+        private int myPlace;
+
+        [ObservableProperty]
+        private int opponentPlace;
     }
 }

@@ -9,7 +9,7 @@ namespace RankingApp.ViewModels
     public partial class GameViewModel(DatabaseService databaseService) : BaseViewModel
     {
         private readonly DatabaseService _databaseService = databaseService;
-        
+
         [ObservableProperty]
         private ObservableCollection<PlayerDB>? players;
 
@@ -45,15 +45,13 @@ namespace RankingApp.ViewModels
         {
             FilterPlayers(value ?? string.Empty);
         }
-        
+
         partial void OnSelectedOpponentChanged(PlayerDB? value)
         {
             if (value is null || OneGame is null)
                 return;
 
-            OneGame.Name = value.Name;
-            OneGame.Surname = value.Surname;
-            OneGame.OpponentPoints = value.Points;
+            AssignOpponentProperties(value);
         }
 
         public async Task LoadDataAsync()
@@ -61,6 +59,8 @@ namespace RankingApp.ViewModels
             OneGame = await _databaseService.GetGameAsync(Data.GameId);
             var players = await _databaseService.GetPlayersAsync();
             var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
+            var me = await _databaseService.GetPlayerAsync(tournament.TournamentPlayerId);
+            AssignMyProperties(me);
             _allPlayers = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
             Players = new ObservableCollection<PlayerDB>(_allPlayers);
 
@@ -97,6 +97,32 @@ namespace RankingApp.ViewModels
                             .ToList();
 
             Players = new ObservableCollection<PlayerDB>(filtered);
+        }
+
+        private void AssignOpponentProperties(PlayerDB opponent)
+        {
+            if (OneGame is null)
+                return;
+
+            OneGame.Name = opponent.Name;
+            OneGame.Surname = opponent.Surname;
+            OneGame.OpponentPoints = opponent.Points;
+            OneGame.OpponentPointsWithBonus = opponent.PointsWithBonus;
+            OneGame.OpponentAge = opponent.Age;
+            OneGame.OpponentPlace = opponent.Place;
+        }
+
+        private void AssignMyProperties(PlayerDB me)
+        {
+            if (OneGame is null)
+                return;
+
+            OneGame.MyName = me.Name;
+            OneGame.MySurname = me.Surname;
+            OneGame.MyPoints = me.Points;
+            OneGame.MyPointsWithBonus = me.PointsWithBonus;
+            OneGame.MyAge = me.Age;
+            OneGame.MyPlace = me.Place;
         }
     }
 }

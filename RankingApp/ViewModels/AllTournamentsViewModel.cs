@@ -15,6 +15,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
 
     public async Task LoadDataAsync()
     {
+        await _database.RunAllMigrationsAsync();
         var tournaments = await _database.GetTournamentsAsync();
         _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
         Tournaments = new ObservableCollection<Tournament>(_allTournaments);
