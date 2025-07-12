@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using RankingApp.Models;
 using RankingApp.Services;
+using RankingApp.Views;
 using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels;
@@ -8,14 +10,65 @@ namespace RankingApp.ViewModels;
 public partial class AllTournamentsViewModel(DatabaseService database) : BaseViewModel
 {
     private readonly DatabaseService _database = database;
-    private List<Tournament> _allTournaments = new();
     
+    private List<Tournament> _allTournaments = [];
+    
+    [ObservableProperty]
+    private string? searchText;
+
+    [ObservableProperty]
+    private Tournament? selectedTournament;
+
     [ObservableProperty]
     private ObservableCollection<Tournament> tournaments;
 
-    public async Task LoadDataAsync()
+    partial void OnSearchTextChanged(string? value)
+    {
+        FilterTournaments(value ?? string.Empty);
+    }
+
+    partial void OnSelectedTournamentChanged(Tournament? value)
+    {
+        if (value != null)
+        {
+            Data.TournamentId = value.Id;
+            Shell.Current.GoToAsync(nameof(Tournaments));
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteTournamentAsync(Tournament tournament)
+    {
+        if (tournament == null)
+            return;
+
+        var games = await GetGames(tournament.Id);
+        foreach (var game in games)
+        {
+            await _database.DeleteGameAsync(game);
+        }
+
+        await DeleteTournament(tournament);
+        await LoadDataAsync();
+    }
+
+    [RelayCommand]
+    private async Task EditTournamentAsync(Tournament tournament)
+    {
+        if (tournament == null)
+            return;
+
+        Data.TournamentId = tournament.Id;
+        await Shell.Current.GoToAsync(nameof(AddTournament));
+    }
+
+    public async Task Migrate()
     {
         await _database.RunAllMigrationsAsync();
+    }
+    
+    public async Task LoadDataAsync()
+    {
         var tournaments = await _database.GetTournamentsAsync();
         _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
         Tournaments = new ObservableCollection<Tournament>(_allTournaments);
@@ -45,12 +98,10 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
             return;
         }
 
-        var filtered = _allTournaments
-            .Where(x =>
-                (!string.IsNullOrWhiteSpace(x.Name) &&
-                 x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                x.Date.ToString("d MMM yyyy").StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        var filtered = _allTournaments.Where(x =>(!string.IsNullOrWhiteSpace(x.Name) &&
+                                             x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                                             x.Date.ToString("d MMM yyyy").StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                                             .ToList();
 
         Tournaments = new ObservableCollection<Tournament>(filtered);
     }
@@ -63,5 +114,40 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     public async Task DeleteGame(Game game)
     {
         await _database.DeleteGameAsync(game);
+    }
+
+    public async Task CreateNewTournamentSave()
+    {
+        var player = new PlayerDB()
+        {
+            Id = 10000, Place = 10000, Points = 0, PointsWithBonus = 0, Name = "Name", Surname = "Surname", Gender = "male", OverallPlace = 10000, BirthDate = ""
+        };
+        var playerDB = await _database.GetPlayerAsync(694);
+        if (playerDB != null)
+        {
+            player.Id = playerDB.Id;
+            player.Place = playerDB.Place;
+            player.Points = playerDB.Points;
+            player.PointsWithBonus = playerDB.PointsWithBonus;
+            player.Name = playerDB.Name;
+            player.Surname = playerDB.Surname;
+            player.Gender = playerDB.Gender;
+            player.OverallPlace = playerDB.OverallPlace;
+            player.BirthDate = playerDB.BirthDate;
+        }
+        var tournament = new Tournament()
+        {
+            Coefficient = "0.5",
+            Name = "New Tournament",
+            Date = DateTime.Now,
+            TournamentPlayerName = player.Name,
+            TournamentPlayerSurname = player.Surname,
+            TournamentPlayerPoints = player.Points,
+            TournamentPlayerId = player.Id
+        };
+        
+        await _database.SaveTournamentAsync(tournament);
+        
+        Data.TournamentId = tournament.Id;
     }
 }

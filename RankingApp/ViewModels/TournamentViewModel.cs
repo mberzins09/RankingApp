@@ -72,6 +72,7 @@ namespace RankingApp.ViewModels
             };
 
             await _database.SaveGameAsync(game);
+            
             Data.GameId = game.Id;
         }
     }

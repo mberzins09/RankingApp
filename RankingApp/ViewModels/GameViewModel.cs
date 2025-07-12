@@ -59,12 +59,12 @@ namespace RankingApp.ViewModels
             OneGame = await _databaseService.GetGameAsync(Data.GameId);
             var players = await _databaseService.GetPlayersAsync();
             var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
+            OneGame.GameCoefficient = tournament.Coefficient;
             var me = await _databaseService.GetPlayerAsync(tournament.TournamentPlayerId);
             AssignMyProperties(me);
             _allPlayers = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
             Players = new ObservableCollection<PlayerDB>(_allPlayers);
 
-            OneGame.GameCoefficient = tournament.Coefficient;
             SelectedOpponentForeignOption = IsOpponentForeignOptions.FirstOrDefault(x => x.Value == OneGame.IsOpponentForeign);
             await _databaseService.SaveGameAsync(OneGame);
         }
