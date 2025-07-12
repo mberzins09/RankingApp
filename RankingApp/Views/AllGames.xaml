@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="RankingApp.Views.AllGames"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllGamesViewModel"
              Title="All Games"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="30, 40, *">
-        <Label Grid.Row="0" Style="{StaticResource PrimaryLabel}" Text="Games" FontSize="Title" />
-        <SearchBar Grid.Row="1" Style="{StaticResource PrimarySearchBar}" x:Name="GamesSearchBar" TextChanged="GamesSearchBar_OnTextChanged" />
-        <ListView Grid.Row="2" x:Name ="ListViewGames" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Games}">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, *, 5">
+        <SearchBar Grid.Row="1" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
+        <ListView Grid.Row="2" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Games}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:Game">
                     <ViewCell>
-                        <VerticalStackLayout Style="{StaticResource PrimaryVertical}">
+                        <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="*, *">
                             <Label Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" FontSize="15" FontAttributes="Bold"/>
-                            <Label Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
-                        </VerticalStackLayout>
-                        <ViewCell.ContextActions>
-                            <MenuItem Text="Delete" IsDestructive="True" Clicked="MenuItem_OnClicked" CommandParameter="{Binding .}"></MenuItem>
-                        </ViewCell.ContextActions>
+                            <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14"/>
+                        </Grid>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>

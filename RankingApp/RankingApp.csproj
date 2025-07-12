@@ -73,9 +73,6 @@
 	  <Compile Update="Views\AllPlayerRanking.xaml.cs">
 	    <DependentUpon>AllPlayerRanking.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\InactivePlayers.xaml.cs">
-	    <DependentUpon>InactivePlayers.xaml</DependentUpon>
-	  </Compile>
 	  <Compile Update="Views\Tournaments.xaml.cs">
 	    <DependentUpon>Tournaments.xaml</DependentUpon>
 	  </Compile>
@@ -91,9 +88,6 @@
 	  <MauiXaml Update="Views\AllPlayerRanking.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\InactivePlayers.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Views\Tournaments.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -104,12 +98,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\HomePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\MensRanking.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\WomensRanking.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

@@ -12,7 +12,7 @@ namespace RankingApp.Services
             _httpClient = new HttpClient();
         }
 
-        public async Task<List<Player>> GetPlayersAsync(string gender, string date)
+        public async Task<List<Player>?> GetPlayersAsync(string gender, string date)
         {
             var response = await _httpClient.PostAsJsonAsync("https://www.lgtf.lv/api/getRanking", new { date, gender });
 
@@ -28,6 +28,6 @@ namespace RankingApp.Services
 
     public class PlayersResponseDates
     {
-        public List<Player> Players { get; set; }
+        public List<Player>? Players { get; set; }
     }
 }

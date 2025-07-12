@@ -20,7 +20,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     private Tournament? selectedTournament;
 
     [ObservableProperty]
-    private ObservableCollection<Tournament> tournaments;
+    private ObservableCollection<Tournament>? tournaments;
 
     partial void OnSearchTextChanged(string? value)
     {
@@ -74,14 +74,6 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         Tournaments = new ObservableCollection<Tournament>(_allTournaments);
     }
 
-    public async Task<List<Tournament>> GetTournaments()
-    {
-        var tournaments = await _database.GetTournamentsAsync();
-        var list = tournaments.OrderByDescending(x => x.Date).ToList();
-
-        return list;
-    }
-
     public async Task<List<Game>> GetGames(int id)
     {
         var games = await _database.GetGamesAsync();
@@ -109,11 +101,6 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     public async Task DeleteTournament(Tournament tournament)
     {
         await _database.DeleteTournamentAsync(tournament);
-    }
-
-    public async Task DeleteGame(Game game)
-    {
-        await _database.DeleteGameAsync(game);
     }
 
     public async Task CreateNewTournamentSave()

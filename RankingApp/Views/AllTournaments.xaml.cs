@@ -8,12 +8,10 @@ namespace RankingApp.Views;
 public partial class AllTournaments : ContentPage
 {
     private readonly AllTournamentsViewModel _viewModel;
-    private readonly DatabaseService _databaseService;
-    public AllTournaments(AllTournamentsViewModel viewModel, DatabaseService databaseService)
+    public AllTournaments(AllTournamentsViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
-        _databaseService = databaseService;
         BindingContext = _viewModel;
     }
 

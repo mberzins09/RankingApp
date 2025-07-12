@@ -13,29 +13,29 @@
         <!-- Row 0 -->
         <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="50" HeightRequest="50" Source="savenoborder.png"
              x:Name="ButtonAdd" Clicked="ButtonAdd_OnClicked" Style="{StaticResource PrimaryImageButton}"/>
-        <Entry Style="{StaticResource PrimaryEntry}" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3" Text="{Binding Tournament.Name}"
-               x:Name="EntryTournamentName" TextChanged="EntryTournamentName_OnTextChanged" FontSize="20"/>
+        <Entry Style="{StaticResource PrimaryEntry}" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3" 
+               Text="{Binding CurrentTournament.Name, Mode=TwoWay}" FontSize="20"/>
         <!-- Row 1 -->
         <Label Grid.Row="1" Grid.Column="1" Text="Player:" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" />
         <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3">
-            <Label Text="{Binding Tournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" />
-            <Label Text="{Binding Tournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" />
+            <Label Text="{Binding CurrentTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" />
+            <Label Text="{Binding CurrentTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" />
         </HorizontalStackLayout>
         <!-- Row 2 -->
         <Label Grid.Row="2" Grid.Column="1" Text="Coefficient:" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" />
         <Picker Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="3" Title="Select Coefficient" ItemsSource="{Binding CoefficientOptions}"
-                SelectedItem="{Binding Tournament.Coefficient}" FontSize="16" Style="{StaticResource PrimaryPicker}"
-                SelectedIndexChanged="Picker_SelectedIndexChanged" WidthRequest="100"/>
+                SelectedItem="{Binding CurrentTournament.Coefficient, Mode=TwoWay}" FontSize="16" Style="{StaticResource PrimaryPicker}"
+                WidthRequest="100"/>
         <!-- Row 3 -->
         <Label Grid.Row="3" Grid.Column="1" Text="Date:" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start"/>
-        <rankingApp:FormDatePicker Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="3" x:Name="PickerTournamentDate" 
-                                   MinimumDate="01/01/2000" MaximumDate="01/01/2200" DateSelected="TournamentDate_OnDateSelected" 
-                                   Date="{Binding Tournament.Date}" Format="d MMM yyyy" HorizontalOptions="Center"
+        <rankingApp:FormDatePicker Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="3" MinimumDate="01/01/2000" MaximumDate="01/01/2200"
+                                   Date="{Binding CurrentTournament.Date, Mode=TwoWay}" Format="d MMM yyyy" HorizontalOptions="Center"
                                    VerticalOptions="Center" WidthRequest="100"/>
         <!-- Row 4 -->
         <Grid RowDefinitions="40,*" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" Style="{StaticResource PrimarySearchBar}" x:Name="TournamentPlayerSearchBar" TextChanged="TournamentPlayerSearchBar_OnTextChanged"/>
-            <ListView Grid.Row="1" x:Name ="AllPlayers" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Players}" ItemSelected="AllPlayers_OnItemSelected">
+            <SearchBar Grid.Row="0" Style="{StaticResource PrimarySearchBar}"/>
+            <ListView Grid.Row="1" x:Name ="AllPlayers" Style="{StaticResource PrimaryListView}"
+                      ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>

@@ -8,7 +8,7 @@
              Title="Players Ranking"
              Style="{StaticResource PrimaryContentPage}">
     <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}">
-        <ImageButton Style="{StaticResource PrimaryImageButton}" Source="plusnoborder.png" Clicked="ImageButton_Clicked" HeightRequest="50" WidthRequest="50"></ImageButton>
+        <ImageButton Style="{StaticResource PrimaryImageButton}" Source="plusnoborder.png" HeightRequest="50" WidthRequest="50"></ImageButton>
         <Label 
             Text="Players Ranking" 
             FontSize="Title" 
@@ -16,8 +16,6 @@
             HorizontalOptions="Center"/>
         <SearchBar
             x:Name="AllPlayerSearchBar"
-            Placeholder="Search Player"
-            TextChanged="AllPlayerSearchBar_OnTextChanged"
             BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}"
             TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></SearchBar>
         <ListView 
@@ -48,6 +46,12 @@
                                     VerticalTextAlignment="Center"
                                     HorizontalTextAlignment="Center"></Label>
                         </HorizontalStackLayout>
+                        <ViewCell.ContextActions>
+                            <MenuItem Text="Set as default player"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetAsDefaultPlayerCommand}"
+                                        CommandParameter="{Binding .}" />
+                            <!-- Add Edit/Delete as needed -->
+                        </ViewCell.ContextActions>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
