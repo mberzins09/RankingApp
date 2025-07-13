@@ -1,60 +1,66 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:rankingApp="using:RankingApp"
              xmlns:model="clr-namespace:RankingApp.Models"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              x:DataType="viewmodel:PlayerViewModel"
              x:Class="RankingApp.Views.AllPlayerRanking"
              Title="Players Ranking"
              Style="{StaticResource PrimaryContentPage}">
-    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}">
-        <ImageButton Style="{StaticResource PrimaryImageButton}" Source="plusnoborder.png" HeightRequest="50" WidthRequest="50"></ImageButton>
-        <Label 
-            Text="Players Ranking" 
-            FontSize="Title" 
-            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-            HorizontalOptions="Center"/>
-        <SearchBar
-            x:Name="AllPlayerSearchBar"
-            BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}"
-            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></SearchBar>
-        <ListView 
-            x:Name="ListViewPlayers"
-            BackgroundColor="{AppThemeBinding Light={StaticResource LBlue}, Dark={StaticResource Gray900}}"
-            ItemsSource="{Binding Players}">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="model:PlayerDB">
-                    <ViewCell>
-                        <HorizontalStackLayout Spacing="10" Padding="5">
-                            <Label 
-                                Text ="{Binding AllDisplay}" 
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                FontSize="18"
-                                FontAttributes="Bold"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"></Label>
-                            <Label 
-                                    Text ="{Binding Points}" 
-                                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                    FontSize="16"
-                                    VerticalTextAlignment="Center"
-                                    HorizontalTextAlignment="Center"></Label>
-                            <Label 
-                                    Text ="{Binding PointsWithBonus}" 
-                                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                    FontSize="16"
-                                    VerticalTextAlignment="Center"
-                                    HorizontalTextAlignment="Center"></Label>
-                        </HorizontalStackLayout>
-                        <ViewCell.ContextActions>
-                            <MenuItem Text="Set as default player"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetAsDefaultPlayerCommand}"
-                                        CommandParameter="{Binding .}" />
-                            <!-- Add Edit/Delete as needed -->
-                        </ViewCell.ContextActions>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </StackLayout>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 60, *, 5" ColumnDefinitions="5, 100, *, 100, 5">
+        <!-- Row 1 -->
+        <Picker Grid.Row="1" Grid.Column="1" WidthRequest="100" HeightRequest="60" FontSize="20"
+                Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" />
+        <Label Grid.Row="1" Grid.Column="2" FontSize="20" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
+        <rankingApp:FormDatePicker Grid.Row="1" Grid.Column="3" Style="{StaticResource PrimaryPicker}" Date="{Binding SelectedDate, Mode=TwoWay}"
+                                   MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
+                                   WidthRequest="100" HeightRequest="60"/>
+        <!-- Row 2 -->
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" RowDefinitions="40, *" Style="{StaticResource PrimaryGrid}">
+            <SearchBar Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
+            <ListView Grid.Row="1" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Players}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="model:PlayerDB">
+                        <ViewCell>
+                            <Grid Style="{StaticResource PrimaryGrid}" ColumnDefinitions="5, *, 50, 5, 50, 5">
+                                <Label Grid.Column="1" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1" HorizontalOptions="Start">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
+                 Value="Mens">
+                                            <Setter Property="Text" Value="{Binding Display}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
+                 Value="Womens">
+                                            <Setter Property="Text" Value="{Binding Display}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
+                 Value="All">
+                                            <Setter Property="Text" Value="{Binding AllDisplay}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
+                 Value="Inactive">
+                                            <Setter Property="Text" Value="{Binding AllDisplay}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Grid.Column="2" Style="{StaticResource ListItemLabel}" Text="{Binding Points}"/>
+                                <Label Grid.Column="4" Style="{StaticResource ListItemLabel}" Text="{Binding PointsWithBonus}"/>
+                            </Grid>
+                            <ViewCell.ContextActions>
+                                <MenuItem Text="Set as default player"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetAsDefaultPlayerCommand}"
+                                CommandParameter="{Binding .}"/>
+                            </ViewCell.ContextActions>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
 </ContentPage>

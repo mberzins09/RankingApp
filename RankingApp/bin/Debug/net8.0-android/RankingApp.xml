@@ -226,6 +226,12 @@
             <inheritdoc/>
             <inheritdoc/>
         </member>
+        <member name="P:RankingApp.ViewModels.PlayerViewModel.MinDate">
+            <inheritdoc cref="F:RankingApp.ViewModels.PlayerViewModel.minDate"/>
+        </member>
+        <member name="P:RankingApp.ViewModels.PlayerViewModel.MaxDate">
+            <inheritdoc cref="F:RankingApp.ViewModels.PlayerViewModel.maxDate"/>
+        </member>
         <member name="P:RankingApp.ViewModels.PlayerViewModel.Players">
             <inheritdoc cref="F:RankingApp.ViewModels.PlayerViewModel.players"/>
         </member>
@@ -238,8 +244,8 @@
         <member name="P:RankingApp.ViewModels.PlayerViewModel.AppDataLabel">
             <inheritdoc cref="F:RankingApp.ViewModels.PlayerViewModel.appDataLabel"/>
         </member>
-        <member name="P:RankingApp.ViewModels.PlayerViewModel.SelectedPlayer">
-            <inheritdoc cref="F:RankingApp.ViewModels.PlayerViewModel.selectedPlayer"/>
+        <member name="P:RankingApp.ViewModels.PlayerViewModel.SearchText">
+            <inheritdoc cref="F:RankingApp.ViewModels.PlayerViewModel.searchText"/>
         </member>
         <member name="M:RankingApp.ViewModels.PlayerViewModel.OnSelectedFilterChanged(System.String)">
             <summary>Executes the logic for when <see cref="P:RankingApp.ViewModels.PlayerViewModel.SelectedFilter"/> just changed.</summary>
@@ -251,11 +257,16 @@
             <param name="value">The new property value that was set.</param>
             <remarks>This method is invoked right after the value of <see cref="P:RankingApp.ViewModels.PlayerViewModel.SelectedDate"/> is changed.</remarks>
         </member>
+        <member name="M:RankingApp.ViewModels.PlayerViewModel.OnSearchTextChanged(System.String)">
+            <summary>Executes the logic for when <see cref="P:RankingApp.ViewModels.PlayerViewModel.SearchText"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:RankingApp.ViewModels.PlayerViewModel.SearchText"/> is changed.</remarks>
+        </member>
         <member name="F:RankingApp.ViewModels.PlayerViewModel.setAsDefaultPlayerCommand">
             <summary>The backing field for <see cref="P:RankingApp.ViewModels.PlayerViewModel.SetAsDefaultPlayerCommand"/>.</summary>
         </member>
         <member name="P:RankingApp.ViewModels.PlayerViewModel.SetAsDefaultPlayerCommand">
-            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:RankingApp.ViewModels.PlayerViewModel.SetAsDefaultPlayerAsync"/>.</summary>
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:RankingApp.ViewModels.PlayerViewModel.SetAsDefaultPlayerAsync(RankingApp.Models.PlayerDB)"/>.</summary>
         </member>
         <member name="T:RankingApp.ViewModels.TournamentViewModel">
             <inheritdoc/>
@@ -443,6 +454,12 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedOpponentForeignOption">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedOpponentForeignOption" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.MinDate">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "MinDate" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.MaxDate">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "MaxDate" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedFilter">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedFilter" generated properties.</summary>
         </member>
@@ -619,6 +636,12 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedOpponentForeignOption">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedOpponentForeignOption" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.MinDate">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "MinDate" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.MaxDate">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "MaxDate" generated properties.</summary>
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedFilter">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedFilter" generated properties.</summary>

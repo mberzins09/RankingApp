@@ -15,6 +15,14 @@ namespace RankingApp.ViewModels
 
         private List<PlayerDB> _allPlayers = [];
 
+        private List<PlayerDB> _filteredPlayers = [];
+
+        [ObservableProperty]
+        private DateTime minDate = new(2014, 1, 1);
+
+        [ObservableProperty]
+        private DateTime maxDate = DateTime.Today.AddDays(10);
+
         [ObservableProperty]
         private ObservableCollection<PlayerDB>? players;
 
@@ -28,18 +36,18 @@ namespace RankingApp.ViewModels
         private string? appDataLabel;
 
         [ObservableProperty]
-        private PlayerDB? selectedPlayer;
+        private string? searchText;
 
         public List<string> FilterOptions { get; } = ["Mens", "Womens", "All", "Inactive"];
 
         [RelayCommand]
-        public async Task SetAsDefaultPlayerAsync()
+        public async Task SetAsDefaultPlayerAsync(PlayerDB player)
         {
-            if (SelectedPlayer == null)
+            if (player == null)
                 return;
 
             var appData = await _database.GetAppDataAsync();
-            appData.AppUserPlayerId = SelectedPlayer.Id;
+            appData.AppUserPlayerId = player.Id;
             await _database.SaveAppDataAsync(appData);
         }
 
@@ -51,6 +59,18 @@ namespace RankingApp.ViewModels
         partial void OnSelectedDateChanged(DateTime value)
         {
             _ = LoadPlayersFromApiAsync(value);
+        }
+
+        partial void OnSearchTextChanged(string? value)
+        {
+            ApplySearch();
+        }
+
+        public async Task LoadDataAsync()
+        {
+            _allPlayers = (await _database.GetPlayersAsync()).OrderByDescending(x => x.PointsWithBonus).ToList();
+            FilterPlayers();
+            await UpdateAppDataLabel();
         }
 
         public async Task LoadPlayersFromApiAsync(DateTime? date = null)
@@ -92,6 +112,8 @@ namespace RankingApp.ViewModels
 
             FilterPlayers();
             await UpdateAppDataLabel();
+
+            await Application.Current.MainPage.DisplayAlert("Success", "Players loaded successfully.", "OK");
         }
 
         private void FilterPlayers()
@@ -100,22 +122,41 @@ namespace RankingApp.ViewModels
             switch (SelectedFilter)
             {
                 case "Mens":
-                    filtered = _allPlayers.Where(x => x.Gender == "male" && x.Place < 5000).OrderBy(x => x.Place);
+                    filtered = _allPlayers.Where(x => x.Gender == "male" && x.Place < 6000).OrderBy(x => x.Place);
                     break;
                 case "Womens":
-                    filtered = _allPlayers.Where(x => x.Gender == "female" && x.Place < 5000).OrderBy(x => x.Place);
+                    filtered = _allPlayers.Where(x => x.Gender == "female" && x.Place < 6000).OrderBy(x => x.Place);
                     break;
                 case "Inactive":
-                    filtered = _allPlayers.Where(x => x.OverallPlace != 0 && x.OverallPlace > 5000)
+                    filtered = _allPlayers.Where(x => x.OverallPlace != 0 && x.OverallPlace > 5999)
                                           .OrderByDescending(x => x.PointsWithBonus);
                     break;
                 case "All":
                 default:
-                    filtered = _allPlayers.Where(x => x.OverallPlace != 0 && x.OverallPlace < 5000)
+                    filtered = _allPlayers.Where(x => x.OverallPlace != 0 && x.OverallPlace < 6000)
                                           .OrderBy(x => x.OverallPlace);
                     break;
             }
-            Players = new ObservableCollection<PlayerDB>(filtered);
+
+            _filteredPlayers = filtered.ToList();
+            ApplySearch();
+        }
+
+        private void ApplySearch()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                Players = new ObservableCollection<PlayerDB>(_filteredPlayers);
+                return;
+            }
+
+            var searched = _filteredPlayers.Where(x =>
+                (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(x.Place.ToString()) && x.Place.ToString().StartsWith(SearchText, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+
+            Players = new ObservableCollection<PlayerDB>(searched);
         }
 
         private async Task UpdateAppDataLabel()

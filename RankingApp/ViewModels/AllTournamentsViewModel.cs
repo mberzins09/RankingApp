@@ -105,11 +105,20 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
 
     public async Task CreateNewTournamentSave()
     {
+        var appData = await _database.GetAppDataAsync();
+        PlayerDB? playerDB = null;
+
+        if (appData.AppUserPlayerId != 0)
+            playerDB = await _database.GetPlayerAsync(appData.AppUserPlayerId);
+
+        if (playerDB == null)
+            playerDB = await _database.GetPlayerAsync(694);
+
         var player = new PlayerDB()
         {
             Id = 10000, Place = 10000, Points = 0, PointsWithBonus = 0, Name = "Name", Surname = "Surname", Gender = "male", OverallPlace = 10000, BirthDate = ""
         };
-        var playerDB = await _database.GetPlayerAsync(694);
+
         if (playerDB != null)
         {
             player.Id = playerDB.Id;
@@ -134,7 +143,6 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         };
         
         await _database.SaveTournamentAsync(tournament);
-        
         Data.TournamentId = tournament.Id;
     }
 }
