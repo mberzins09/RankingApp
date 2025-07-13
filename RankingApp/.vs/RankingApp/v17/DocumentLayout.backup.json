@@ -118,8 +118,16 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 4,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 7,
@@ -130,8 +138,7 @@
               "RelativeToolTip": "Data Storage\\PlayerReposotoryWithDate.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-12T18:17:59.475Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-12T18:17:59.475Z"
             },
             {
               "$type": "Document",
@@ -143,8 +150,7 @@
               "RelativeToolTip": "MauiProgram.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-12T18:16:21.02Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-12T18:16:21.02Z"
             },
             {
               "$type": "Document",
@@ -152,20 +158,12 @@
               "Title": "PlayerViewModel.cs",
               "DocumentMoniker": "C:\\Users\\Berzini\\Desktop\\Programesana\\LastRankingApp\\RankingApp\\RankingApp\\ViewModels\\PlayerViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\PlayerViewModel.cs",
-              "ToolTip": "C:\\Users\\Berzini\\Desktop\\Programesana\\LastRankingApp\\RankingApp\\RankingApp\\ViewModels\\PlayerViewModel.cs*",
-              "RelativeToolTip": "ViewModels\\PlayerViewModel.cs*",
+              "ToolTip": "C:\\Users\\Berzini\\Desktop\\Programesana\\LastRankingApp\\RankingApp\\RankingApp\\ViewModels\\PlayerViewModel.cs",
+              "RelativeToolTip": "ViewModels\\PlayerViewModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-12T17:54:49.301Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
             {
               "$type": "Document",
@@ -177,8 +175,7 @@
               "RelativeToolTip": "Services\\PlayerServiceWithDate.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-12T17:22:39.565Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-12T17:22:39.565Z"
             },
             {
               "$type": "Document",
@@ -190,8 +187,7 @@
               "RelativeToolTip": "Services\\DatabaseService.cs",
               "ViewState": "AgIAAEkAAAAAAAAAAAAAwFgAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-11T16:18:31.692Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-11T16:18:31.692Z"
             },
             {
               "$type": "Document",
@@ -203,8 +199,7 @@
               "RelativeToolTip": "Models\\AppData.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-11T16:16:10.637Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-11T16:16:10.637Z"
             },
             {
               "$type": "Document",
@@ -216,8 +211,7 @@
               "RelativeToolTip": "Views\\AllPlayerRanking.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T18:53:28.867Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T18:53:28.867Z"
             },
             {
               "$type": "Document",
@@ -229,8 +223,7 @@
               "RelativeToolTip": "Views\\AllPlayerRanking.xaml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-07-06T18:52:26.521Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T18:52:26.521Z"
             },
             {
               "$type": "Document",
@@ -242,8 +235,7 @@
               "RelativeToolTip": "AppShell.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAABQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T12:59:09.651Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T12:59:09.651Z"
             },
             {
               "$type": "Document",
@@ -255,8 +247,7 @@
               "RelativeToolTip": "Views\\HomePage.xaml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-07-06T07:14:54.34Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T07:14:54.34Z"
             },
             {
               "$type": "Document",
@@ -268,8 +259,7 @@
               "RelativeToolTip": "App.xaml",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAABoAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-07-05T08:37:31.549Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-05T08:37:31.549Z"
             }
           ]
         }
@@ -315,8 +305,7 @@
               "RelativeToolTip": "Views\\AddTournament.xaml",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAADMAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-07-05T18:15:00.47Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-05T18:15:00.47Z"
             },
             {
               "$type": "Document",
@@ -328,8 +317,7 @@
               "RelativeToolTip": "Views\\AddTournament.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-05T18:27:25.901Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-05T18:27:25.901Z"
             },
             {
               "$type": "Document",
@@ -341,8 +329,7 @@
               "RelativeToolTip": "ViewModels\\AddTournamentViewModel.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAswAQAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-05T18:24:34.44Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-05T18:24:34.44Z"
             },
             {
               "$type": "Bookmark",
@@ -358,8 +345,7 @@
               "RelativeToolTip": "Views\\AllGames.xaml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-07-12T15:33:36.907Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-12T15:33:36.907Z"
             },
             {
               "$type": "Document",
@@ -371,8 +357,7 @@
               "RelativeToolTip": "Views\\AllGames.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-12T15:33:29.759Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-12T15:33:29.759Z"
             },
             {
               "$type": "Document",
@@ -384,8 +369,7 @@
               "RelativeToolTip": "ViewModels\\AllGamesViewModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAC4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-12T15:33:48.297Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-12T15:33:48.297Z"
             },
             {
               "$type": "Document",
@@ -397,8 +381,7 @@
               "RelativeToolTip": "Views\\AllTournaments.xaml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-07-06T12:30:52.468Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T12:30:52.468Z"
             },
             {
               "$type": "Document",
@@ -410,8 +393,7 @@
               "RelativeToolTip": "Views\\AllTournaments.xaml.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABYAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T12:37:49.362Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T12:37:49.362Z"
             },
             {
               "$type": "Document",
@@ -423,8 +405,7 @@
               "RelativeToolTip": "ViewModels\\AllTournamentsViewModel.cs",
               "ViewState": "AgIAABcAAAAAAAAAAAAcwGgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T13:04:36.342Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T13:04:36.342Z"
             },
             {
               "$type": "Document",
@@ -436,8 +417,7 @@
               "RelativeToolTip": "Views\\Tournaments.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T08:38:43.004Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T08:38:43.004Z"
             },
             {
               "$type": "Document",
@@ -449,8 +429,7 @@
               "RelativeToolTip": "Views\\Tournaments.xaml",
               "ViewState": "AgIAABMAAAAAAAAAAAAAwCkAAABmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-07-06T08:38:35.875Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T08:38:35.875Z"
             },
             {
               "$type": "Document",
@@ -462,8 +441,7 @@
               "RelativeToolTip": "ViewModels\\TournamentViewModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAEkAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T08:32:41.496Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T08:32:41.496Z"
             },
             {
               "$type": "Document",
@@ -475,8 +453,7 @@
               "RelativeToolTip": "Views\\Games.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T19:03:27.207Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T19:03:27.207Z"
             },
             {
               "$type": "Document",
@@ -500,8 +477,7 @@
               "RelativeToolTip": "ViewModels\\GameViewModel.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAACsAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T08:19:38.367Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T08:19:38.367Z"
             }
           ]
         }
