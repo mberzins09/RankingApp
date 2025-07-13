@@ -61,7 +61,7 @@ namespace RankingApp.ViewModels
             if (value is null || CurrentTournament is null)
                 return;
 
-            CurrentTournament.TournamentPlayerName = value.Name;
+            CurrentTournament.TournamentPlayerName = value.Name == "Edgars(R)" ? "Edgars" : value.Name;
             CurrentTournament.TournamentPlayerSurname = value.Surname;
             CurrentTournament.TournamentPlayerPoints = value.Points;
 
@@ -161,7 +161,7 @@ namespace RankingApp.ViewModels
             var nameGames = games.Where(x => x.TournamentId == CurrentTournament.Id).ToList();
             foreach (var game in nameGames)
             {
-                game.MyName = name;
+                game.MyName = name == "Edgars(R)" ? "Edgars" : name;
                 game.MySurname = surname;
                 game.MyPoints = points;
 

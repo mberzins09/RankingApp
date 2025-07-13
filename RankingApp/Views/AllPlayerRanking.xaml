@@ -3,12 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:rankingApp="using:RankingApp"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
              xmlns:model="clr-namespace:RankingApp.Models"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              x:DataType="viewmodel:PlayerViewModel"
              x:Class="RankingApp.Views.AllPlayerRanking"
              Title="Players Ranking"
              Style="{StaticResource PrimaryContentPage}">
+    <ContentPage.Resources>
+        <converters:PlayerDisplayConverter x:Key="PlayerDisplayConverter" />
+    </ContentPage.Resources>
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 60, *, 5" ColumnDefinitions="5, 100, *, 100, 5">
         <!-- Row 1 -->
         <Picker Grid.Row="1" Grid.Column="1" WidthRequest="100" HeightRequest="60" FontSize="20"
@@ -25,30 +29,8 @@
                     <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>
                             <Grid Style="{StaticResource PrimaryGrid}" ColumnDefinitions="5, *, 50, 5, 50, 5">
-                                <Label Grid.Column="1" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1" HorizontalOptions="Start">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
-                 Value="Mens">
-                                            <Setter Property="Text" Value="{Binding Display}" />
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
-                 Value="Womens">
-                                            <Setter Property="Text" Value="{Binding Display}" />
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
-                 Value="All">
-                                            <Setter Property="Text" Value="{Binding AllDisplay}" />
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                 Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}"
-                 Value="Inactive">
-                                            <Setter Property="Text" Value="{Binding AllDisplay}" />
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                <Label Grid.Column="1" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1" HorizontalOptions="Start"
+                                       Text="{Binding ., Converter={StaticResource PlayerDisplayConverter}, ConverterParameter={Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectedFilter}}" />
                                 <Label Grid.Column="2" Style="{StaticResource ListItemLabel}" Text="{Binding Points}"/>
                                 <Label Grid.Column="4" Style="{StaticResource ListItemLabel}" Text="{Binding PointsWithBonus}"/>
                             </Grid>

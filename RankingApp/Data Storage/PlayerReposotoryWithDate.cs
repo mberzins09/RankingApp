@@ -24,7 +24,7 @@ namespace RankingApp.Data_Storage
                 PointsWithBonus = player.PointsWithBonus,
                 BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
             })
-                .ToList() ?? new List<PlayerDB>();
+                .ToList() ?? [];
 
             var femalesDb = females?.Select(player => new PlayerDB()
             {
@@ -37,7 +37,7 @@ namespace RankingApp.Data_Storage
                 PointsWithBonus = player.PointsWithBonus,
                 BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
             })
-                .ToList() ?? new List<PlayerDB>();
+                .ToList() ?? [];
 
             _players = malesDb.Concat(femalesDb)
                 .OrderByDescending(x => x.PointsWithBonus)

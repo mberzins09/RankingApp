@@ -117,7 +117,7 @@ namespace RankingApp.ViewModels
             if (OneGame is null)
                 return;
 
-            OneGame.MyName = me.Name;
+            OneGame.MyName = me.Name == "Edgars(R)" ? "Edgars" : me.Name;
             OneGame.MySurname = me.Surname;
             OneGame.MyPoints = me.Points;
             OneGame.MyPointsWithBonus = me.PointsWithBonus;

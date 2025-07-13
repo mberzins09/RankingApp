@@ -136,7 +136,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
             Coefficient = "0.5",
             Name = "New Tournament",
             Date = DateTime.Now,
-            TournamentPlayerName = player.Name,
+            TournamentPlayerName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
             TournamentPlayerSurname = player.Surname,
             TournamentPlayerPoints = player.Points,
             TournamentPlayerId = player.Id

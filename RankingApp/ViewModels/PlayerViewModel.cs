@@ -13,7 +13,7 @@ namespace RankingApp.ViewModels
         private readonly DatabaseService _database = database;
         private readonly PlayerReposotoryWithDate _repositoryWithDate = repositoryWithDate;
 
-        private List<PlayerDB> _allPlayers = [];
+        private List<PlayerDB>? _allPlayers = [];
 
         private List<PlayerDB> _filteredPlayers = [];
 
@@ -27,7 +27,7 @@ namespace RankingApp.ViewModels
         private ObservableCollection<PlayerDB>? players;
 
         [ObservableProperty]
-        private string selectedFilter = "All"; // "Mens", "Womens", "All", "Inactive"
+        private string selectedFilter = "All";
 
         [ObservableProperty]
         private DateTime selectedDate = DateTime.UtcNow;
@@ -68,7 +68,7 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
-            _allPlayers = (await _database.GetPlayersAsync()).OrderByDescending(x => x.PointsWithBonus).ToList();
+            _allPlayers = [.. (await _database.GetPlayersAsync()).OrderByDescending(x => x.PointsWithBonus)];
             FilterPlayers();
             await UpdateAppDataLabel();
         }

@@ -39,7 +39,7 @@
         <Label Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPoints}"/>
         <!-- Row 5 -->
         <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyPointsWithBonus}"/>
-        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="PointsBonus"/>
+        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="WithBonus"/>
         <Label Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPointsWithBonus}"/>
         <!-- Row 6 -->
         <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyAge}"/>

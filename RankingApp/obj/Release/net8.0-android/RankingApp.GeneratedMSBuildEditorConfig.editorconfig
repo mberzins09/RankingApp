@@ -79,26 +79,8 @@ build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.HomePage.
 build_metadata.AdditionalFiles.TargetPath = Views\HomePage.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\HomePage.xaml
 
-[C:/Users/Berzini/Desktop/Programesana/LastRankingApp/RankingApp/RankingApp/Views/InactivePlayers.xaml]
-build_metadata.AdditionalFiles.GenKind = Xaml
-build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.InactivePlayers.xaml
-build_metadata.AdditionalFiles.TargetPath = Views\InactivePlayers.xaml
-build_metadata.AdditionalFiles.RelativePath = Views\InactivePlayers.xaml
-
-[C:/Users/Berzini/Desktop/Programesana/LastRankingApp/RankingApp/RankingApp/Views/MensRanking.xaml]
-build_metadata.AdditionalFiles.GenKind = Xaml
-build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.MensRanking.xaml
-build_metadata.AdditionalFiles.TargetPath = Views\MensRanking.xaml
-build_metadata.AdditionalFiles.RelativePath = Views\MensRanking.xaml
-
 [C:/Users/Berzini/Desktop/Programesana/LastRankingApp/RankingApp/RankingApp/Views/Tournaments.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.Tournaments.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Tournaments.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Tournaments.xaml
-
-[C:/Users/Berzini/Desktop/Programesana/LastRankingApp/RankingApp/RankingApp/Views/WomensRanking.xaml]
-build_metadata.AdditionalFiles.GenKind = Xaml
-build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.WomensRanking.xaml
-build_metadata.AdditionalFiles.TargetPath = Views\WomensRanking.xaml
-build_metadata.AdditionalFiles.RelativePath = Views\WomensRanking.xaml

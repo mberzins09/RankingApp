@@ -154,7 +154,15 @@ namespace RankingApp.Services
 
             foreach (var game in games)
             {
-                var me = players.FirstOrDefault(p => p.Name == game.MyName && p.Surname == game.MySurname);
+                PlayerDB? me;
+                if (game.MyName == "Edgars" && game.MySurname == "Bērziņš")
+                {
+                    me = players.FirstOrDefault(p => p.Name == "Edgars(R)" && p.Surname == game.MySurname);
+                }
+                else
+                {
+                    me = players.FirstOrDefault(p => p.Name == game.MyName && p.Surname == game.MySurname);
+                }
                 var opponent = players.FirstOrDefault(p => p.Name == game.Name && p.Surname == game.Surname);
 
                 if (me != null)
