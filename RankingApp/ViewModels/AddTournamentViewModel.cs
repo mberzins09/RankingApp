@@ -13,6 +13,9 @@ namespace RankingApp.ViewModels
         private List<PlayerDB> _allPlayers = [];
 
         [ObservableProperty]
+        private bool isSearchDisabled;
+
+        [ObservableProperty]
         private ObservableCollection<PlayerDB>? players;
 
         [ObservableProperty]
@@ -74,11 +77,13 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
+            IsSearchDisabled = true;
             CurrentTournament = await _database.GetTournamentAsync(Data.TournamentId);
             var players = await _database.GetPlayersAsync();
             _allPlayers = players.OrderByDescending(x => x.PointsWithBonus).ToList();
 
             Players = new ObservableCollection<PlayerDB>(_allPlayers);
+            IsSearchDisabled = false;
         }
 
         public async Task<List<PlayerDB>> GetPlayers()

@@ -13,6 +13,12 @@ namespace RankingApp.ViewModels
         private List<PlayerDB>? _allPlayers = [];
         private List<PlayerDB>? _filteredPlayers = [];
         private AppData? _cachedAppData;
+        private System.Timers.Timer? _searchDebounceTimer;
+        [ObservableProperty]
+        private bool isSearchEnabled;
+
+        [ObservableProperty]
+        private bool isBusy;
 
         [ObservableProperty]
         private DateTime minDate = new(2014, 1, 1);
@@ -50,7 +56,9 @@ namespace RankingApp.ViewModels
 
         partial void OnSelectedFilterChanged(string value)
         {
+            IsSearchEnabled = true;
             FilterPlayers();
+            IsSearchEnabled = false;
         }
 
         partial void OnSelectedDateChanged(DateTime value)
@@ -72,26 +80,50 @@ namespace RankingApp.ViewModels
 
         partial void OnSearchTextChanged(string? value)
         {
-            ApplySearch();
+            _searchDebounceTimer?.Stop();
+            _searchDebounceTimer = new System.Timers.Timer(750); // 750ms debounce
+            _searchDebounceTimer.Elapsed += (s, e) =>
+            {
+                _searchDebounceTimer?.Stop();
+                MainThread.BeginInvokeOnMainThread(ApplySearch);
+            };
+            _searchDebounceTimer.Start();
         }
 
         public async Task LoadDataAsync()
         {
+            IsSearchEnabled = true;
             _allPlayers = await _playerService.GetPlayersFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
             FilterPlayers();
             await UpdateAppDataLabel();
+            IsSearchEnabled = false;
         }
 
         public async Task LoadPlayersFromApiAsync(DateTime? date = null)
         {
-            _allPlayers = await _playerService.LoadPlayersFromApiOrDbAsync(date);
-            _cachedAppData = await _playerService.GetAppDataAsync();
+            IsBusy = true;
+            IsSearchEnabled = true;
 
-            FilterPlayers();
-            await UpdateAppDataLabel();
+            try
+            {
+                _allPlayers = await _playerService.LoadPlayersFromApiOrDbAsync(date);
+                _cachedAppData = await _playerService.GetAppDataAsync();
 
-            await Application.Current.MainPage.DisplayAlert("Success", "Players loaded successfully.", "OK");
+                FilterPlayers();
+                await UpdateAppDataLabel();
+
+                await Application.Current.MainPage.DisplayAlert("Success", "Players loaded successfully.", "OK");
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+                IsSearchEnabled = false;
+            }
         }
 
         private void FilterPlayers()

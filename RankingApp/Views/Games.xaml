@@ -54,7 +54,8 @@
         <!-- Row 8 -->
         <!-- Row 9 -->
         <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="40,*" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"/>
+            <SearchBar Grid.Row="0" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"
+                       IsReadOnly="{Binding IsSearchDisabled}"/>
             <ListView Grid.Row="1" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedOpponent}" Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">

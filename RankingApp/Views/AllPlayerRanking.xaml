@@ -2,14 +2,22 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:local="clr-namespace:RankingApp"
              xmlns:rankingApp="using:RankingApp"
              xmlns:model="clr-namespace:RankingApp.Models"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
              x:DataType="viewmodel:PlayerViewModel"
              x:Class="RankingApp.Views.AllPlayerRanking"
              Title="Players Ranking"
              Style="{StaticResource PrimaryContentPage}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:PointsChangedToColorConverter x:Key="PointsChangedToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 60, *, 5" ColumnDefinitions="5, 100, *, 100, 5">
+    <ActivityIndicator Grid.Row="1" Grid.Column ="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Style="{StaticResource PrimaryActivity}"/>
         <!-- Row 1 -->
         <Picker Grid.Row="1" Grid.Column="1" WidthRequest="100" HeightRequest="60" FontSize="20"
                 Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" />
@@ -19,7 +27,8 @@
                                    WidthRequest="100" HeightRequest="60"/>
         <!-- Row 2 -->
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" RowDefinitions="40, 15, *" ColumnDefinitions="2, *, 50, 1, 55, 40, 2" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Column="1" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
+            <SearchBar Grid.Column="1" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"
+                       IsReadOnly="{Binding IsSearchEnabled}"/>
             <Label Grid.Row="1" Grid.Column="1" Text="               Player" HorizontalOptions="Start" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="2" Text="Points" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="4" Text="WithBonus" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
@@ -58,7 +67,8 @@
                                 </Label>
                                 <Label Grid.Column="2" Style="{StaticResource ListItemLabel}" Text="{Binding Points}"/>
                                 <Label Grid.Column="4" Style="{StaticResource ListItemLabel}" Text="{Binding PointsWithBonus}"/>
-                                <Label Grid.Column="5" Style="{StaticResource ListItemLabel}" Text="{Binding PointsChanged}"/>
+                                <Label Grid.Column="5" Style="{StaticResource ListItemLabel}" Text="{Binding PointsChanged}"
+                                       TextColor="{Binding PointsChanged, Converter={StaticResource PointsChangedToColorConverter}}"/>
                             </Grid>
                             <ViewCell.ContextActions>
                                 <MenuItem Text="Set as default player"
