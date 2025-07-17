@@ -1,46 +1,48 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using RankingApp.Models;
 using RankingApp.Services;
+using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels
 {
-    public class AllGamesViewModel(DatabaseService database) : BaseViewModel
+    public partial class AllGamesViewModel(DatabaseService database) : BaseViewModel
     {
         private readonly DatabaseService _database = database;
-        public ObservableCollection<Game>? Games { get; set; }
-        public List<Game> GamesList { get; set; } = new List<Game>();
+
+        private List<Game> _allGames = [];
+
+        [ObservableProperty]
+        private string? searchText;
+
+        [ObservableProperty]
+        private ObservableCollection<Game>? games;
+
+        partial void OnSearchTextChanged(string? value)
+        {
+            FilterGames(value ?? string.Empty);
+        }
 
         public async Task LoadDataAsync()
         {
             var games = await _database.GetGamesAsync();
-            GamesList = games.OrderByDescending(x => x.TournamentDate).ToList();
-            Games = new ObservableCollection<Game>(GamesList);
-            OnPropertyChanged();
+            _allGames = games.OrderByDescending(x => x.TournamentDate).ToList();
+            Games = new ObservableCollection<Game>(_allGames);
         }
 
-        public async Task<List<Game>> GetGames()
+        public void FilterGames(string searchText)
         {
-            var games = await _database.GetGamesAsync();
-            var list = games.OrderByDescending(x => x.TournamentDate).ToList();
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                Games = new ObservableCollection<Game>(_allGames);
+                return;
+            }
 
-            return list;
-        }
+            var searchedGames = _allGames.Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
+                                                x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                                                (!string.IsNullOrWhiteSpace(x.Surname) &&
+                                                x.Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))).ToList();
 
-        public List<Game> SearchTournaments(List<Game> games, string filterText)
-        {
-            var searchedGames = games
-                .Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
-                             x.Name.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Surname) &&
-                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
-                .ToList();
-
-            return searchedGames;
-        }
-
-        public async Task DeleteGame(Game game)
-        {
-            await _database.DeleteGameAsync(game);
+            Games = new ObservableCollection<Game>(searchedGames);
         }
     }
 }

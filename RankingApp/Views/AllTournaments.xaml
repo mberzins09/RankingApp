@@ -1,66 +1,41 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="RankingApp.Views.AllTournaments"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllTournamentsViewModel"
-             Title="All Tournaments"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-    <StackLayout BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-        <Label 
-            Text="Tournaments" 
-            FontSize="Title" 
-            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-            HorizontalOptions="Center"/>
-        <SearchBar
-            x:Name="TournamentsSearchBar"
-            Placeholder="Search Tournaments"
-            TextChanged="TournamentsSearchBar_OnTextChanged"
-            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
-        ></SearchBar>
-        <ListView 
-            x:Name ="ListViewTournaments" 
-            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}"
-            SeparatorColor="Green"
-            ItemsSource="{Binding Tournaments}"
-            ItemSelected="ListViewTournaments_OnItemSelected">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="model:Tournament">
-                    <ViewCell>
-                        <VerticalStackLayout Spacing="2" Padding="1">
-                            <Label
-                                Text ="{Binding Name}"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                FontSize="16"
-                                FontAttributes="Bold"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"></Label>
-                            <Label
-                                Text ="{Binding TournamentDisplay}"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                FontSize="14"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"></Label>
-                        </VerticalStackLayout>
+             Title="Rankings"
+             Style="{StaticResource PrimaryContentPage}">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, *" ColumnDefinitions="10, 100, *, 100, *, 100, 10">
+        <ImageButton Grid.Column="1" Source="ranksnoborder.png" Clicked="ImageButtonRankings_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
+        <ImageButton Grid.Column="3" Source="gamesnoborder.png" Clicked="ImageButtonAllGames_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
+        <ImageButton Grid.Column="5" Source="plusnoborder.png" Clicked="ImageButtonAdd_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
 
-                        <ViewCell.ContextActions>
-                            <MenuItem
-                                Text="Delete"
-                                IsDestructive="True"
-                                Clicked="MenuItemDelete_OnClicked"
-                                CommandParameter="{Binding .}"></MenuItem>
-
-                            <MenuItem
-                                Text="Edit"
-                                IsDestructive="False"
-                                Clicked="MenuItemEdit_OnClicked"
-                                CommandParameter="{Binding .}"></MenuItem>
-                        </ViewCell.ContextActions>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-
-        </ListView>
-    </StackLayout>
+        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="7" RowDefinitions="40, *">
+            <SearchBar Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
+            <ListView Grid.Row="1" Style="{StaticResource PrimaryListView}" 
+                      ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Tournament">
+                        <ViewCell>
+                            <VerticalStackLayout Style="{StaticResource PrimaryVertical}" Spacing="0" Padding="0">
+                                <Label Text ="{Binding Name}" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
+                                <Label Text ="{Binding TournamentDisplay}" Style="{StaticResource ListItemLabel}" VerticalOptions="Start"/>
+                            </VerticalStackLayout>
+                            <ViewCell.ContextActions>
+                                <MenuItem Text="Delete" IsDestructive="True" 
+                                          Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTournamentCommand}" 
+                                          CommandParameter="{Binding .}"/>
+                                <MenuItem Text="Edit" IsDestructive="False" 
+                                          Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditTournamentCommand}" 
+                                          CommandParameter="{Binding .}"/>
+                            </ViewCell.ContextActions>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
 </ContentPage>

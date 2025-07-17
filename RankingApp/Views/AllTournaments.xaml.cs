@@ -1,6 +1,5 @@
+using RankingApp.Services;
 using RankingApp.ViewModels;
-using System.Collections.ObjectModel;
-using RankingApp.Models;
 
 namespace RankingApp.Views;
 
@@ -17,62 +16,25 @@ public partial class AllTournaments : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await _viewModel.AddPlayerDBTable();
+        await _viewModel.Migrate();
         await _viewModel.LoadDataAsync();
-        TournamentsSearchBar.Text = String.Empty;
+        _viewModel.SearchText = String.Empty;
     }
 
-    private void TournamentsSearchBar_OnTextChanged(object? sender, TextChangedEventArgs e)
+    private async void ImageButtonAdd_Clicked(object sender, EventArgs e)
     {
-        var search = sender == null ? String.Empty : ((SearchBar)sender).Text;
-        var tournaments = new ObservableCollection<Tournament>
-            (_viewModel.SearchTournaments(_viewModel.TournamentsList, search));
-
-        ListViewTournaments.ItemsSource = tournaments;
+        await _viewModel.CreateNewTournamentSave();
+        await Shell.Current.GoToAsync(nameof(AddTournament));
     }
 
-    private void ListViewTournaments_OnItemSelected(object? sender, SelectedItemChangedEventArgs e)
+    private async void ImageButtonAllGames_Clicked(object sender, EventArgs e)
     {
-        var tournament = ListViewTournaments.SelectedItem as Tournament;
-        if (tournament != null)
-        {
-            Data.TournamentId = tournament.Id;
-        }
-
-        Shell.Current.GoToAsync(nameof(Tournaments));
+        await Shell.Current.GoToAsync(nameof(AllGames));
     }
 
-    private async void MenuItemDelete_OnClicked(object? sender, EventArgs e)
+    private async void ImageButtonRankings_Clicked(object sender, EventArgs e)
     {
-        var menuItem = sender as MenuItem;
-        if (menuItem != null)
-        {
-            var tournament = menuItem.CommandParameter as Tournament;
-            if (tournament != null)
-            {
-                var games = await _viewModel.GetGames(tournament.Id);
-                for (int i = 0; i < games.Count; i++)
-                {
-                    await _viewModel.DeleteGame(games[i]);
-                }
-                await _viewModel.DeleteTournament(tournament);
-            }
-        }
-
-        ListViewTournaments.ItemsSource = await _viewModel.GetTournaments();
-    }
-
-    private async void MenuItemEdit_OnClicked(object? sender, EventArgs e)
-    {
-        var menuItem = sender as MenuItem;
-        if (menuItem != null)
-        {
-            var tournament = menuItem.CommandParameter as Tournament;
-            if (tournament != null)
-            {
-                Data.TournamentId = tournament.Id;
-
-                await Shell.Current.GoToAsync(nameof(AddTournament));
-            }
-        }
+        await Shell.Current.GoToAsync(nameof(AllPlayerRanking));
     }
 }

@@ -1,32 +1,129 @@
-﻿using SQLite;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using SQLite;
 
 namespace RankingApp.Models
 {
-    public class Game
+    public partial class Game : ObservableObject
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-        public int MyPoints { get; set; }
-        public string MyName { get; set; }
-        public string MySurname { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int myPoints;
+
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MyFullName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string myName;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MyFullName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string mySurname;
+
         public string MyFullName => $"{MyName} {MySurname}";
-        public int OpponentPoints { get; set; }
-        public string? Name { get; set; }
-        public string? Surname { get; set; }
-        public int? MySets { get; set; }
-        public int? OpponentSets { get; set; }
+
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int opponentPoints;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(OpponentName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string? name;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(OpponentName))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        private string? surname;
+
         public string? OpponentName => $"{Name} {Surname}";
-        public bool IsWin => MySets > OpponentSets;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameScore))]
+        [NotifyPropertyChangedFor(nameof(IsWin))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int? mySets;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameScore))]
+        [NotifyPropertyChangedFor(nameof(IsWin))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private int? opponentSets;
+
+        public bool IsWin => (MySets ?? 0) > (OpponentSets ?? 0);
+
         public int TournamentId { get; set; }
-        public string? TournamentName { get; set; }
-        public DateTime TournamentDate { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameName))]
+        private string? tournamentName;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(GameName))]
+        [NotifyPropertyChangedFor(nameof(DateToString))]
+        private DateTime tournamentDate;
+
         public string DateToString => TournamentDate.ToString("d MMM yyyy");
-        public string GameCoefficient { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private string gameCoefficient;
+
         public string GameScore => $"{MySets} : {OpponentSets}";
+
         public string GameName => $"{TournamentName} - {DateToString}";
+
         public string GameDisplayPlayers => $"{MyFullName} - {OpponentName} {GameScore}";
+
         public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
-        public bool IsOpponentForeign {  get; set; }
-        public int RatingDifference => IsOpponentForeign ? 0 : RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
+        [NotifyPropertyChangedFor(nameof(RatingDifference))]
+        private bool isOpponentForeign;
+
+        public int RatingDifference
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Surname) ||
+                    MySets is null || OpponentSets is null)
+                {
+                    return 0;
+                }
+
+                return IsOpponentForeign
+                    ? 0
+                    : RatingCalculator.Calculate(MyPoints, OpponentPoints, IsWin, GameCoefficient);
+            }
+        }
+
+        [ObservableProperty]
+        private int myPointsWithBonus;
+
+        [ObservableProperty]
+        private int opponentPointsWithBonus;
+
+        [ObservableProperty]
+        private int myAge;
+
+        [ObservableProperty]
+        private int opponentAge;
+        
+        [ObservableProperty]
+        private int myPlace;
+
+        [ObservableProperty]
+        private int opponentPlace;
     }
 }

@@ -15,6 +15,7 @@ namespace RankingApp.Services
             _database.CreateTableAsync<PlayerDB>().Wait();
             _database.CreateTableAsync<Game>().Wait();
             _database.CreateTableAsync<Tournament>().Wait();
+            _database.CreateTableAsync<AppData>().Wait();
         }
 
         public async Task<List<PlayerDB>> GetPlayersAsync()
@@ -69,6 +70,22 @@ namespace RankingApp.Services
             return await _database.DeleteAsync(tournament);
         }
 
+        public async Task<AppData> GetAppDataAsync()
+        {
+            var data = await _database.Table<AppData>().FirstOrDefaultAsync();
+            if (data == null)
+            {
+                data = new AppData();
+                await _database.InsertAsync(data);
+            }
+            return data;
+        }
+
+        public async Task SaveAppDataAsync(AppData appData)
+        {
+            await _database.InsertOrReplaceAsync(appData);
+        }
+
         public async Task UpdatePlayerAsync(PlayerDB player)
         {
             var existingPlayer = await _database.Table<PlayerDB>()
@@ -92,6 +109,8 @@ namespace RankingApp.Services
 
                 if (existingPlayer != null)
                 {
+                    existingPlayer.PointsChanged = player.PointsWithBonus - existingPlayer.PointsWithBonus;
+
                     existingPlayer.PointsWithBonus = player.PointsWithBonus;
                     existingPlayer.Points = player.Points;
                     existingPlayer.Place = player.Place;
@@ -103,6 +122,118 @@ namespace RankingApp.Services
                 {
                     await _database.InsertAsync(player);
                 }
+            }
+        }
+
+        public async Task AddColumnIfNotExistsAsync(string tableName, string columnName, string columnType, string defaultValue = "0")
+        {
+            try
+            {
+                await _database.ExecuteAsync($"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnType} DEFAULT {defaultValue}");
+            }
+            catch (SQLiteException ex)
+            {
+                if (!ex.Message.Contains("duplicate column name"))
+                    throw;
+            }
+        }
+
+        public async Task MigrateGameTableAsync()
+        {
+            // Add new columns if not exist
+            await AddColumnIfNotExistsAsync("Game", "MyPointsWithBonus", "INTEGER");
+            await AddColumnIfNotExistsAsync("Game", "OpponentPointsWithBonus", "INTEGER");
+            await AddColumnIfNotExistsAsync("Game", "MyAge", "INTEGER");
+            await AddColumnIfNotExistsAsync("Game", "OpponentAge", "INTEGER");
+            await AddColumnIfNotExistsAsync("Game", "MyPlace", "INTEGER");
+            await AddColumnIfNotExistsAsync("Game", "OpponentPlace", "INTEGER");
+        }
+
+        public async Task MigratePlayerTableAsync()
+        {
+            await AddColumnIfNotExistsAsync("PlayerDB", "PointsChanged", "INTEGER");
+        }
+
+        public async Task UpdateGamesWithPlayerDataAsync()
+        {
+            var games = await _database.Table<Game>().ToListAsync();
+            var players = await _database.Table<PlayerDB>().ToListAsync();
+
+            foreach (var game in games)
+            {
+                PlayerDB? me;
+                if (game.MyName == "Edgars" && game.MySurname == "Bērziņš")
+                {
+                    me = players.FirstOrDefault(p => p.Name == "Edgars(R)" && p.Surname == game.MySurname);
+                }
+                else
+                {
+                    me = players.FirstOrDefault(p => p.Name == game.MyName && p.Surname == game.MySurname);
+                }
+                var opponent = players.FirstOrDefault(p => p.Name == game.Name && p.Surname == game.Surname);
+
+                if (me != null)
+                {
+                    game.MyPointsWithBonus = me.PointsWithBonus;
+                    game.MyAge = me.Age;
+                    game.MyPlace = me.Place;
+                }
+                if (opponent != null)
+                {
+                    game.OpponentPointsWithBonus = opponent.PointsWithBonus;
+                    game.OpponentAge = opponent.Age;
+                    game.OpponentPlace = opponent.Place;
+                }
+
+                await _database.UpdateAsync(game);
+            }
+        }
+
+        public async Task MigrateOldDatabaseAsync()
+        {
+            var appDataDir = FileSystem.AppDataDirectory;
+
+            var mainDbPath = Path.Combine(appDataDir, "AllP.db3");
+            var oldDbPath = Path.Combine(appDataDir, "Data3.db3");
+
+            if (File.Exists(oldDbPath))
+            {
+                var mainDb = new SQLiteAsyncConnection(mainDbPath);
+                await mainDb.CreateTableAsync<Game>();
+                await mainDb.CreateTableAsync<Tournament>();
+
+                var oldDb = new SQLiteAsyncConnection(oldDbPath);
+
+                // Ensure old DB has tables
+                await oldDb.CreateTableAsync<Game>();
+                await oldDb.CreateTableAsync<Tournament>();
+
+                var oldGames = await oldDb.Table<Game>().ToListAsync();
+                var oldTournaments = await oldDb.Table<Tournament>().ToListAsync();
+
+                foreach (var game in oldGames)
+                    await mainDb.InsertOrReplaceAsync(game);
+
+                foreach (var tournament in oldTournaments)
+                    await mainDb.InsertOrReplaceAsync(tournament);
+
+                // Optional: delete old DB
+                File.Delete(oldDbPath);
+            }
+        }
+
+        public async Task RunAllMigrationsAsync()
+        {
+            var appData = await GetAppDataAsync();
+
+            if (!appData.GamesIsUpdated)
+            {
+                await MigrateOldDatabaseAsync();
+                await MigrateGameTableAsync();
+                await UpdateGamesWithPlayerDataAsync();
+
+                appData.GamesIsUpdated = true;
+                await SaveAppDataAsync(appData);
             }
         }
     }

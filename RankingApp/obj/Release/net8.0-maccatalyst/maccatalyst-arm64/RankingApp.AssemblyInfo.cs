@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RankingApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+1e1f880fd6e17e364b34042fcf2be968d4c8c29d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+a9348aae8cce02c8971b03412086b5f69bd3217c")]
 [assembly: System.Reflection.AssemblyProductAttribute("RankingApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RankingApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

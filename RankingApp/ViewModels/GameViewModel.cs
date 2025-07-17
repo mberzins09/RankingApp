@@ -1,62 +1,113 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using RankingApp.Models;
 using RankingApp.Services;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace RankingApp.ViewModels
 {
-    public class GameViewModel(DatabaseService databaseService) : BaseViewModel
+    public partial class GameViewModel(DatabaseService databaseService) : BaseViewModel
     {
         private readonly DatabaseService _databaseService = databaseService;
-        public ObservableCollection<PlayerDB>? Players { get; set; }
-        public List<PlayerDB> PlayerList { get; set; } = new List<PlayerDB>();
-        public bool IsOpponentForeign { get; set; }
-        public required Game Game { get; set; }
+
+        [ObservableProperty]
+        private ObservableCollection<PlayerDB>? players;
+
+        [ObservableProperty]
+        private Game? oneGame;
+
+        [ObservableProperty]
+        private PlayerDB? selectedOpponent;
+
+        [ObservableProperty]
+        private string? searchText;
+
+        [ObservableProperty]
+        private BoolOption? selectedOpponentForeignOption;
+
+        private List<PlayerDB> _allPlayers = [];
+        public ObservableCollection<int> SetsOptions { get; } = [0, 1, 2, 3, 4];
+        public List<BoolOption> IsOpponentForeignOptions { get; } = new()
+        {
+            new BoolOption { Value = true, Label = "Yes" },
+            new BoolOption { Value = false, Label = "No" }
+        };
+
+        partial void OnSelectedOpponentForeignOptionChanged(BoolOption? value)
+        {
+            if (OneGame is null || value is null)
+                return;
+
+            OneGame.IsOpponentForeign = value.Value;
+        }
+
+        partial void OnSearchTextChanged(string? value)
+        {
+            FilterPlayers(value ?? string.Empty);
+        }
+
+        partial void OnSelectedOpponentChanged(PlayerDB? value)
+        {
+            if (value is null || OneGame is null)
+                return;
+
+            AssignOpponentProperties(value);
+        }
 
         public async Task LoadDataAsync()
         {
-            Game = await _databaseService.GetGameAsync(Data.GameId);
-            var tournament = await _databaseService.GetTournamentAsync(Game.TournamentId);
+            OneGame = await _databaseService.GetGameAsync(Data.GameId);
             var players = await _databaseService.GetPlayersAsync();
-            PlayerList = players
-                .Where(x =>
-                    x.Id != tournament.TournamentPlayerId)
-                .OrderByDescending(x => x.PointsWithBonus)
-                .ToList();
+            var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
+            OneGame.GameCoefficient = tournament.Coefficient;
+            _allPlayers = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
+            Players = new ObservableCollection<PlayerDB>(_allPlayers);
 
-            Players = new ObservableCollection<PlayerDB>(PlayerList);
-
-            OnPropertyChanged(nameof(Players));
+            SelectedOpponentForeignOption = IsOpponentForeignOptions.FirstOrDefault(x => x.Value == OneGame.IsOpponentForeign);
+            await _databaseService.SaveGameAsync(OneGame);
         }
 
         public async Task SaveGameAsync()
         {
-            await _databaseService.SaveGameAsync(Game);
+            await _databaseService.SaveGameAsync(OneGame);
         }
 
         public async Task<List<PlayerDB>> GetPlayers()
         {
-            var tournament = await _databaseService.GetTournamentAsync(Game.TournamentId);
+            var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
             var players = await _databaseService.GetPlayersAsync();
-            var list = players
-                .Where(x =>
-                    x.Id != tournament.TournamentPlayerId)
-                .OrderByDescending(x => x.PointsWithBonus)
-                .ToList();
+            var list = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
 
             return list;
         }
-        public List<PlayerDB> SearchPlayers(List<PlayerDB> players, string filterText)
-        {
-            var searchedPlayers = players
-                .Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
-                             x.Name.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Surname) &&
-                             x.Surname.StartsWith(filterText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Place.ToString()) &&
-                             x.Place.ToString().StartsWith(filterText, StringComparison.OrdinalIgnoreCase)))
-                .ToList();
 
-            return searchedPlayers;
+        public void FilterPlayers(string? searchText)
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                Players = new ObservableCollection<PlayerDB>(_allPlayers);
+                return;
+            }
+
+            var filtered = _allPlayers.Where(x => (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.Place.ToString()) && x.Place.ToString().StartsWith(searchText, StringComparison.OrdinalIgnoreCase)))
+                            .ToList();
+
+            Players = new ObservableCollection<PlayerDB>(filtered);
+        }
+
+        private void AssignOpponentProperties(PlayerDB opponent)
+        {
+            if (OneGame is null)
+                return;
+
+            OneGame.Name = opponent.Name;
+            OneGame.Surname = opponent.Surname;
+            OneGame.OpponentPoints = opponent.Points;
+            OneGame.OpponentPointsWithBonus = opponent.PointsWithBonus;
+            OneGame.OpponentAge = opponent.Age;
+            OneGame.OpponentPlace = opponent.Place;
         }
     }
 }

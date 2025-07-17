@@ -1,1 +1,0 @@
-D:\Projekti\RankingApp\RankingApp\RankingApp.csproj;x64

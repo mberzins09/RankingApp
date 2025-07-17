@@ -4,60 +4,48 @@
              xmlns:model="clr-namespace:RankingApp.Models"
              xmlns:views="clr-namespace:RankingApp.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             x:DataType="views:TournamentViewModel"
              x:Class="RankingApp.Views.Tournaments"
              Title="Tournament"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-    <Grid RowDefinitions="40,40,*" ColumnDefinitions="150,*" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-        <Frame Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Padding="0">
-            <Label Grid.Row="1" Grid.Column="0" x:Name="LabelTournamentName" Text="Name" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" Padding="0"
-           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></Label>
-        </Frame>
-        <Frame Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"  Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-            <Label x:Name="LabelTournamentPlayer" Text="Player" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" Padding="0"
-           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></Label>
-        </Frame>
-        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="40,40,*,50,*,60,60" 
-              BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-            <Frame Grid.Row="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Padding="0">
-                <Label x:Name="LabelTournamentDate" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" Padding="0"
-                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></Label>
-            </Frame>
-            <Frame Grid.Row="1" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-                <Label x:Name="LabelTournamentCoefficient" Text="Coef" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" Padding="0"
-                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></Label>
-            </Frame>
-            <Frame Grid.Row="3" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" Padding="0">
-                <Label x:Name="LabelPointsDifference" Text="0" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" Padding="0"
-                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"></Label>
-            </Frame>
-            <Button Grid.Row="5" Grid.Column="0" x:Name="BtnAddGame" BackgroundColor="Blue" TextColor="Black" FontSize="24" Text="Add Game" Clicked="BtnAddGame_OnClicked"></Button>
-            <Button Grid.Row="6" Grid.Column="0" x:Name="BtnSaveTournament" Text="Save" Clicked="BtnSave_OnClicked" BackgroundColor="Crimson" FontSize="24" TextColor="Black"></Button>
-        </Grid>
-        <ListView x:DataType="views:TournamentViewModel" x:Name="ListViewTournamentGames" ItemsSource="{Binding Games}" SeparatorColor="Black" Grid.Row="2" Grid.Column="1"
-          Grid.RowSpan="6" BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}" ItemSelected="ListViewTournamentGames_ItemSelected">
+             Style="{StaticResource PrimaryContentPage}">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 50, 40, 40, 40, *, 5" ColumnDefinitions="5, 100, *, *, 80, 5">
+        <!-- Row 0 -->
+        <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
+                     Source="savenoborder.png" x:Name="BtnSaveTournament" Clicked="BtnSave_OnClicked" />
+        <Label Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.PointsDifference}" FontSize="30"/>
+        <ImageButton Grid.Row="0" Grid.Column="4" HorizontalOptions="Start" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
+                     Source="plusnoborder.png" x:Name="BtnAddGame" Clicked="BtnAddGame_OnClicked" />
+        <!-- Row 1 -->
+        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.Name}" FontSize="28"/>
+        <!-- Row 2 -->
+        <Label Grid.Row="2" Grid.Column="1" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" Text="Player:"/>
+        <HorizontalStackLayout Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
+            <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" />
+            <Label Text="{Binding OneTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" />
+        </HorizontalStackLayout>
+        <!-- Row 3 -->
+        <Label Grid.Row="3" Grid.Column="1" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" Text="Coefficient:"/>
+        <Label Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.Coefficient}" />
+        <!-- Row 4 -->
+        <Label Grid.Row="4" Grid.Column="1" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" Text="Date:"/>
+        <Label Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.DateToString}" />
+        <!-- Row 5 -->
+        <ListView x:Name="ListViewTournamentGames" ItemsSource="{Binding Games}" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="4"
+                  Style="{StaticResource PrimaryListView}" SelectedItem="{Binding SelectedGame, Mode=TwoWay}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:Game">
                     <ViewCell>
-                        <VerticalStackLayout Spacing="1" Padding="1"
-                                     BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-                            <Label Text="{Binding OpponentName}" Padding="0"
-                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                                   FontSize="16"></Label>
-                            <HorizontalStackLayout Spacing="7" 
-                                           BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray900}}">
-                                <Label Text="{Binding GameScore}" Padding="0"
-                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                               FontSize="14"></Label>
-                                <Label Text="Points change" Padding="0"
-                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                               FontSize="14"></Label>
-                                <Label Text="{Binding RatingDifference}" Padding="0"
-                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"
-                               FontSize="14"></Label>
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
+                        <Grid Style="{StaticResource PrimaryGrid}" ColumnDefinitions="5, *, 5, 40, 20, 30, 65, 5">
+                            <Label Grid.Column="1" Text="{Binding OpponentName}" Padding="0" Style="{StaticResource ListItemLabel}" 
+                                   HorizontalOptions="End" LineBreakMode="TailTruncation" MaxLines="1"/>
+                            <Label Grid.Column="3" Text="{Binding GameScore}" Style="{StaticResource ListItemLabel}"/>
+                            <Label Grid.Column="4" Text="-->" Style="{StaticResource ListItemLabel}"/>
+                            <Label Grid.Column="5" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}"/>
+                        </Grid>
                         <ViewCell.ContextActions>
-                            <MenuItem Text="Delete" IsDestructive="True" Clicked="MenuItem_OnClicked" CommandParameter="{Binding .}"></MenuItem>
+                            <MenuItem Text="Delete" IsDestructive="True" 
+                                      Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteGameCommand}" 
+                                      CommandParameter="{Binding .}"></MenuItem>
                         </ViewCell.ContextActions>
                     </ViewCell>
                 </DataTemplate>

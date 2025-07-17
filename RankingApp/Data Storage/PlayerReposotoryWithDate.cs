@@ -13,7 +13,7 @@ namespace RankingApp.Data_Storage
             var males = await _dataService.GetPlayersAsync("virietis", date);
             var females = await _dataService.GetPlayersAsync("sieviete", date);
 
-            var malesDb = males.Select(player => new PlayerDB()
+            var malesDb = males?.Select(player => new PlayerDB()
             {
                 Gender = "male",
                 Id = player.Id,
@@ -24,9 +24,9 @@ namespace RankingApp.Data_Storage
                 PointsWithBonus = player.PointsWithBonus,
                 BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
             })
-                .ToList();
+                .ToList() ?? [];
 
-            var femalesDb = females.Select(player => new PlayerDB()
+            var femalesDb = females?.Select(player => new PlayerDB()
             {
                 Gender = "female",
                 Id = player.Id,
@@ -37,7 +37,7 @@ namespace RankingApp.Data_Storage
                 PointsWithBonus = player.PointsWithBonus,
                 BirthDate = player.BirthDate == null ? "" : player.BirthDate.ToString()
             })
-                .ToList();
+                .ToList() ?? [];
 
             _players = malesDb.Concat(femalesDb)
                 .OrderByDescending(x => x.PointsWithBonus)
