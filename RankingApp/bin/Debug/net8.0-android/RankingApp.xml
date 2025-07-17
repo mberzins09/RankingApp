@@ -73,6 +73,9 @@
         <member name="P:RankingApp.Models.PlayerDB.PointsWithBonus">
             <inheritdoc cref="F:RankingApp.Models.PlayerDB.pointsWithBonus"/>
         </member>
+        <member name="P:RankingApp.Models.PlayerDB.PointsChanged">
+            <inheritdoc cref="F:RankingApp.Models.PlayerDB.pointsChanged"/>
+        </member>
         <member name="P:RankingApp.Models.PlayerDB.Name">
             <inheritdoc cref="F:RankingApp.Models.PlayerDB.name"/>
         </member>
@@ -152,6 +155,35 @@
             <summary>Executes the logic for when <see cref="P:RankingApp.ViewModels.AllGamesViewModel.SearchText"/> just changed.</summary>
             <param name="value">The new property value that was set.</param>
             <remarks>This method is invoked right after the value of <see cref="P:RankingApp.ViewModels.AllGamesViewModel.SearchText"/> is changed.</remarks>
+        </member>
+        <member name="T:RankingApp.ViewModels.AllPlayerRankingViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:RankingApp.ViewModels.AllPlayerRankingViewModel.Players">
+            <inheritdoc cref="F:RankingApp.ViewModels.AllPlayerRankingViewModel.players"/>
+        </member>
+        <member name="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SelectedFilter">
+            <inheritdoc cref="F:RankingApp.ViewModels.AllPlayerRankingViewModel.selectedFilter"/>
+        </member>
+        <member name="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SearchText">
+            <inheritdoc cref="F:RankingApp.ViewModels.AllPlayerRankingViewModel.searchText"/>
+        </member>
+        <member name="M:RankingApp.ViewModels.AllPlayerRankingViewModel.OnSelectedFilterChanged(System.String)">
+            <summary>Executes the logic for when <see cref="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SelectedFilter"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SelectedFilter"/> is changed.</remarks>
+        </member>
+        <member name="M:RankingApp.ViewModels.AllPlayerRankingViewModel.OnSearchTextChanged(System.String)">
+            <summary>Executes the logic for when <see cref="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SearchText"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SearchText"/> is changed.</remarks>
+        </member>
+        <member name="F:RankingApp.ViewModels.AllPlayerRankingViewModel.setAsDefaultPlayerCommand">
+            <summary>The backing field for <see cref="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SetAsDefaultPlayerCommand"/>.</summary>
+        </member>
+        <member name="P:RankingApp.ViewModels.AllPlayerRankingViewModel.SetAsDefaultPlayerCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:RankingApp.ViewModels.AllPlayerRankingViewModel.SetAsDefaultPlayerAsync(RankingApp.Models.PlayerDB)"/>.</summary>
         </member>
         <member name="T:RankingApp.ViewModels.AllTournamentsViewModel">
             <inheritdoc/>
@@ -391,6 +423,9 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.PointsWithBonus">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "PointsWithBonus" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.PointsChanged">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "PointsChanged" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.AllDisplay">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "AllDisplay" generated properties.</summary>
         </member>
@@ -439,6 +474,9 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Games">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Games" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedFilter">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedFilter" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedTournament">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedTournament" generated properties.</summary>
         </member>
@@ -459,9 +497,6 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.MaxDate">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "MaxDate" generated properties.</summary>
-        </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedFilter">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedFilter" generated properties.</summary>
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedDate">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedDate" generated properties.</summary>
@@ -574,6 +609,9 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.PointsWithBonus">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "PointsWithBonus" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.PointsChanged">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "PointsChanged" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.AllDisplay">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "AllDisplay" generated properties.</summary>
         </member>
@@ -622,6 +660,9 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Games">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Games" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedFilter">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedFilter" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedTournament">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedTournament" generated properties.</summary>
         </member>
@@ -642,9 +683,6 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.MaxDate">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "MaxDate" generated properties.</summary>
-        </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedFilter">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedFilter" generated properties.</summary>
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedDate">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedDate" generated properties.</summary>

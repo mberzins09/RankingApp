@@ -7,6 +7,7 @@ namespace RankingApp
 {
     public partial class App : Application
     {
+        
         public App()
         {
             InitializeComponent();
@@ -18,17 +19,15 @@ namespace RankingApp
 
         private async Task CheckAndFillPlayersAsync()
         {
-            var dbService = new DatabaseService();
-            var playerRepo = new PlayerReposotoryWithDate(new PlayerServiceWithDate());
-            var playerViewModel = new PlayerViewModel(dbService, playerRepo);
+            var playerService = new PlayerService(new DatabaseService(), new PlayerReposotoryWithDate(new PlayerServiceWithDate()));
 
-            var allPlayers = await dbService.GetPlayersAsync();
+            var allPlayers = await playerService.GetPlayersFromDbAsync();
             var count = allPlayers.Count;
             var over5999 = allPlayers.Count(p => p.OverallPlace > 5999);
 
             if (count == 0 || over5999 < 100)
             {
-                await playerViewModel.FillDatabaseWithOldRankings();
+                await playerService.FillDatabaseWithOldRankingsAsync();
             }
         }
     }

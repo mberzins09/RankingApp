@@ -33,7 +33,7 @@
                                    VerticalOptions="Center" WidthRequest="100"/>
         <!-- Row 4 -->
         <Grid RowDefinitions="40,*" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" Style="{StaticResource PrimarySearchBar}"/>
+            <SearchBar Grid.Row="0" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
             <ListView Grid.Row="1" x:Name ="AllPlayers" Style="{StaticResource PrimaryListView}"
                       ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}">
                 <ListView.ItemTemplate>

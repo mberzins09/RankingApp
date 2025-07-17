@@ -26,7 +26,10 @@ namespace RankingApp.ViewModels
 
         public List<string> CoefficientOptions { get; } = [ "0", "0.25", "0.5", "1", "1.5", "2", "4"];
 
-        partial void OnSearchTextChanged(string? value) => FilterPlayers(value ?? string.Empty);
+        partial void OnSearchTextChanged(string? value)
+        {
+            FilterPlayers(value ?? string.Empty);
+        }
 
         partial void OnCurrentTournamentChanged(Tournament? value)
         {
@@ -64,6 +67,7 @@ namespace RankingApp.ViewModels
             CurrentTournament.TournamentPlayerName = value.Name == "Edgars(R)" ? "Edgars" : value.Name;
             CurrentTournament.TournamentPlayerSurname = value.Surname;
             CurrentTournament.TournamentPlayerPoints = value.Points;
+            CurrentTournament.TournamentPlayerId = value.Id;
 
             _ = EditMe(value.Name, value.Surname, value.Points);
         }

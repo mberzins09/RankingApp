@@ -66,7 +66,12 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     {
         await _database.RunAllMigrationsAsync();
     }
-    
+
+    public async Task AddPlayerDBTable()
+    {
+        await _database.MigratePlayerTableAsync();
+    }
+
     public async Task LoadDataAsync()
     {
         var tournaments = await _database.GetTournamentsAsync();

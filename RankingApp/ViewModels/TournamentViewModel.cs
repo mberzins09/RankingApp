@@ -58,11 +58,16 @@ namespace RankingApp.ViewModels
 
         public async Task CreateNewGameSave()
         {
+            var player = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
+
             var game = new Game()
             {
-                MyName = OneTournament.TournamentPlayerName,
-                MySurname = OneTournament.TournamentPlayerSurname,
-                MyPoints = OneTournament.TournamentPlayerPoints,
+                MyName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
+                MySurname = player.Surname,
+                MyPoints = player.Points,
+                MyPointsWithBonus = player.PointsWithBonus,
+                MyAge = player.Age,
+                MyPlace = player.Place,
                 GameCoefficient = OneTournament.Coefficient,
                 TournamentDate = OneTournament.Date,
                 IsOpponentForeign = false,
@@ -72,7 +77,7 @@ namespace RankingApp.ViewModels
             };
 
             await _database.SaveGameAsync(game);
-            
+
             Data.GameId = game.Id;
         }
     }

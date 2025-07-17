@@ -60,8 +60,6 @@ namespace RankingApp.ViewModels
             var players = await _databaseService.GetPlayersAsync();
             var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
             OneGame.GameCoefficient = tournament.Coefficient;
-            var me = await _databaseService.GetPlayerAsync(tournament.TournamentPlayerId);
-            AssignMyProperties(me);
             _allPlayers = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
             Players = new ObservableCollection<PlayerDB>(_allPlayers);
 
@@ -110,19 +108,6 @@ namespace RankingApp.ViewModels
             OneGame.OpponentPointsWithBonus = opponent.PointsWithBonus;
             OneGame.OpponentAge = opponent.Age;
             OneGame.OpponentPlace = opponent.Place;
-        }
-
-        private void AssignMyProperties(PlayerDB me)
-        {
-            if (OneGame is null)
-                return;
-
-            OneGame.MyName = me.Name == "Edgars(R)" ? "Edgars" : me.Name;
-            OneGame.MySurname = me.Surname;
-            OneGame.MyPoints = me.Points;
-            OneGame.MyPointsWithBonus = me.PointsWithBonus;
-            OneGame.MyAge = me.Age;
-            OneGame.MyPlace = me.Place;
         }
     }
 }

@@ -73,12 +73,6 @@ build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.Games.xam
 build_metadata.AdditionalFiles.TargetPath = Views\Games.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Games.xaml
 
-[C:/Users/Berzini/Desktop/Programesana/LastRankingApp/RankingApp/RankingApp/Views/HomePage.xaml]
-build_metadata.AdditionalFiles.GenKind = Xaml
-build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.HomePage.xaml
-build_metadata.AdditionalFiles.TargetPath = Views\HomePage.xaml
-build_metadata.AdditionalFiles.RelativePath = Views\HomePage.xaml
-
 [C:/Users/Berzini/Desktop/Programesana/LastRankingApp/RankingApp/RankingApp/Views/Tournaments.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = RankingApp.Views.Tournaments.xaml

@@ -1,7 +1,5 @@
-using RankingApp.ViewModels;
-using System.Collections.ObjectModel;
-using RankingApp.Models;
 using RankingApp.Services;
+using RankingApp.ViewModels;
 
 namespace RankingApp.Views;
 
@@ -18,6 +16,7 @@ public partial class AllTournaments : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await _viewModel.AddPlayerDBTable();
         await _viewModel.Migrate();
         await _viewModel.LoadDataAsync();
         _viewModel.SearchText = String.Empty;

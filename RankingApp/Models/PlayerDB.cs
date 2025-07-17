@@ -19,6 +19,9 @@ namespace RankingApp.Models
         private int pointsWithBonus;
 
         [ObservableProperty]
+        private int pointsChanged;
+
+        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Display))]
         [NotifyPropertyChangedFor(nameof(AllDisplay))]
         private string name;

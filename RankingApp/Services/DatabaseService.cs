@@ -109,6 +109,8 @@ namespace RankingApp.Services
 
                 if (existingPlayer != null)
                 {
+                    existingPlayer.PointsChanged = player.PointsWithBonus - existingPlayer.PointsWithBonus;
+
                     existingPlayer.PointsWithBonus = player.PointsWithBonus;
                     existingPlayer.Points = player.Points;
                     existingPlayer.Place = player.Place;
@@ -145,6 +147,11 @@ namespace RankingApp.Services
             await AddColumnIfNotExistsAsync("Game", "OpponentAge", "INTEGER");
             await AddColumnIfNotExistsAsync("Game", "MyPlace", "INTEGER");
             await AddColumnIfNotExistsAsync("Game", "OpponentPlace", "INTEGER");
+        }
+
+        public async Task MigratePlayerTableAsync()
+        {
+            await AddColumnIfNotExistsAsync("PlayerDB", "PointsChanged", "INTEGER");
         }
 
         public async Task UpdateGamesWithPlayerDataAsync()
@@ -228,13 +235,6 @@ namespace RankingApp.Services
                 appData.GamesIsUpdated = true;
                 await SaveAppDataAsync(appData);
             }
-        }
-
-        public async Task SetNotMigrated()
-        {
-            var appData = await GetAppDataAsync();
-            appData.GamesIsUpdated = false;
-            await SaveAppDataAsync(appData);
         }
     }
 }

@@ -19,12 +19,13 @@ namespace RankingApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<PlayerReposotoryWithDate>();
             builder.Services.AddSingleton<PlayerServiceWithDate>();
             builder.Services.AddSingleton<DatabaseService>();
+            builder.Services.AddSingleton<PlayerService>();
 
             builder.Services.AddSingleton<PlayerViewModel>();
             builder.Services.AddSingleton<GameViewModel>();
-            builder.Services.AddSingleton<PlayerReposotoryWithDate>();
             builder.Services.AddSingleton<TournamentViewModel>();
             builder.Services.AddSingleton<AllTournamentsViewModel>();
             builder.Services.AddSingleton<AllGamesViewModel>();

@@ -1,12 +1,11 @@
 using RankingApp.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace RankingApp.Views;
 
 public partial class AllPlayerRanking : ContentPage
 {
     private readonly PlayerViewModel _viewModel;
-
+    
     public AllPlayerRanking(PlayerViewModel viewModel)
     {
         InitializeComponent();
@@ -18,5 +17,6 @@ public partial class AllPlayerRanking : ContentPage
     {
         base.OnAppearing();
         await _viewModel.LoadDataAsync();
+        _viewModel.SearchText = String.Empty;
     }
 }
