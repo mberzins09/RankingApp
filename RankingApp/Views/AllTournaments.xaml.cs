@@ -25,7 +25,7 @@ public partial class AllTournaments : ContentPage
     private async void ImageButtonAdd_Clicked(object sender, EventArgs e)
     {
         await _viewModel.CreateNewTournamentSave();
-        await Shell.Current.GoToAsync(nameof(AddTournament));
+        await Shell.Current.GoToAsync(nameof(TournamentView));
     }
 
     private async void ImageButtonAllGames_Clicked(object sender, EventArgs e)

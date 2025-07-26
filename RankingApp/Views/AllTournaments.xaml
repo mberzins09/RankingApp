@@ -10,7 +10,7 @@
              Style="{StaticResource PrimaryContentPage}">
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, *" ColumnDefinitions="10, 100, *, 100, *, 100, 10">
         <ImageButton Grid.Column="1" Source="ranksnoborder.png" Clicked="ImageButtonRankings_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
-        <ImageButton Grid.Column="3" Source="gamesnoborder.png" Clicked="ImageButtonAllGames_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
+        <ImageButton Grid.Column="3" Source="Gamesnoborder.png" Clicked="ImageButtonAllGames_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
         <ImageButton Grid.Column="5" Source="plusnoborder.png" Clicked="ImageButtonAdd_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
 
         <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="7" RowDefinitions="40, *">

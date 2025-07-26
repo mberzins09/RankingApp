@@ -156,10 +156,10 @@ namespace RankingApp.Services
 
         public async Task UpdateGamesWithPlayerDataAsync()
         {
-            var games = await _database.Table<Game>().ToListAsync();
+            var Games = await _database.Table<Game>().ToListAsync();
             var players = await _database.Table<PlayerDB>().ToListAsync();
 
-            foreach (var game in games)
+            foreach (var game in Games)
             {
                 PlayerDB? me;
                 if (game.MyName == "Edgars" && game.MySurname == "Bērziņš")

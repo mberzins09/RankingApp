@@ -32,7 +32,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         if (value != null)
         {
             Data.TournamentId = value.Id;
-            Shell.Current.GoToAsync(nameof(Tournaments));
+            Shell.Current.GoToAsync(nameof(TournamentView));
         }
     }
 
@@ -42,8 +42,8 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         if (tournament == null)
             return;
 
-        var games = await GetGames(tournament.Id);
-        foreach (var game in games)
+        var Games = await GetGames(tournament.Id);
+        foreach (var game in Games)
         {
             await _database.DeleteGameAsync(game);
         }
@@ -59,7 +59,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
             return;
 
         Data.TournamentId = tournament.Id;
-        await Shell.Current.GoToAsync(nameof(AddTournament));
+        await Shell.Current.GoToAsync(nameof(EditTournamentPlayer));
     }
 
     public async Task Migrate()
@@ -81,8 +81,8 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
 
     public async Task<List<Game>> GetGames(int id)
     {
-        var games = await _database.GetGamesAsync();
-        var list = games.Where(x => x.TournamentId == id).ToList();
+        var Games = await _database.GetGamesAsync();
+        var list = Games.Where(x => x.TournamentId == id).ToList();
 
         return list;
     }
@@ -116,8 +116,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         if (appData.AppUserPlayerId != 0)
             playerDB = await _database.GetPlayerAsync(appData.AppUserPlayerId);
 
-        if (playerDB == null)
-            playerDB = await _database.GetPlayerAsync(694);
+        playerDB ??= await _database.GetPlayerAsync(694);
 
         var player = new PlayerDB()
         {
@@ -139,7 +138,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         var tournament = new Tournament()
         {
             Coefficient = "0.5",
-            Name = "New Tournament",
+            Name = "New",
             Date = DateTime.Now,
             TournamentPlayerName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
             TournamentPlayerSurname = player.Surname,

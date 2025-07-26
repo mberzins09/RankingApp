@@ -4,10 +4,10 @@ using System.Collections.ObjectModel;
 
 namespace RankingApp.Views;
 
-public partial class AddTournament : ContentPage
+public partial class EditTournamentPlayer : ContentPage
 {
-    private readonly AddTournamentViewModel _viewModel;
-    public AddTournament(AddTournamentViewModel viewModel)
+    private readonly EditTournamentPlayerViewModel _viewModel;
+    public EditTournamentPlayer(EditTournamentPlayerViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -21,8 +21,8 @@ public partial class AddTournament : ContentPage
         _viewModel.SearchText = String.Empty;
     }
 
-    private async void ButtonAdd_OnClicked(object? sender, EventArgs e)
+    private async void ButtonSave_OnClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(Tournaments));
+        await Shell.Current.GoToAsync(nameof(TournamentView));
     }
 }

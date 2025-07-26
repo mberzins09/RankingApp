@@ -67,19 +67,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\EditTournamentPlayer.xaml.cs">
+	    <DependentUpon>EditTournamentPlayer.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\Games.xaml.cs">
 	    <DependentUpon>Games.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\AllPlayerRanking.xaml.cs">
 	    <DependentUpon>AllPlayerRanking.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\Tournaments.xaml.cs">
-	    <DependentUpon>Tournaments.xaml</DependentUpon>
+	  <Compile Update="Views\TournamentView.xaml.cs">
+	    <DependentUpon>TournamentView.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\AddTournament.xaml">
+	  <MauiXaml Update="Views\EditTournamentPlayer.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Games.xaml">
@@ -88,7 +91,7 @@
 	  <MauiXaml Update="Views\AllPlayerRanking.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Tournaments.xaml">
+	  <MauiXaml Update="Views\TournamentView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\AllGames.xaml">
