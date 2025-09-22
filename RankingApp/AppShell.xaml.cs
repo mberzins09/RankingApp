@@ -15,6 +15,7 @@ namespace RankingApp
             Routing.RegisterRoute(nameof(AllGames), typeof(AllGames));
             Routing.RegisterRoute(nameof(EditTournamentPlayer), typeof(EditTournamentPlayer));
             Routing.RegisterRoute(nameof(AllTournaments), typeof(AllTournaments));
+            Routing.RegisterRoute(nameof(ImportExport), typeof(ImportExport));
         }
     }
 }

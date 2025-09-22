@@ -37,4 +37,9 @@ public partial class AllTournaments : ContentPage
     {
         await Shell.Current.GoToAsync(nameof(AllPlayerRanking));
     }
+
+    private async void Button_Clicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(ImportExport));
+    }
 }
