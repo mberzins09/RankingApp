@@ -1,10 +1,16 @@
 using CommunityToolkit.Maui.Storage;
+using SQLite;
+using System.Runtime.Versioning;
+using Microsoft.Maui.ApplicationModel;
 
 namespace RankingApp.Views;
 
 public partial class ImportExport : ContentPage
 {
-	public ImportExport()
+    // Add this field to the ImportExport class to fix CS0103
+    private SQLiteConnection? sqliteConnection;
+
+    public ImportExport()
 	{
 		InitializeComponent();
 	}
@@ -19,9 +25,14 @@ public partial class ImportExport : ContentPage
         await ImportDatabaseAsync();
     }
 
+    [SupportedOSPlatform("android")]
+    [SupportedOSPlatform("ios14.0")]
+    [SupportedOSPlatform("maccatalyst14.0")]
+    [SupportedOSPlatform("windows")]
     private async Task ExportDatabaseAsync()
     {
         string dbPath = Path.Combine(FileSystem.AppDataDirectory, "AllP.db3");
+        string tempPath = Path.Combine(FileSystem.CacheDirectory, "temp.db3");
 
         if (!File.Exists(dbPath))
         {
@@ -29,15 +40,39 @@ public partial class ImportExport : ContentPage
             return;
         }
 
+        sqliteConnection?.Close();
+        sqliteConnection?.Dispose();
+
+        if (DeviceInfo.Platform == DevicePlatform.Android)
+        {
+            var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
+            if (status != PermissionStatus.Granted)
+            {
+                await DisplayAlert("Error", "Storage permission is required.", "OK");
+                return;
+            }
+        }
+
         try
         {
-            // Open stream inside using
-            await using var stream = File.OpenRead(dbPath);
+            File.Copy(dbPath, tempPath, true);
+            var fileInfo = new FileInfo(tempPath);
+            if (fileInfo.Length == 0)
+            {
+                await DisplayAlert("Error", "Export failed: temp file is empty.", "OK");
+                return;
+            }
+            await using var stream = File.OpenRead(tempPath);
+            if (!stream.CanRead)
+            {
+                await DisplayAlert("Error", "Export failed: stream is not readable.", "OK");
+                return;
+            }
 
-            var result = await FileSaver.Default.SaveAsync(
-                "backup.db3",       // suggested filename
-                stream,             // stream to copy
-                CancellationToken.None);
+            var textStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("Test"));
+            var result = await FileSaver.Default.SaveAsync("test.txt", textStream, CancellationToken.None);
+
+            //var result = await FileSaver.Default.SaveAsync("backup.db3", stream, CancellationToken.None);
 
             if (result.IsSuccessful)
             {
@@ -73,7 +108,7 @@ public partial class ImportExport : ContentPage
             if (result == null)
                 return; // User cancelled
 
-            string destPath = Path.Combine(FileSystem.AppDataDirectory, "mydb.db3");
+            string destPath = Path.Combine(FileSystem.AppDataDirectory, "AllP.db3");
 
             using var sourceStream = await result.OpenReadAsync();
             using var destinationStream = File.Create(destPath);
