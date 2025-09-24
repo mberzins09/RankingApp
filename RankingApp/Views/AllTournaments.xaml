@@ -8,13 +8,13 @@
              x:DataType="viewmodel:AllTournamentsViewModel"
              Title="Rankings"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, *" ColumnDefinitions="10, 100, *, 100, *, 100, 10">
-        <Button Grid.Column="2" Clicked="Button_Clicked" TextColor="Red" Text="Imp" WidthRequest="10" HeightRequest="10"></Button>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
         <ImageButton Grid.Column="1" Source="ranksnoborder.png" Clicked="ImageButtonRankings_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
         <ImageButton Grid.Column="3" Source="Gamesnoborder.png" Clicked="ImageButtonAllGames_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
-        <ImageButton Grid.Column="5" Source="plusnoborder.png" Clicked="ImageButtonAdd_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
+        <ImageButton Grid.Column="5" Source="imexpnoborder.png" Clicked="ImportExport_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
+        <ImageButton Grid.Column="7" Source="plusnoborder.png" Clicked="ImageButtonAdd_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
 
-        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="7" RowDefinitions="40, *">
+        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="9" RowDefinitions="40, *">
             <SearchBar Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
             <ListView Grid.Row="1" Style="{StaticResource PrimaryListView}" 
                       ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}">

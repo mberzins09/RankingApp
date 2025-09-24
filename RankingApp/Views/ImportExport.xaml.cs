@@ -7,7 +7,6 @@ namespace RankingApp.Views;
 
 public partial class ImportExport : ContentPage
 {
-    // Add this field to the ImportExport class to fix CS0103
     private SQLiteConnection? sqliteConnection;
 
     public ImportExport()
@@ -69,10 +68,7 @@ public partial class ImportExport : ContentPage
                 return;
             }
 
-            var textStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("Test"));
-            var result = await FileSaver.Default.SaveAsync("test.txt", textStream, CancellationToken.None);
-
-            //var result = await FileSaver.Default.SaveAsync("backup.db3", stream, CancellationToken.None);
+            var result = await FileSaver.Default.SaveAsync("backup.db3", stream, CancellationToken.None);
 
             if (result.IsSuccessful)
             {
