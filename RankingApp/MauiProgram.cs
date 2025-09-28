@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Logging;
 using RankingApp.Data_Storage;
 using RankingApp.Services;
 using RankingApp.ViewModels;
@@ -13,6 +14,7 @@ namespace RankingApp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -29,14 +31,15 @@ namespace RankingApp
             builder.Services.AddSingleton<TournamentViewModel>();
             builder.Services.AddSingleton<AllTournamentsViewModel>();
             builder.Services.AddSingleton<AllGamesViewModel>();
-            builder.Services.AddSingleton<AddTournamentViewModel>();
+            builder.Services.AddSingleton<EditTournamentPlayerViewModel>();
 
             builder.Services.AddTransient<AllPlayerRanking>();
-            builder.Services.AddTransient<Tournaments>();
-            builder.Services.AddTransient<Games>();
+            builder.Services.AddTransient<TournamentView>();
+            builder.Services.AddTransient<GameView>();
             builder.Services.AddTransient<AllTournaments>();
             builder.Services.AddTransient<AllGames>();
-            builder.Services.AddTransient<AddTournament>();
+            builder.Services.AddTransient<EditTournamentPlayer>();
+            builder.Services.AddTransient<ImportExport>();
 
 #if DEBUG
             builder.Logging.AddDebug();

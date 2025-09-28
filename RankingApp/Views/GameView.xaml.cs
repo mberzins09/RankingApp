@@ -4,10 +4,10 @@ using RankingApp.Models;
 
 namespace RankingApp.Views;
 
-public partial class Games : ContentPage
+public partial class GameView : ContentPage
 {
     private readonly GameViewModel _viewModel;
-    public Games(GameViewModel viewmodel)
+    public GameView(GameViewModel viewmodel)
     {
         InitializeComponent();
         _viewModel = viewmodel;
@@ -25,7 +25,7 @@ public partial class Games : ContentPage
     private async void ButtonGameSave_OnClicked(object? sender, EventArgs e)
     {
         await _viewModel.SaveGameAsync();
-        await Shell.Current.GoToAsync(nameof(Tournaments));
+        await Shell.Current.GoToAsync(nameof(TournamentView));
     }
 
     private async void EntryOppName_OnTextChanged(object? sender, TextChangedEventArgs e)

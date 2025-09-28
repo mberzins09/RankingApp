@@ -170,6 +170,20 @@
                 <Setter Property="Spacing" Value="3" />
                 <Setter Property="Padding" Value="3" />
             </Style>
+
+            <!-- ActivityIndicator -->
+            <Style TargetType="ActivityIndicator" x:Key="PrimaryActivity">
+                <Setter Property="Color">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                             Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HorizontalOptions" Value="End" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="WidthRequest" Value="30" />
+                <Setter Property="HeightRequest" Value="30" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

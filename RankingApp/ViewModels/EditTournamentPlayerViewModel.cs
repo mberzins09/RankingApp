@@ -6,11 +6,14 @@ using System.ComponentModel;
 
 namespace RankingApp.ViewModels
 {
-    public partial class AddTournamentViewModel(DatabaseService database) : BaseViewModel
+    public partial class EditTournamentPlayerViewModel(DatabaseService database) : BaseViewModel
     {
         private readonly DatabaseService _database = database;
 
         private List<PlayerDB> _allPlayers = [];
+
+        [ObservableProperty]
+        private bool isSearchDisabled;
 
         [ObservableProperty]
         private ObservableCollection<PlayerDB>? players;
@@ -24,39 +27,9 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private Tournament? currentTournament;
 
-        public List<string> CoefficientOptions { get; } = [ "0", "0.25", "0.5", "1", "1.5", "2", "4"];
-
         partial void OnSearchTextChanged(string? value)
         {
             FilterPlayers(value ?? string.Empty);
-        }
-
-        partial void OnCurrentTournamentChanged(Tournament? value)
-        {
-            if (value != null)
-            {
-                value.PropertyChanged -= CurrentTournament_PropertyChanged;
-                value.PropertyChanged += CurrentTournament_PropertyChanged;
-            }
-        }
-
-        private void CurrentTournament_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender is not Tournament t)
-                return;
-
-            switch (e.PropertyName)
-            {
-                case nameof(Tournament.Date):
-                    _ = EditDate(t.Date);
-                    break;
-                case nameof(Tournament.Coefficient):
-                    _ = EditCoefficient(t.Coefficient);
-                    break;
-                case nameof(Tournament.Name):
-                    _ = EditTournamentName(t.Name);
-                    break;
-            }
         }
 
         partial void OnSelectedPlayerChanged(PlayerDB? value)
@@ -74,11 +47,13 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
+            IsSearchDisabled = true;
             CurrentTournament = await _database.GetTournamentAsync(Data.TournamentId);
             var players = await _database.GetPlayersAsync();
             _allPlayers = players.OrderByDescending(x => x.PointsWithBonus).ToList();
 
             Players = new ObservableCollection<PlayerDB>(_allPlayers);
+            IsSearchDisabled = false;
         }
 
         public async Task<List<PlayerDB>> GetPlayers()
@@ -105,64 +80,13 @@ namespace RankingApp.ViewModels
             Players = new ObservableCollection<PlayerDB>(filtered);
         }
 
-        public async Task EditDate(DateTime date)
-        {
-            if (CurrentTournament is null)
-                return;
-
-            var games = await _database.GetGamesAsync();
-            var dateGames = games.Where(x => x.TournamentId == CurrentTournament.Id).ToList();
-            foreach (var game in dateGames)
-            {
-                game.TournamentDate = date;
-
-                await _database.SaveGameAsync(game);
-            }
-
-            await _database.SaveTournamentAsync(CurrentTournament);
-        }
-
-        public async Task EditCoefficient(string coef)
-        {
-            if (CurrentTournament is null)
-                return;
-
-            var games = await _database.GetGamesAsync();
-            var coefGames = games.Where(x => x.TournamentId == CurrentTournament.Id).ToList();
-            foreach (var game in coefGames)
-            {
-                game.GameCoefficient = coef;
-
-                await _database.SaveGameAsync(game);
-            }
-
-            await _database.SaveTournamentAsync(CurrentTournament);
-        }
-
-        public async Task EditTournamentName(string name)
-        {
-            if (CurrentTournament is null)
-                return;
-
-            var games = await _database.GetGamesAsync();
-            var nameGames = games.Where(x => x.TournamentId == CurrentTournament.Id).ToList();
-            foreach (var game in nameGames)
-            {
-                game.TournamentName = name;
-
-                await _database.SaveGameAsync(game);
-            }
-
-            await _database.SaveTournamentAsync(CurrentTournament);
-        }
-
         public async Task EditMe(string name, string surname, int points)
         {
             if (CurrentTournament is null)
                 return;
 
-            var games = await _database.GetGamesAsync();
-            var nameGames = games.Where(x => x.TournamentId == CurrentTournament.Id).ToList();
+            var Games = await _database.GetGamesAsync();
+            var nameGames = Games.Where(x => x.TournamentId == CurrentTournament.Id).ToList();
             foreach (var game in nameGames)
             {
                 game.MyName = name == "Edgars(R)" ? "Edgars" : name;

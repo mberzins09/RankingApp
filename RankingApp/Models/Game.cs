@@ -44,7 +44,7 @@ namespace RankingApp.Models
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
-        [NotifyPropertyChangedFor(nameof(GameScore))]
+        [NotifyPropertyChangedFor(nameof(Gamescore))]
         [NotifyPropertyChangedFor(nameof(IsWin))]
         [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
@@ -52,7 +52,7 @@ namespace RankingApp.Models
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(GameDisplayDetails))]
-        [NotifyPropertyChangedFor(nameof(GameScore))]
+        [NotifyPropertyChangedFor(nameof(Gamescore))]
         [NotifyPropertyChangedFor(nameof(IsWin))]
         [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
@@ -79,11 +79,11 @@ namespace RankingApp.Models
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
         private string gameCoefficient;
 
-        public string GameScore => $"{MySets} : {OpponentSets}";
+        public string Gamescore => $"{MySets} : {OpponentSets}";
 
         public string GameName => $"{TournamentName} - {DateToString}";
 
-        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName} {GameScore}";
+        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName} {Gamescore}";
 
         public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
 

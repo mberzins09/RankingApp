@@ -11,6 +11,9 @@ namespace RankingApp.ViewModels
         private readonly DatabaseService _databaseService = databaseService;
 
         [ObservableProperty]
+        private bool isSearchDisabled;
+
+        [ObservableProperty]
         private ObservableCollection<PlayerDB>? players;
 
         [ObservableProperty]
@@ -56,6 +59,7 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
+            IsSearchDisabled = true;
             OneGame = await _databaseService.GetGameAsync(Data.GameId);
             var players = await _databaseService.GetPlayersAsync();
             var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
@@ -65,6 +69,7 @@ namespace RankingApp.ViewModels
 
             SelectedOpponentForeignOption = IsOpponentForeignOptions.FirstOrDefault(x => x.Value == OneGame.IsOpponentForeign);
             await _databaseService.SaveGameAsync(OneGame);
+            IsSearchDisabled = false;
         }
 
         public async Task SaveGameAsync()

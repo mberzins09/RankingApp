@@ -24,8 +24,8 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
-            var games = await _database.GetGamesAsync();
-            _allGames = games.OrderByDescending(x => x.TournamentDate).ToList();
+            var localGames = await _database.GetGamesAsync();
+            _allGames = localGames.OrderByDescending(x => x.TournamentDate).ToList();
             Games = new ObservableCollection<Game>(_allGames);
         }
 

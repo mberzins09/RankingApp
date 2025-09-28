@@ -1,14 +1,12 @@
-using RankingApp.Models;
-using RankingApp.Services;
 using RankingApp.ViewModels;
 
 namespace RankingApp.Views;
 
-public partial class Tournaments : ContentPage
+public partial class TournamentView : ContentPage
 {
     private readonly TournamentViewModel _viewModel;
 
-    public Tournaments(TournamentViewModel viewModel)
+    public TournamentView(TournamentViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -18,13 +16,13 @@ public partial class Tournaments : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadGamesAsync();
+        await _viewModel.LoadDataAsync();
     }
 
     private async void BtnAddGame_OnClicked(object? sender, EventArgs e)
     {
         await _viewModel.CreateNewGameSave();
-        await Shell.Current.GoToAsync(nameof(Games));
+        await Shell.Current.GoToAsync(nameof(GameView));
     }
 
     private async void BtnSave_OnClicked(object? sender, EventArgs e)

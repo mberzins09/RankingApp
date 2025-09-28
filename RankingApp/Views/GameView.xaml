@@ -5,10 +5,10 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:GameViewModel"
-             x:Class="RankingApp.Views.Games"
+             x:Class="RankingApp.Views.GameView"
              Title="Game"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid RowDefinitions="50, 3, 40, 40, 40, 40, 40, 40, 3, *, 50" ColumnDefinitions="3, 50, 50, 50, *, 50, 50, 50, 3" Style="{StaticResource PrimaryGrid}">
+    <Grid RowDefinitions="50, 3, 30, 30, 30, 30, 30, 40, 3, *, 50" ColumnDefinitions="3, 50, 50, 50, *, 50, 50, 50, 3" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
         <ImageButton Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="50" HeightRequest="50" Source="savenoborder.png"
                      x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryImageButton}" />
@@ -54,7 +54,8 @@
         <!-- Row 8 -->
         <!-- Row 9 -->
         <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="40,*" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"/>
+            <SearchBar Grid.Row="0" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"
+                       IsReadOnly="{Binding IsSearchDisabled}"/>
             <ListView Grid.Row="1" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedOpponent}" Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">

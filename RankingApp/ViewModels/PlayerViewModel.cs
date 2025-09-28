@@ -4,15 +4,22 @@ using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace RankingApp.ViewModels
 {
     public partial class PlayerViewModel(PlayerService playerService) : BaseViewModel
     {
         private readonly PlayerService _playerService = playerService;
-        private List<PlayerDB>? _allPlayers = [];
-        private List<PlayerDB>? _filteredPlayers = [];
+        private List<PlayerDB>? _allPlayers = new();
+        private List<PlayerDB>? _filteredPlayers = new();
         private AppData? _cachedAppData;
+        private System.Timers.Timer? _searchDebounceTimer;
+        [ObservableProperty]
+        private bool isSearchEnabled;
+
+        [ObservableProperty]
+        private bool isBusy;
 
         [ObservableProperty]
         private DateTime minDate = new(2014, 1, 1);
@@ -50,7 +57,9 @@ namespace RankingApp.ViewModels
 
         partial void OnSelectedFilterChanged(string value)
         {
+            IsSearchEnabled = true;
             FilterPlayers();
+            IsSearchEnabled = false;
         }
 
         partial void OnSelectedDateChanged(DateTime value)
@@ -72,26 +81,50 @@ namespace RankingApp.ViewModels
 
         partial void OnSearchTextChanged(string? value)
         {
-            ApplySearch();
+            _searchDebounceTimer?.Stop();
+            _searchDebounceTimer = new System.Timers.Timer(750); // 750ms debounce
+            _searchDebounceTimer.Elapsed += (s, e) =>
+            {
+                _searchDebounceTimer?.Stop();
+                MainThread.BeginInvokeOnMainThread(ApplySearch);
+            };
+            _searchDebounceTimer.Start();
         }
 
         public async Task LoadDataAsync()
         {
+            IsSearchEnabled = true;
             _allPlayers = await _playerService.GetPlayersFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
             FilterPlayers();
             await UpdateAppDataLabel();
+            IsSearchEnabled = false;
         }
 
         public async Task LoadPlayersFromApiAsync(DateTime? date = null)
         {
-            _allPlayers = await _playerService.LoadPlayersFromApiOrDbAsync(date);
-            _cachedAppData = await _playerService.GetAppDataAsync();
+            IsBusy = true;
+            IsSearchEnabled = true;
 
-            FilterPlayers();
-            await UpdateAppDataLabel();
+            try
+            {
+                _allPlayers = await _playerService.LoadPlayersFromApiOrDbAsync(date);
+                _cachedAppData = await _playerService.GetAppDataAsync();
 
-            await Application.Current.MainPage.DisplayAlert("Success", "Players loaded successfully.", "OK");
+                FilterPlayers();
+                await UpdateAppDataLabel();
+
+                await Application.Current.MainPage.DisplayAlert("Success", "Players loaded successfully.", "OK");
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+                IsSearchEnabled = false;
+            }
         }
 
         private void FilterPlayers()
@@ -122,19 +155,68 @@ namespace RankingApp.ViewModels
 
         private void ApplySearch()
         {
+            if (_filteredPlayers == null)
+                return;
+
             if (string.IsNullOrWhiteSpace(SearchText))
             {
                 Players = new ObservableCollection<PlayerDB>(_filteredPlayers);
                 return;
             }
 
-            var searched = _filteredPlayers.Where(x =>
-                (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrWhiteSpace(x.Place.ToString()) && x.Place.ToString().StartsWith(SearchText, StringComparison.OrdinalIgnoreCase))
-            ).ToList();
+            var input = SearchText.Trim();
+            IEnumerable<PlayerDB> result = _filteredPlayers;
 
-            Players = new ObservableCollection<PlayerDB>(searched);
+            int GetPlace(PlayerDB p) => SelectedFilter == "All" ? p.OverallPlace : p.Place;
+
+            var rangePattern = @"^\s*(\d+)\s*[-.]{1,2}\s*(\d+)\s*$";
+            var greaterThanPattern = @"^>\s*(\d+)$";
+            var greaterOrEqualPattern = @"^>=\s*(\d+)$";
+            var lessThanPattern = @"^<\s*(\d+)$";
+            var lessOrEqualPattern = @"^<=\s*(\d+)$";
+
+            switch (input)
+            {
+                case var s when Regex.IsMatch(s, rangePattern):
+                    var match = Regex.Match(s, rangePattern);
+                    int start = int.Parse(match.Groups[1].Value);
+                    int end = int.Parse(match.Groups[2].Value);
+                    result = result.Where(p => {
+                        var val = GetPlace(p);
+                        return val >= start && val <= end;
+                    });
+                    break;
+
+                case var s when Regex.IsMatch(s, greaterOrEqualPattern):
+                    int val = int.Parse(Regex.Match(s, greaterOrEqualPattern).Groups[1].Value);
+                    result = result.Where(p => GetPlace(p) >= val);
+                    break;
+
+                case var s when Regex.IsMatch(s, greaterThanPattern):
+                    val = int.Parse(Regex.Match(s, greaterThanPattern).Groups[1].Value);
+                    result = result.Where(p => GetPlace(p) > val);
+                    break;
+
+                case var s when Regex.IsMatch(s, lessOrEqualPattern):
+                    val = int.Parse(Regex.Match(s, lessOrEqualPattern).Groups[1].Value);
+                    result = result.Where(p => GetPlace(p) <= val);
+                    break;
+
+                case var s when Regex.IsMatch(s, lessThanPattern):
+                    val = int.Parse(Regex.Match(s, lessThanPattern).Groups[1].Value);
+                    result = result.Where(p => GetPlace(p) < val);
+                    break;
+
+                default:
+                    result = result.Where(p =>
+                    (!string.IsNullOrWhiteSpace(p.Name) && p.Name.StartsWith(input, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrWhiteSpace(p.Surname) && p.Surname.StartsWith(input, StringComparison.OrdinalIgnoreCase)) ||
+                    p.Place.ToString().StartsWith(input, StringComparison.OrdinalIgnoreCase)
+                );
+                    break;
+            }
+
+            Players = new ObservableCollection<PlayerDB>(result);
         }
 
         private async Task UpdateAppDataLabel()
