@@ -17,10 +17,16 @@ namespace RankingApp.ViewModels
         private ObservableCollection<Game>? games;
 
         [ObservableProperty]
+        private ObservableCollection<DoublesGame>? doubleGames;
+
+        [ObservableProperty]
         private Tournament? oneTournament;
 
         [ObservableProperty]
         private Game? selectedGame;
+
+        [ObservableProperty]
+        private DoublesGame? selectedDoublesGame;
 
         public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "4"];
 
@@ -61,6 +67,15 @@ namespace RankingApp.ViewModels
             }
         }
 
+        partial void OnSelectedDoublesGameChanged(DoublesGame? value)
+        {
+            if (value != null)
+            {
+                Data.GameId = value.Id;
+                Shell.Current.GoToAsync(nameof(DoublesGameView));
+            }
+        }
+
         public async Task SaveTournamentAsync()
         {
             if (OneTournament != null)
@@ -73,6 +88,7 @@ namespace RankingApp.ViewModels
         {
             OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
             await LoadGamesAsync();
+            await LoadDoublesGamesAsync();
         }
 
         public async Task LoadGamesAsync()
@@ -86,6 +102,14 @@ namespace RankingApp.ViewModels
                                           .Sum(x => x.RatingDifference);
         }
 
+        public async Task LoadDoublesGamesAsync()
+        {
+            OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
+            var allDoublesGames = await _database.GetDoublesGamesAsync();
+            var tournamentDoublesGames = allDoublesGames.Where(x => x.TournamentId == Data.TournamentId).ToList();
+            DoubleGames = new ObservableCollection<DoublesGame>(tournamentDoublesGames);
+        }
+
         [RelayCommand]
         private async Task DeleteGameAsync(Game game)
         {
@@ -94,6 +118,16 @@ namespace RankingApp.ViewModels
 
             await _database.DeleteGameAsync(game);
             await LoadGamesAsync();
+        }
+
+        [RelayCommand]
+        private async Task DeleteDoublesGameAsync(DoublesGame game)
+        {
+            if (game == null)
+                return;
+
+            await _database.DeleteDoublesGameAsync(game);
+            await LoadDoublesGamesAsync();
         }
 
         public async Task CreateNewGameSave()
@@ -135,6 +169,45 @@ namespace RankingApp.ViewModels
             await _database.SaveGameAsync(game);
 
             Data.GameId = game.Id;
+        }
+
+        public async Task CreateNewDoublesGameSave()
+        {
+            var player = new PlayerDB()
+            {
+                Id = 10000,
+                Place = 10000,
+                Points = 0,
+                PointsWithBonus = 0,
+                Name = "Name",
+                Surname = "Surname",
+                Gender = "male",
+                OverallPlace = 10000,
+                BirthDate = ""
+            };
+
+            if (OneTournament != null)
+            {
+                player = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
+            }
+
+            var doublesGame = new DoublesGame()
+            {
+                MyName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
+                MySurname = player.Surname,
+                MyPoints = player.Points,
+                MyPointsWithBonus = player.PointsWithBonus,
+                MyAge = player.Age,
+                MyPlace = player.Place,
+                GameCoefficient = OneTournament != null ? OneTournament.Coefficient : "0.5",
+                TournamentDate = OneTournament != null ? OneTournament.Date : DateTime.Today,
+                TournamentId = OneTournament != null ? OneTournament.Id : Data.TournamentId,
+                TournamentName = OneTournament != null ? OneTournament.Name : "New"
+            };
+
+            await _database.SaveDoublesGameAsync(doublesGame);
+
+            Data.GameId = doublesGame.Id;
         }
 
         public async Task EditDate(DateTime date)

@@ -32,6 +32,7 @@ namespace RankingApp
             builder.Services.AddSingleton<AllTournamentsViewModel>();
             builder.Services.AddSingleton<AllGamesViewModel>();
             builder.Services.AddSingleton<EditTournamentPlayerViewModel>();
+            builder.Services.AddSingleton<DoublesGameViewModel>();
 
             builder.Services.AddTransient<AllPlayerRanking>();
             builder.Services.AddTransient<TournamentView>();
@@ -40,6 +41,7 @@ namespace RankingApp
             builder.Services.AddTransient<AllGames>();
             builder.Services.AddTransient<EditTournamentPlayer>();
             builder.Services.AddTransient<ImportExport>();
+            builder.Services.AddTransient<DoublesGameView>();
 
 #if DEBUG
             builder.Logging.AddDebug();

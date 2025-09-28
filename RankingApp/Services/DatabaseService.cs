@@ -16,6 +16,7 @@ namespace RankingApp.Services
             _database.CreateTableAsync<Game>().Wait();
             _database.CreateTableAsync<Tournament>().Wait();
             _database.CreateTableAsync<AppData>().Wait();
+            _database.CreateTableAsync<DoublesGame>().Wait();
         }
 
         public async Task<List<PlayerDB>> GetPlayersAsync()
@@ -84,6 +85,26 @@ namespace RankingApp.Services
         public async Task SaveAppDataAsync(AppData appData)
         {
             await _database.InsertOrReplaceAsync(appData);
+        }
+
+        public async Task<List<DoublesGame>> GetDoublesGamesAsync()
+        {
+            return await _database.Table<DoublesGame>().ToListAsync();
+        }
+
+        public async Task<DoublesGame> GetDoublesGameAsync(int id)
+        {
+            return await _database.Table<DoublesGame>().Where(i => i.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> SaveDoublesGameAsync(DoublesGame doublesGame)
+        {
+            return (doublesGame.Id != 0) ? await _database.UpdateAsync(doublesGame) : await _database.InsertAsync(doublesGame);
+        }
+
+        public async Task<int> DeleteDoublesGameAsync(DoublesGame doublesGame)
+        {
+            return await _database.DeleteAsync(doublesGame);
         }
 
         public async Task UpdatePlayerAsync(PlayerDB player)
