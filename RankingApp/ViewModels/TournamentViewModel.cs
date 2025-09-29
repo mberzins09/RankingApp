@@ -23,12 +23,22 @@ namespace RankingApp.ViewModels
         private Tournament? oneTournament;
 
         [ObservableProperty]
-        private Game? selectedGame;
-
-        [ObservableProperty]
-        private DoublesGame? selectedDoublesGame;
+        private object selectedItem;
 
         public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "4"];
+
+        public List<string> GameModes { get; } = new() { "Singles", "Doubles" };
+
+        [ObservableProperty]
+        private string selectedGameMode = "Singles";
+
+        public IEnumerable<object> DisplayGames =>
+        SelectedGameMode == "Doubles" ? DoubleGames ?? [] : Games ?? [];
+
+        partial void OnSelectedGameModeChanged(string value)
+        {
+            OnPropertyChanged(nameof(DisplayGames));
+        }
 
         partial void OnOneTournamentChanged(Tournament? value)
         {
@@ -58,22 +68,22 @@ namespace RankingApp.ViewModels
             }
         }
 
-        partial void OnSelectedGameChanged(Game? value)
+        partial void OnSelectedItemChanged(object value)
         {
-            if (value != null)
+            switch (value)
             {
-                Data.GameId = value.Id;
-                Shell.Current.GoToAsync(nameof(GameView));
-            }
-        }
+                case Game game:
+                    Data.GameId = game.Id;
+                    Shell.Current.GoToAsync(nameof(GameView));
+                    break;
 
-        partial void OnSelectedDoublesGameChanged(DoublesGame? value)
-        {
-            if (value != null)
-            {
-                Data.GameId = value.Id;
-                Shell.Current.GoToAsync(nameof(DoublesGameView));
+                case DoublesGame doublesGame:
+                    Data.GameId = doublesGame.Id;
+                    Shell.Current.GoToAsync(nameof(DoublesGameView));
+                    break;
             }
+
+            SelectedItem = null;
         }
 
         public async Task SaveTournamentAsync()
@@ -88,7 +98,6 @@ namespace RankingApp.ViewModels
         {
             OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
             await LoadGamesAsync();
-            await LoadDoublesGamesAsync();
         }
 
         public async Task LoadGamesAsync()
@@ -97,17 +106,16 @@ namespace RankingApp.ViewModels
             var allGames = await _database.GetGamesAsync();
             var tournamentGames = allGames.Where(x => x.TournamentId == Data.TournamentId).ToList();
             Games = new ObservableCollection<Game>(tournamentGames);
-            OneTournament.PointsDifference = allGames
-                                          .Where(x => x.TournamentId == Data.TournamentId)
-                                          .Sum(x => x.RatingDifference);
-        }
 
-        public async Task LoadDoublesGamesAsync()
-        {
-            OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
             var allDoublesGames = await _database.GetDoublesGamesAsync();
             var tournamentDoublesGames = allDoublesGames.Where(x => x.TournamentId == Data.TournamentId).ToList();
             DoubleGames = new ObservableCollection<DoublesGame>(tournamentDoublesGames);
+
+            OneTournament.PointsDifference = allGames
+                                          .Where(x => x.TournamentId == Data.TournamentId)
+                                          .Sum(x => x.RatingDifference);
+
+            OnPropertyChanged(nameof(DisplayGames));
         }
 
         [RelayCommand]
@@ -127,7 +135,7 @@ namespace RankingApp.ViewModels
                 return;
 
             await _database.DeleteDoublesGameAsync(game);
-            await LoadDoublesGamesAsync();
+            await LoadGamesAsync();
         }
 
         public async Task CreateNewGameSave()
@@ -225,6 +233,7 @@ namespace RankingApp.ViewModels
             }
 
             await _database.SaveTournamentAsync(OneTournament);
+            await LoadGamesAsync();
         }
 
         public async Task EditCoefficient(string coef)
@@ -260,6 +269,7 @@ namespace RankingApp.ViewModels
             }
 
             await _database.SaveTournamentAsync(OneTournament);
+            await LoadGamesAsync();
         }
     }
 }
