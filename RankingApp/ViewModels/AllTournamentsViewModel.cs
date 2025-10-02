@@ -48,6 +48,12 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
             await _database.DeleteGameAsync(game);
         }
 
+        var Doubles = await GetDoubles(tournament.Id);
+        foreach (var doubleG in Doubles)
+        {
+            await _database.DeleteDoublesGameAsync(doubleG);
+        }
+
         await DeleteTournament(tournament);
         await LoadDataAsync();
     }
@@ -83,6 +89,14 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     {
         var Games = await _database.GetGamesAsync();
         var list = Games.Where(x => x.TournamentId == id).ToList();
+
+        return list;
+    }
+
+    public async Task<List<DoublesGame>> GetDoubles(int id)
+    {
+        var Doubles = await _database.GetDoublesGamesAsync();
+        var list = Doubles.Where(x => x.TournamentId == id).ToList();
 
         return list;
     }

@@ -23,7 +23,7 @@ namespace RankingApp.ViewModels
         private Tournament? oneTournament;
 
         [ObservableProperty]
-        private object selectedItem;
+        private IGame? selectedItem;
 
         public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "4"];
 
@@ -32,12 +32,12 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private string selectedGameMode = "Singles";
 
-        public IEnumerable<object> DisplayGames =>
-        SelectedGameMode == "Doubles" ? DoubleGames ?? [] : Games ?? [];
+        [ObservableProperty]
+        private ObservableCollection<IGame>? displayGames;
 
         partial void OnSelectedGameModeChanged(string value)
         {
-            OnPropertyChanged(nameof(DisplayGames));
+            RefreshDisplayGames();
         }
 
         partial void OnOneTournamentChanged(Tournament? value)
@@ -68,8 +68,11 @@ namespace RankingApp.ViewModels
             }
         }
 
-        partial void OnSelectedItemChanged(object value)
+        partial void OnSelectedItemChanged(IGame? value)
         {
+            if (value is null)
+                return;
+
             switch (value)
             {
                 case Game game:
@@ -115,27 +118,35 @@ namespace RankingApp.ViewModels
                                           .Where(x => x.TournamentId == Data.TournamentId)
                                           .Sum(x => x.RatingDifference);
 
-            OnPropertyChanged(nameof(DisplayGames));
+            RefreshDisplayGames();
         }
 
         [RelayCommand]
-        private async Task DeleteGameAsync(Game game)
+        private async Task DeleteItemAsync(IGame item)
         {
-            if (game == null)
-                return;
+            switch (item)
+            {
+                case Game game:
+                    await _database.DeleteGameAsync(game);
+                    break;
 
-            await _database.DeleteGameAsync(game);
+                case DoublesGame doublesGame:
+                    await _database.DeleteDoublesGameAsync(doublesGame);
+                    break;
+
+                default:
+                    return;
+            }
+
             await LoadGamesAsync();
         }
 
-        [RelayCommand]
-        private async Task DeleteDoublesGameAsync(DoublesGame game)
+        private void RefreshDisplayGames()
         {
-            if (game == null)
-                return;
-
-            await _database.DeleteDoublesGameAsync(game);
-            await LoadGamesAsync();
+            if (SelectedGameMode == "Doubles")
+                DisplayGames = new ObservableCollection<IGame>(DoubleGames ?? []);
+            else
+                DisplayGames = new ObservableCollection<IGame>(Games ?? []);
         }
 
         public async Task CreateNewGameSave()

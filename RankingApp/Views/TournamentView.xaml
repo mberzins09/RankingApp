@@ -14,6 +14,11 @@
         <!-- Define templates -->
         <DataTemplate x:Key="GameTemplate" x:DataType="model:Game">
             <ViewCell>
+                <ViewCell.ContextActions>
+                    <MenuItem Text="Delete" IsDestructive="True"
+                      Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                      CommandParameter="{Binding .}" />
+                </ViewCell.ContextActions>
                 <Grid ColumnDefinitions="5, *, 5, 50, 20, 50, 10">
                     <Label Grid.Column="1" Text="{Binding OpponentName}" Style="{StaticResource ListItemLabel}"/>
                     <Label Grid.Column="3" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}"/>
@@ -25,6 +30,11 @@
 
         <DataTemplate x:Key="DoublesGameTemplate" x:DataType="model:DoublesGame">
             <ViewCell>
+                <ViewCell.ContextActions>
+                    <MenuItem Text="Delete" IsDestructive="True"
+                      Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                      CommandParameter="{Binding .}" />
+                </ViewCell.ContextActions>
                 <Grid ColumnDefinitions="1, *, 3, *, 3, 30, 20, 40, 1">
                     <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}" Grid.Column="1">
                         <Label Text="{Binding MyPartnerName}" Style="{StaticResource ListItemLabel}" FontSize="12"/>

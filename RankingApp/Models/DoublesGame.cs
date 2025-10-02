@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace RankingApp.Models
 {
-    public partial class DoublesGame : ObservableObject
+    public partial class DoublesGame : ObservableObject, IGame
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }

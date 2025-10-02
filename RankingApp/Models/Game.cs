@@ -3,7 +3,7 @@ using SQLite;
 
 namespace RankingApp.Models
 {
-    public partial class Game : ObservableObject
+    public partial class Game : ObservableObject, IGame
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
