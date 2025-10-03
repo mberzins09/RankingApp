@@ -83,7 +83,7 @@ namespace RankingApp.Models
 
         public string GameName => $"{TournamentName} - {DateToString}";
 
-        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName} {Gamescore}";
+        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName}";
 
         public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
 

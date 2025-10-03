@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SQLite;
-using System;
-using System.Xml.Linq;
 
 namespace RankingApp.Models
 {
@@ -116,7 +114,7 @@ namespace RankingApp.Models
         public string OpponentTeam => $"{Opponent1Name} {Opponent1Surname} / {Opponent2Name} {Opponent2Surname}";
         public string Gamescore => $"{MySets} : {OpponentSets}";
         public string GameName => $"{TournamentName} - {TournamentDate:d MMM yyyy}";
-        public string GameDisplayPlayers => $"{MyTeam} - {OpponentTeam} {Gamescore}";
+        public string GameDisplayPlayers => $"{MyTeam} - {OpponentTeam}";
         public string GameDisplayDetails => $"{GameName}";
 
         public int RatingDifference
@@ -131,7 +129,5 @@ namespace RankingApp.Models
                 return RatingCalculator.Calculate(MyPoints + MyPartnerPoints, Opponent1Points + Opponent2Points, IsWin, GameCoefficient);
             }
         }
-
-        // You can add a RatingDifference property if you want, but it should not affect tournament's PointsDifference
     }
 }

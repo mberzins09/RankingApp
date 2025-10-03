@@ -108,6 +108,33 @@
                 <Setter Property="HorizontalTextAlignment" Value="Center"/>
             </Style>
 
+            <Style TargetType="Picker" x:Key="BoxedPicker" BasedOn="{StaticResource PrimaryPicker}">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="HorizontalTextAlignment" Value="Start"/>
+                <Setter Property="VerticalOptions" Value="End"/>
+                <Setter Property="FontSize" Value="16"/>
+            </Style>
+
+            <!-- Border -->
+            <Style TargetType="Border" x:Key="BoxContainer">
+                <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="Margin" Value="4,4,4,8"/>
+                <Setter Property="Stroke">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                             Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                             Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <!-- Entry -->
             <Style TargetType="Entry" x:Key="PrimaryEntry">
                 <Setter Property="TextColor">

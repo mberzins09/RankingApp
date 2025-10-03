@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RankingApp.Models
+﻿namespace RankingApp.Models
 {
     public interface IGame
     {
@@ -13,6 +7,7 @@ namespace RankingApp.Models
         string GameDisplayPlayers { get; }
         string GameDisplayDetails { get; }
         string GameName { get; }
+        string Gamescore { get; }
         DateTime TournamentDate { get; }
         int RatingDifference { get; }
     }

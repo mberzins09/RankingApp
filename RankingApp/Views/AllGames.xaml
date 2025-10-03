@@ -4,43 +4,29 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="RankingApp.Views.AllGames"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
-             xmlns:selectors="clr-namespace:RankingApp.Converters"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllGamesViewModel"
+             x:Name="ThisPage"
              Title="All Games"
              Style="{StaticResource PrimaryContentPage}">
-    <ContentPage.Resources>
-        <!-- Define templates -->
-        <DataTemplate x:Key="GameTemplate" x:DataType="model:Game">
-            <ViewCell>
-                <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="*, *">
-                    <Label Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" FontSize="15" FontAttributes="Bold"/>
-                    <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14"/>
-                </Grid>
-            </ViewCell>
-        </DataTemplate>
-
-        <DataTemplate x:Key="DoublesGameTemplate" x:DataType="model:DoublesGame">
-            <ViewCell>
-                <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="*, *">
-                    <Label Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" FontSize="15" FontAttributes="Bold"/>
-                    <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14"/>
-                </Grid>
-            </ViewCell>
-        </DataTemplate>
-
-        <!-- Register the selector -->
-        <selectors:GameTemplateSelector x:Key="GameTemplateSelector"
-                                    GameTemplate="{StaticResource GameTemplate}"
-                                    DoublesGameTemplate="{StaticResource DoublesGameTemplate}" />
-    </ContentPage.Resources>
     
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 50, 40, *, 5">
         <Picker Grid.Row="1" Title="Select Game Mode" ItemsSource="{Binding GameModes}" SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" 
-                Style="{StaticResource PrimaryPicker}" WidthRequest="200"/>
+                Style="{StaticResource PrimaryPicker}" WidthRequest="100"/>
         <SearchBar Grid.Row="2" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
-        <ListView Grid.Row="3" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding DisplayGames}" 
-                  ItemTemplate="{StaticResource GameTemplateSelector}">
+        <ListView Grid.Row="3" ItemsSource="{Binding DisplayGames}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:IGame">
+                    <ViewCell>
+                        <Grid RowDefinitions="*, *" ColumnDefinitions="*, 50, 2">
+                            <Label Grid.Column="0" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" 
+                                   FontSize="{Binding BindingContext.GameFontSize, Source={x:Reference ThisPage}}" FontAttributes="Bold"/>
+                            <Label Grid.Column="1" Grid.RowSpan="2" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" FontSize="14" FontAttributes="Bold"/>
+                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14"/>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
     </Grid>
 </ContentPage>

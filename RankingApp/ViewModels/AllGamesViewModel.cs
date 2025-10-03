@@ -16,12 +16,6 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private string? searchText;
 
-        [ObservableProperty]
-        private ObservableCollection<Game>? games;
-
-        [ObservableProperty]
-        private ObservableCollection<DoublesGame>? doublesGames;
-
         public List<string> GameModes { get; } = new() { "Singles", "Doubles" };
 
         [ObservableProperty]
@@ -30,9 +24,12 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<IGame> displayGames = [];
 
+        public double GameFontSize => SelectedGameMode == "Singles" ? 16 : 10;
+
         partial void OnSelectedGameModeChanged(string value)
         {
             RefreshDisplayGames();
+            OnPropertyChanged(nameof(GameFontSize));
         }
 
         partial void OnSearchTextChanged(string? value)
@@ -43,12 +40,10 @@ namespace RankingApp.ViewModels
         public async Task LoadDataAsync()
         {
             var localGames = await _database.GetGamesAsync();
-            _allGames = localGames.OrderByDescending(x => x.TournamentDate).ToList();
-            //Games = new ObservableCollection<Game>(_allGames);
+            _allGames = [.. localGames.OrderByDescending(x => x.TournamentDate)];
 
             var localDoubles = await _database.GetDoublesGamesAsync();
-            _allDoublesGames = localDoubles.OrderByDescending(x => x.TournamentDate).ToList();
-            //DoublesGames = new ObservableCollection<DoublesGame>(_allDoublesGames);
+            _allDoublesGames = [.. localDoubles.OrderByDescending(x => x.TournamentDate)];
 
             RefreshDisplayGames();
         }
