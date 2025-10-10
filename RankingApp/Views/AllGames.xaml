@@ -14,7 +14,7 @@
         <Picker Grid.Row="1" Title="Select Game Mode" ItemsSource="{Binding GameModes}" SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" 
                 Style="{StaticResource PrimaryPicker}" WidthRequest="100"/>
         <SearchBar Grid.Row="2" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
-        <Grid Grid.Row="3" RowDefinitions="60, *" ColumnDefinitions="*, *, *">
+        <Grid Grid.Row="3" RowDefinitions="50, *" ColumnDefinitions="*, *, *, *">
             <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}">
                 <Label Text="Games: " Style="{StaticResource ListItemLabel}"/>
                 <Label Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}"/>
@@ -26,6 +26,10 @@
                 <Label Text="{Binding TotalLosses}" Style="{StaticResource ListItemLabel}"/>
             </HorizontalStackLayout>
             <HorizontalStackLayout Grid.Column="2" Style="{StaticResource PrimaryHorizontal}">
+                <Label Text="5 Set games: " Style="{StaticResource ListItemLabel}"/>
+                <Label Text="{Binding FifthSetTotal}" Style="{StaticResource ListItemLabel}"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Column="3" Style="{StaticResource PrimaryHorizontal}">
                 <Label Text="5 Set Win %: " Style="{StaticResource ListItemLabel}"/>
                 <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
             </HorizontalStackLayout>

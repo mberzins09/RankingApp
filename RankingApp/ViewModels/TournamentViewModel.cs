@@ -33,6 +33,9 @@ namespace RankingApp.ViewModels
         private double fifthSetWinPercentage;
 
         [ObservableProperty]
+        private int fifthSetTotal;
+
+        [ObservableProperty]
         private Tournament? oneTournament;
 
         [ObservableProperty]
@@ -166,11 +169,11 @@ namespace RankingApp.ViewModels
             TotalSets = games.Sum(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0));
 
             var fifthSetGames = games.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
-            var fifthSetTotal = fifthSetGames.Count();
+            FifthSetTotal = fifthSetGames.Count();
             var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
 
-            FifthSetWinPercentage = fifthSetTotal > 0
-                ? Math.Round((double)fifthSetWins / fifthSetTotal * 100, 2)
+            FifthSetWinPercentage = FifthSetTotal > 0
+                ? Math.Round((double)fifthSetWins / FifthSetTotal * 100, 2)
                 : 0;
         }
 

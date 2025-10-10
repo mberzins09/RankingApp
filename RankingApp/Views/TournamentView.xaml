@@ -59,6 +59,10 @@
                     <Label Text="{Binding TotalSets}" Style="{StaticResource ListItemLabel}"/>
                 </HorizontalStackLayout>
                 <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
+                    <Label Text="5 Set games: " Style="{StaticResource ListItemLabel}"/>
+                    <Label Text="{Binding FifthSetTotal}" Style="{StaticResource ListItemLabel}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
                     <Label Text="5th Set Win %: " Style="{StaticResource ListItemLabel}"/>
                     <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
                 </HorizontalStackLayout>

@@ -34,6 +34,9 @@ namespace RankingApp.ViewModels
         private int totalLosses;
 
         [ObservableProperty]
+        private int fifthSetTotal;
+
+        [ObservableProperty]
         private double fifthSetWinPercentage;
 
         public double GameFontSize => SelectedGameMode == "Singles" ? 16 : 10;
@@ -121,11 +124,11 @@ namespace RankingApp.ViewModels
             TotalLosses = DisplayGames.Count(g => !g.IsWin);
 
             var fifthSetGames = DisplayGames.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
-            var fifthSetTotal = fifthSetGames.Count();
+            FifthSetTotal = fifthSetGames.Count();
             var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
 
-            FifthSetWinPercentage = fifthSetTotal > 0
-                ? Math.Round((double)fifthSetWins / fifthSetTotal * 100, 2)
+            FifthSetWinPercentage = FifthSetTotal > 0
+                ? Math.Round((double)fifthSetWins / FifthSetTotal * 100, 2)
                 : 0;
         }
     }
