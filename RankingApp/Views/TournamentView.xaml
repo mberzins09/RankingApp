@@ -40,8 +40,30 @@
                             Date="{Binding OneTournament.Date, Mode=TwoWay}" Format="d MMM yyyy" HorizontalOptions="Center"
                             VerticalOptions="Center" WidthRequest="100" HeightRequest="40"/>
         <!-- Row 5 -->
-        <Grid Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5">
-            <ListView ItemsSource="{Binding DisplayGames}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+        <Grid Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="60, *">
+            <Grid RowDefinitions="*, *" ColumnDefinitions="*, *, *">
+                <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}">
+                    <Label Text="Games: " Style="{StaticResource ListItemLabel}"/>
+                    <Label Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Grid.Column="1" Style="{StaticResource PrimaryHorizontal}">
+                    <Label Text="Wins: " Style="{StaticResource ListItemLabel}"/>
+                    <Label Text="{Binding TotalWins}" Style="{StaticResource ListItemLabel}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Grid.Column="2" Style="{StaticResource PrimaryHorizontal}">
+                    <Label Text="Losses: " Style="{StaticResource ListItemLabel}"/>
+                    <Label Text="{Binding TotalLosses}" Style="{StaticResource ListItemLabel}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Grid.Row="1" Style="{StaticResource PrimaryHorizontal}">
+                    <Label Text="Total Sets: " Style="{StaticResource ListItemLabel}"/>
+                    <Label Text="{Binding TotalSets}" Style="{StaticResource ListItemLabel}"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
+                    <Label Text="5th Set Win %: " Style="{StaticResource ListItemLabel}"/>
+                    <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
+                </HorizontalStackLayout>
+            </Grid>
+            <ListView Grid.Row="1" ItemsSource="{Binding DisplayGames}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:IGame">
                         <ViewCell>

@@ -24,6 +24,18 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<IGame> displayGames = [];
 
+        [ObservableProperty]
+        private int totalGames;
+
+        [ObservableProperty]
+        private int totalWins;
+
+        [ObservableProperty]
+        private int totalLosses;
+
+        [ObservableProperty]
+        private double fifthSetWinPercentage;
+
         public double GameFontSize => SelectedGameMode == "Singles" ? 16 : 10;
 
         partial void OnSelectedGameModeChanged(string value)
@@ -52,16 +64,12 @@ namespace RankingApp.ViewModels
         {
             DisplayGames.Clear();
 
-            if (SelectedGameMode == "Doubles")
-            {
-                foreach (var game in _allDoublesGames)
-                    DisplayGames.Add(game);
-            }
-            else
-            {
-                foreach (var game in _allGames)
-                    DisplayGames.Add(game);
-            }
+            IEnumerable<IGame> source = SelectedGameMode == "Doubles" ? _allDoublesGames : _allGames;
+
+            foreach (var game in source)
+                DisplayGames.Add(game);
+
+            UpdateStats();
         }
 
         public void FilterGames(string searchText)
@@ -102,6 +110,23 @@ namespace RankingApp.ViewModels
                 foreach (var game in searchedGames)
                     DisplayGames.Add(game);
             }
+
+            UpdateStats();
+        }
+
+        private void UpdateStats()
+        {
+            TotalGames = DisplayGames.Count;
+            TotalWins = DisplayGames.Count(g => g.IsWin);
+            TotalLosses = DisplayGames.Count(g => !g.IsWin);
+
+            var fifthSetGames = DisplayGames.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
+            var fifthSetTotal = fifthSetGames.Count();
+            var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
+
+            FifthSetWinPercentage = fifthSetTotal > 0
+                ? Math.Round((double)fifthSetWins / fifthSetTotal * 100, 2)
+                : 0;
         }
     }
 }

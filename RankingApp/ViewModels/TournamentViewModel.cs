@@ -18,6 +18,21 @@ namespace RankingApp.ViewModels
         private List<DoublesGame>? _doubleGames;
 
         [ObservableProperty]
+        private int totalGames;
+
+        [ObservableProperty]
+        private int totalWins;
+
+        [ObservableProperty]
+        private int totalLosses;
+
+        [ObservableProperty]
+        private int totalSets;
+
+        [ObservableProperty]
+        private double fifthSetWinPercentage;
+
+        [ObservableProperty]
         private Tournament? oneTournament;
 
         [ObservableProperty]
@@ -25,7 +40,7 @@ namespace RankingApp.ViewModels
 
         public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "4"];
 
-        public List<string> GameModes { get; } = new() { "Singles", "Doubles" };
+        public List<string> GameModes { get; } = ["Singles", "Doubles"];
 
         [ObservableProperty]
         private string selectedGameMode = "Singles";
@@ -139,10 +154,24 @@ namespace RankingApp.ViewModels
 
         private void RefreshDisplayGames()
         {
-            if (SelectedGameMode == "Doubles")
-                DisplayGames = new ObservableCollection<IGame>(_doubleGames ?? []);
-            else
-                DisplayGames = new ObservableCollection<IGame>(_games ?? []);
+            IEnumerable<IGame> games = SelectedGameMode == "Doubles"
+        ? _doubleGames ?? Enumerable.Empty<IGame>()
+        : _games ?? Enumerable.Empty<IGame>();
+
+            DisplayGames = new ObservableCollection<IGame>(games);
+
+            TotalGames = games.Count();
+            TotalWins = games.Count(g => g.IsWin);
+            TotalLosses = TotalGames - TotalWins;
+            TotalSets = games.Sum(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0));
+
+            var fifthSetGames = games.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
+            var fifthSetTotal = fifthSetGames.Count();
+            var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
+
+            FifthSetWinPercentage = fifthSetTotal > 0
+                ? Math.Round((double)fifthSetWins / fifthSetTotal * 100, 2)
+                : 0;
         }
 
         public async Task CreateNewGameSave()

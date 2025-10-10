@@ -10,5 +10,8 @@
         string Gamescore { get; }
         DateTime TournamentDate { get; }
         int RatingDifference { get; }
+        bool IsWin { get; }
+        int? MySets { get; }
+        int? OpponentSets { get; }
     }
 }
