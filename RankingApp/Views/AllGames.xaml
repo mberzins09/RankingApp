@@ -33,6 +33,7 @@
                 <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
             </HorizontalStackLayout>
             <SearchBar Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
+            <!--
             <ListView Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding DisplayGames}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:IGame">
@@ -47,6 +48,20 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            -->
+            <CollectionView Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding DisplayGames}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:IGame">
+                        <Grid RowDefinitions="*, *" ColumnDefinitions="*, 50, 2" Padding="5">
+                            <Label Grid.ColumnSpan="3" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}"
+                                   FontSize="{Binding BindingContext.GameFontSize, Source={x:Reference ThisPage}}" FontAttributes="Bold" />
+                            <Label Grid.Column="1" Grid.Row="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}"
+                                   FontSize="14" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </Grid>
     </Grid>
 </ContentPage>

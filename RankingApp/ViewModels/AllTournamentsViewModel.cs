@@ -17,23 +17,22 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     private string? searchText;
 
     [ObservableProperty]
-    private Tournament? selectedTournament;
-
-    [ObservableProperty]
     private ObservableCollection<Tournament>? tournaments;
 
-    partial void OnSearchTextChanged(string? value)
-    {
-        FilterTournaments(value ?? string.Empty);
-    }
+    [ObservableProperty]
+    private int selectedYear = DateTime.Now.Year;
 
-    partial void OnSelectedTournamentChanged(Tournament? value)
+    partial void OnSelectedYearChanged(int value) => ApplyAllFilters();
+    partial void OnSearchTextChanged(string? value) => ApplyAllFilters();
+
+    public ObservableCollection<int> Years { get; } = new ObservableCollection<int>(Enumerable.Range(2015, DateTime.Now.Year - 2015 + 1));
+
+    [RelayCommand]
+    private async Task TournamentSelectedAsync(Tournament tournament)
     {
-        if (value != null)
-        {
-            Data.TournamentId = value.Id;
-            Shell.Current.GoToAsync(nameof(TournamentView));
-        }
+        if (tournament == null) return;
+        Data.TournamentId = tournament.Id;
+        await Shell.Current.GoToAsync(nameof(TournamentView));
     }
 
     [RelayCommand]
@@ -78,11 +77,51 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         await _database.MigratePlayerTableAsync();
     }
 
+    private void FilterTournamentsByYear(int year)
+    {
+        var filtered = _allTournaments
+                       .Where(t => t.Date.Year == year)
+                       .OrderByDescending(t => t.Date)
+                       .ToList();
+
+        Tournaments = new ObservableCollection<Tournament>(filtered);
+    }
+
     public async Task LoadDataAsync()
     {
         var tournaments = await _database.GetTournamentsAsync();
         _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
-        Tournaments = new ObservableCollection<Tournament>(_allTournaments);
+        var allGames = await _database.GetGamesAsync();
+        foreach (var tournament in _allTournaments) 
+        {
+            tournament.PointsDifference = allGames
+                                          .Where(game => game.TournamentId == tournament.Id)
+                                          .Sum(game => game.RatingDifference);
+        }
+
+        ApplyAllFilters();
+    }
+
+    private void ApplyAllFilters()
+    {
+        IEnumerable<Tournament> filtered = _allTournaments;
+
+        // Apply year filter
+        if (SelectedYear > 0)
+        {
+            filtered = filtered.Where(t => t.Date.Year == SelectedYear);
+        }
+
+        // Apply search text filter
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(x =>
+                (!string.IsNullOrWhiteSpace(x.Name) &&
+                 x.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                x.Date.ToString("d MMM yyyy").StartsWith(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        Tournaments = new ObservableCollection<Tournament>(filtered.OrderByDescending(t => t.Date));
     }
 
     public async Task<List<Game>> GetGames(int id)
@@ -103,16 +142,19 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
 
     public void FilterTournaments(string searchText)
     {
-        if (string.IsNullOrWhiteSpace(searchText))
+        IEnumerable<Tournament> filtered = _allTournaments;
+
+        if (SelectedYear > 0)
         {
-            Tournaments = new ObservableCollection<Tournament>(_allTournaments);
-            return;
+            filtered = filtered.Where(t => t.Date.Year == SelectedYear);
         }
 
-        var filtered = _allTournaments.Where(x =>(!string.IsNullOrWhiteSpace(x.Name) &&
-                                             x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                                             x.Date.ToString("d MMM yyyy").StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
-                                             .ToList();
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            filtered = filtered.Where(x =>
+            (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+            x.Date.ToString("d MMM yyyy").StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
+        }
 
         Tournaments = new ObservableCollection<Tournament>(filtered);
     }

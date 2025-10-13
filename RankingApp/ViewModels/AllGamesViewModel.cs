@@ -69,8 +69,10 @@ namespace RankingApp.ViewModels
 
             IEnumerable<IGame> source = SelectedGameMode == "Doubles" ? _allDoublesGames : _allGames;
 
-            foreach (var game in source)
-                DisplayGames.Add(game);
+            foreach (var game in source) // recentGames
+            { 
+                DisplayGames.Add(game); 
+            }
 
             UpdateStats();
         }
@@ -85,30 +87,81 @@ namespace RankingApp.ViewModels
 
             DisplayGames.Clear();
 
+            var parts = searchText.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var hasTwoParts = parts.Length >= 2;
+            var firstPart = parts[0];
+            var secondPart = hasTwoParts ? parts[1] : string.Empty;
+
             if (SelectedGameMode == "Doubles")
             {
-                var searchedDoublesGames = _allDoublesGames.Where(x => (!string.IsNullOrWhiteSpace(x.MyPartnerName) &&
-                                                x.MyPartnerName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                                                (!string.IsNullOrWhiteSpace(x.MyPartnerSurname) &&
-                                                x.MyPartnerSurname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                                                (!string.IsNullOrWhiteSpace(x.Opponent1Name) &&
-                                                x.Opponent1Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                                                (!string.IsNullOrWhiteSpace(x.Opponent2Name) &&
-                                                x.Opponent2Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                                                (!string.IsNullOrWhiteSpace(x.Opponent1Surname) &&
-                                                x.Opponent1Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                                                (!string.IsNullOrWhiteSpace(x.Opponent2Surname) &&
-                                                x.Opponent2Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))).ToList();
+                IEnumerable<DoublesGame> searchedDoublesGames;
+
+                if (hasTwoParts)
+                {
+                    // Match Name + Surname combinations
+                    searchedDoublesGames = _allDoublesGames.Where(x =>
+                        (!string.IsNullOrWhiteSpace(x.MyPartnerName) &&
+                         x.MyPartnerName.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
+                         !string.IsNullOrWhiteSpace(x.MyPartnerSurname) &&
+                         x.MyPartnerSurname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase)) ||
+
+                        (!string.IsNullOrWhiteSpace(x.Opponent1Name) &&
+                         x.Opponent1Name.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
+                         !string.IsNullOrWhiteSpace(x.Opponent1Surname) &&
+                         x.Opponent1Surname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase)) ||
+
+                        (!string.IsNullOrWhiteSpace(x.Opponent2Name) &&
+                         x.Opponent2Name.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
+                         !string.IsNullOrWhiteSpace(x.Opponent2Surname) &&
+                         x.Opponent2Surname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase))
+                    );
+                }
+                else
+                {
+                    // Normal single-term search
+                    searchedDoublesGames = _allDoublesGames.Where(x =>
+                        (!string.IsNullOrWhiteSpace(x.MyPartnerName) &&
+                         x.MyPartnerName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(x.MyPartnerSurname) &&
+                         x.MyPartnerSurname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(x.Opponent1Name) &&
+                         x.Opponent1Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(x.Opponent1Surname) &&
+                         x.Opponent1Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(x.Opponent2Name) &&
+                         x.Opponent2Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(x.Opponent2Surname) &&
+                         x.Opponent2Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    );
+                }
 
                 foreach (var game in searchedDoublesGames)
                     DisplayGames.Add(game);
             }
             else
             {
-                var searchedGames = _allGames.Where(x => (!string.IsNullOrWhiteSpace(x.Name) &&
-                                                x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                                                (!string.IsNullOrWhiteSpace(x.Surname) &&
-                                                x.Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))).ToList();
+                IEnumerable<Game> searchedGames;
+
+                if (hasTwoParts)
+                {
+                    // Full name match
+                    searchedGames = _allGames.Where(x =>
+                        (!string.IsNullOrWhiteSpace(x.Name) &&
+                         x.Name.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
+                         !string.IsNullOrWhiteSpace(x.Surname) &&
+                         x.Surname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase))
+                    );
+                }
+                else
+                {
+                    // Single word search
+                    searchedGames = _allGames.Where(x =>
+                        (!string.IsNullOrWhiteSpace(x.Name) &&
+                         x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(x.Surname) &&
+                         x.Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    );
+                }
 
                 foreach (var game in searchedGames)
                     DisplayGames.Add(game);
@@ -119,11 +172,24 @@ namespace RankingApp.ViewModels
 
         private void UpdateStats()
         {
-            TotalGames = DisplayGames.Count;
-            TotalWins = DisplayGames.Count(g => g.IsWin);
-            TotalLosses = DisplayGames.Count(g => !g.IsWin);
+            IEnumerable<IGame> statsSource;
 
-            var fifthSetGames = DisplayGames.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                // all games for selected mode
+                statsSource = SelectedGameMode == "Doubles" ? _allDoublesGames : _allGames;
+            }
+            else
+            {
+                // only filtered (currently displayed) games
+                statsSource = DisplayGames;
+            }
+
+            TotalGames = statsSource.Count();
+            TotalWins = statsSource.Count(g => g.IsWin);
+            TotalLosses = statsSource.Count(g => !g.IsWin);
+
+            var fifthSetGames = statsSource.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
             FifthSetTotal = fifthSetGames.Count();
             var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
 
