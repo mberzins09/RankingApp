@@ -6,8 +6,14 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllTournamentsViewModel"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
              Title="Rankings"
              Style="{StaticResource PrimaryContentPage}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
         <ImageButton Grid.Column="1" Source="ranksnoborder.png" Clicked="ImageButtonRankings_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
         <ImageButton Grid.Column="3" Source="Gamesnoborder.png" Clicked="ImageButtonAllGames_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
@@ -15,30 +21,17 @@
         <ImageButton Grid.Column="7" Source="{AppThemeBinding Light=addtournamentnoborders.png, Dark=plusnoborder.png}" Clicked="ImageButtonAdd_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
 
         <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="9" RowDefinitions="40, 40, *" ColumnDefinitions="100, *">
-            <Picker Title="Select Year" ItemsSource="{Binding Years, Mode=TwoWay}" SelectedItem="{Binding SelectedYear}" WidthRequest="100" Style="{StaticResource PrimaryPicker}"></Picker>
+            <Picker 
+                Title="Select Year" 
+                ItemsSource="{Binding Years, Mode=TwoWay}" 
+                SelectedItem="{Binding SelectedYear}" 
+                WidthRequest="100" 
+                Style="{StaticResource PrimaryPicker}">
+                <Picker.ItemDisplayBinding>
+                    <Binding Converter="{StaticResource YearDisplayConverter}" />
+                </Picker.ItemDisplayBinding>
+            </Picker>
             <SearchBar Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
-            <!--
-            <ListView Grid.Row="2" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Tournaments}" SelectedItem="{Binding SelectedTournament}">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="model:Tournament">
-                        <ViewCell>
-                            <VerticalStackLayout Style="{StaticResource PrimaryVertical}" Spacing="0" Padding="0">
-                                <Label Text ="{Binding Name}" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
-                                <Label Text ="{Binding TournamentDisplay}" Style="{StaticResource ListItemLabel}" VerticalOptions="Start"/>
-                            </VerticalStackLayout>
-                            <ViewCell.ContextActions>
-                                <MenuItem Text="Delete" IsDestructive="True" 
-                                          Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTournamentCommand}" 
-                                          CommandParameter="{Binding .}"/>
-                                <MenuItem Text="Edit" IsDestructive="False" 
-                                          Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditTournamentCommand}" 
-                                          CommandParameter="{Binding .}"/>
-                            </ViewCell.ContextActions>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            -->
             <CollectionView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding Tournaments}" SelectionMode="Single" SelectedItem="{Binding SelectedTournament, Mode=TwoWay}" ItemsUpdatingScrollMode="KeepScrollOffset">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Tournament">

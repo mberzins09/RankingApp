@@ -6,14 +6,35 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllGamesViewModel"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
              x:Name="ThisPage"
              Title="All Games"
              Style="{StaticResource PrimaryContentPage}">
-    
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 50, *, 2" ColumnDefinitions="100, *">
-        <Picker Grid.Row="1" Title="Select Game Mode" ItemsSource="{Binding GameModes}" SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" 
-                Style="{StaticResource PrimaryPicker}" WidthRequest="100"/>
-        <Grid Grid.Row="2" Grid.ColumnSpan="2" RowDefinitions="30, 30, 40, *" ColumnDefinitions="*, *, *, *">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 50, *, 2" ColumnDefinitions="100, 100, *">
+        <Picker Grid.Row="1" 
+                Title="Select Game Mode" 
+                ItemsSource="{Binding GameModes}" 
+                SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" 
+                Style="{StaticResource PrimaryPicker}" 
+                WidthRequest="100"/>
+        <Picker Grid.Row="1"
+                Grid.Column="1"
+                Title="Select Year"
+                ItemsSource="{Binding Years}"
+                SelectedItem="{Binding SelectedYear}"
+                Style="{StaticResource PrimaryPicker}"
+                WidthRequest="100">
+            <Picker.ItemDisplayBinding>
+                <Binding Converter="{StaticResource YearDisplayConverter}" />
+            </Picker.ItemDisplayBinding>
+        </Picker>
+        <Grid Grid.Row="2" Grid.ColumnSpan="3" RowDefinitions="30, 30, 40, *" ColumnDefinitions="*, *, *, *">
             <HorizontalStackLayout Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
                 <Label Text="Games: " Style="{StaticResource ListItemLabel}"/>
                 <Label Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}"/>
@@ -33,22 +54,6 @@
                 <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
             </HorizontalStackLayout>
             <SearchBar Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
-            <!--
-            <ListView Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding DisplayGames}">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="model:IGame">
-                        <ViewCell>
-                            <Grid RowDefinitions="*, *" ColumnDefinitions="*, 50, 2">
-                                <Label Grid.ColumnSpan="3" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" 
-                                       FontSize="{Binding BindingContext.GameFontSize, Source={x:Reference ThisPage}}" FontAttributes="Bold"/>
-                                <Label Grid.Column="1" Grid.Row="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" FontSize="14" FontAttributes="Bold"/>
-                                <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14"/>
-                            </Grid>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            -->
             <CollectionView Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding DisplayGames}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:IGame">

@@ -20,12 +20,14 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     private ObservableCollection<Tournament>? tournaments;
 
     [ObservableProperty]
-    private int selectedYear = DateTime.Now.Year;
+    private int selectedYear = 0;
 
     partial void OnSelectedYearChanged(int value) => ApplyAllFilters();
     partial void OnSearchTextChanged(string? value) => ApplyAllFilters();
+    public async Task Migrate() => await _database.RunAllMigrationsAsync();
+    public async Task AddPlayerDBTable() => await _database.MigratePlayerTableAsync();
 
-    public ObservableCollection<int> Years { get; } = new ObservableCollection<int>(Enumerable.Range(2015, DateTime.Now.Year - 2015 + 1));
+    public ObservableCollection<int> Years { get; } = [];
 
     [RelayCommand]
     private async Task TournamentSelectedAsync(Tournament tournament)
@@ -67,25 +69,6 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         await Shell.Current.GoToAsync(nameof(EditTournamentPlayer));
     }
 
-    public async Task Migrate()
-    {
-        await _database.RunAllMigrationsAsync();
-    }
-
-    public async Task AddPlayerDBTable()
-    {
-        await _database.MigratePlayerTableAsync();
-    }
-
-    private void FilterTournamentsByYear(int year)
-    {
-        var filtered = _allTournaments
-                       .Where(t => t.Date.Year == year)
-                       .OrderByDescending(t => t.Date)
-                       .ToList();
-
-        Tournaments = new ObservableCollection<Tournament>(filtered);
-    }
 
     public async Task LoadDataAsync()
     {
@@ -99,6 +82,17 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
                                           .Sum(game => game.RatingDifference);
         }
 
+        var uniqueYears = _allTournaments.Select(t => t.Date.Year).Distinct().OrderByDescending(y => y).ToList();
+        Years.Clear();
+        Years.Add(0);
+        foreach (var year  in uniqueYears)
+        {
+            Years.Add(year);
+        }
+
+        SelectedYear = 0;
+        OnPropertyChanged(nameof(SelectedYear));
+
         ApplyAllFilters();
     }
 
@@ -106,13 +100,11 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
     {
         IEnumerable<Tournament> filtered = _allTournaments;
 
-        // Apply year filter
         if (SelectedYear > 0)
         {
             filtered = filtered.Where(t => t.Date.Year == SelectedYear);
         }
 
-        // Apply search text filter
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             filtered = filtered.Where(x =>
@@ -138,25 +130,6 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         var list = Doubles.Where(x => x.TournamentId == id).ToList();
 
         return list;
-    }
-
-    public void FilterTournaments(string searchText)
-    {
-        IEnumerable<Tournament> filtered = _allTournaments;
-
-        if (SelectedYear > 0)
-        {
-            filtered = filtered.Where(t => t.Date.Year == SelectedYear);
-        }
-
-        if (!string.IsNullOrWhiteSpace(searchText))
-        {
-            filtered = filtered.Where(x =>
-            (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-            x.Date.ToString("d MMM yyyy").StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
-        }
-
-        Tournaments = new ObservableCollection<Tournament>(filtered);
     }
 
     public async Task DeleteTournament(Tournament tournament)
