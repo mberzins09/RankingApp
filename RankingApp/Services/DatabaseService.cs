@@ -146,6 +146,18 @@ namespace RankingApp.Services
             }
         }
 
+        public async Task UpdateSimplePlayerAsync(PlayerDB player)
+        {
+            await _database.UpdateAsync(player);
+        }
+
+        public async Task InsertPlayerAsync(PlayerDB player)
+        {
+            player.Place = 6000;
+            player.OverallPlace = 6000;
+            await _database.InsertAsync(player);
+        }
+
         public async Task AddColumnIfNotExistsAsync(string tableName, string columnName, string columnType, string defaultValue = "0")
         {
             try

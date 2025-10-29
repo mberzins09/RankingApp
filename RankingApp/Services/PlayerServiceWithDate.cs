@@ -14,7 +14,16 @@ namespace RankingApp.Services
 
         public async Task<List<Player>?> GetPlayersAsync(string gender, string date)
         {
-            var response = await _httpClient.PostAsJsonAsync("https://www.lgtf.lv/api/getRanking", new { date, gender });
+            if (DateTime.TryParseExact(date, "yyyy-MM", null, System.Globalization.DateTimeStyles.None, out var parsed))
+            {
+                date = parsed.ToString("yyyy-MM-01");
+            }
+
+            string year = date.Split('-')[0];
+
+            var requestBody = new { date, gender, year };
+
+            var response = await _httpClient.PostAsJsonAsync("https://www.lgtf.lv/api/getRanking", requestBody);
 
             if (response.IsSuccessStatusCode)
             {

@@ -46,15 +46,65 @@ namespace RankingApp.Services
         private async Task SyncWithLocalDb(List<PlayerDB> apiPlayers)
         {
             var dbPlayers = await _database.GetPlayersAsync();
-            var apiPlayerIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
-            var missingPlayers = dbPlayers.Where(dbPlayer => !apiPlayerIds.Contains(dbPlayer.Id)).ToList();
+            var appData = await _database.GetAppDataAsync();
 
-            foreach (var player in missingPlayers)
+            foreach (var apiPlayer in apiPlayers)
             {
-                await _database.UpdatePlayerAsync(player);
+                var existingPlayer = dbPlayers.FirstOrDefault(p => p.Id == apiPlayer.Id);
+
+                if (existingPlayer == null)
+                {
+                    // Try to find by name + surname (and optionally birthdate)
+                    existingPlayer = dbPlayers.FirstOrDefault(p =>
+                        string.Equals(p.Name, apiPlayer.Name, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(p.Surname, apiPlayer.Surname, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (existingPlayer != null)
+                {
+                    // Update ID if changed
+                    if (existingPlayer.Id != apiPlayer.Id)
+                    {
+                        existingPlayer.Id = apiPlayer.Id;
+                        appData.AppUserPlayerId = existingPlayer.Id;
+                        await _database.SaveAppDataAsync(appData);
+                    }
+
+                    existingPlayer.PointsChanged = apiPlayer.PointsWithBonus - existingPlayer.PointsWithBonus;
+                    existingPlayer.PointsWithBonus = apiPlayer.PointsWithBonus;
+                    existingPlayer.Points = apiPlayer.Points;
+                    existingPlayer.Place = apiPlayer.Place == 0 ? 6000 : apiPlayer.Place;
+                    existingPlayer.OverallPlace = apiPlayer.OverallPlace == 0 ? 6000 : apiPlayer.OverallPlace;
+
+                    await _database.UpdateSimplePlayerAsync(existingPlayer);
+                }
+                else
+                {
+                    // New player
+                    await _database.InsertPlayerAsync(apiPlayer);
+                }
             }
 
-            await _database.UpsertPlayersAsync(apiPlayers);
+            // Now mark players not found in API as inactive
+            var apiIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
+            var inactivePlayers = dbPlayers.Where(p => !apiIds.Contains(p.Id)).ToList();
+
+            foreach (var player in inactivePlayers)
+            {
+                player.Place = 6000;
+                player.OverallPlace = 6000;
+                await _database.UpdateSimplePlayerAsync(player);
+            }
+
+            //var apiPlayerIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
+            //var missingPlayers = dbPlayers.Where(dbPlayer => !apiPlayerIds.Contains(dbPlayer.Id)).ToList();
+
+            //foreach (var player in missingPlayers)
+            //{
+            //    await _database.UpdatePlayerAsync(player);
+            //}
+
+            //await _database.UpsertPlayersAsync(apiPlayers);
         }
 
         public async Task FillDatabaseWithOldRankingsAsync()
