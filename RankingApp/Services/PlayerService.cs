@@ -1,6 +1,5 @@
 ﻿using RankingApp.Models;
 using RankingApp.Data_Storage;
-using RankingApp.Services;
 using System.Globalization;
 
 namespace RankingApp.Services
@@ -9,32 +8,40 @@ namespace RankingApp.Services
     {
         private readonly DatabaseService _database = database;
         private readonly PlayerReposotoryWithDate _repositoryWithDate = repositoryWithDate;
+        public record OctoberSummary(int Matched, int DuplicatesFixed, int NewPlayers, int Total);
 
-        public async Task<List<PlayerDB>> LoadPlayersFromApiOrDbAsync(DateTime? date = null)
+        public async Task<List<PlayerDB>> LoadPlayersFromApiOrDbAsync(DateTime? date = null, Action<string>? progressCallback = null)
         {
+            progressCallback?.Invoke("Checking current date...");
             DateTime now = date ?? DateTime.UtcNow;
             string currentDateString = now.ToString("yyyy-MM");
             string previousDateString = now.AddMonths(-1).ToString("yyyy-MM");
 
+            progressCallback?.Invoke($"Fetching players for {currentDateString}...");
             var apiPlayers = await _repositoryWithDate.GetPlayersAsync(currentDateString);
             if (apiPlayers == null || apiPlayers.Count == 0)
             {
+                progressCallback?.Invoke($"No data for {currentDateString}, trying {previousDateString}...");
                 apiPlayers = await _repositoryWithDate.GetPlayersAsync(previousDateString);
                 if (apiPlayers != null && apiPlayers.Count > 0)
                 {
+                    progressCallback?.Invoke($"Updating AppData for {previousDateString}...");
                     await UpdateAppDataWithDate(previousDateString);
                 }
             }
             else
             {
+                progressCallback?.Invoke($"Updating AppData for {currentDateString}...");
                 await UpdateAppDataWithDate(currentDateString);
             }
 
             if (apiPlayers != null && apiPlayers.Count > 0)
             {
+                progressCallback?.Invoke("Syncing local database...");
                 await SyncWithLocalDb(apiPlayers);
             }
 
+            progressCallback?.Invoke("Sorting players...");
             return (await _database.GetPlayersAsync()).OrderByDescending(x => x.PointsWithBonus).ToList();
         }
 
@@ -45,101 +52,52 @@ namespace RankingApp.Services
 
         private async Task SyncWithLocalDb(List<PlayerDB> apiPlayers)
         {
-            var dbPlayers = await _database.GetPlayersAsync();
-            var appData = await _database.GetAppDataAsync();
-
-            foreach (var apiPlayer in apiPlayers)
-            {
-                var existingPlayer = dbPlayers.FirstOrDefault(p => p.Id == apiPlayer.Id);
-
-                if (existingPlayer == null)
-                {
-                    // Try to find by name + surname (and optionally birthdate)
-                    existingPlayer = dbPlayers.FirstOrDefault(p =>
-                        string.Equals(p.Name, apiPlayer.Name, StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals(p.Surname, apiPlayer.Surname, StringComparison.OrdinalIgnoreCase));
-                }
-
-                if (existingPlayer != null)
-                {
-                    // Update ID if changed
-                    if (existingPlayer.Id != apiPlayer.Id)
-                    {
-                        existingPlayer.Id = apiPlayer.Id;
-                        appData.AppUserPlayerId = existingPlayer.Id;
-                        await _database.SaveAppDataAsync(appData);
-                    }
-
-                    existingPlayer.PointsChanged = apiPlayer.PointsWithBonus - existingPlayer.PointsWithBonus;
-                    existingPlayer.PointsWithBonus = apiPlayer.PointsWithBonus;
-                    existingPlayer.Points = apiPlayer.Points;
-                    existingPlayer.Place = apiPlayer.Place == 0 ? 6000 : apiPlayer.Place;
-                    existingPlayer.OverallPlace = apiPlayer.OverallPlace == 0 ? 6000 : apiPlayer.OverallPlace;
-
-                    await _database.UpdateSimplePlayerAsync(existingPlayer);
-                }
-                else
-                {
-                    // New player
-                    await _database.InsertPlayerAsync(apiPlayer);
-                }
-            }
-
-            // Now mark players not found in API as inactive
-            var apiIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
-            var inactivePlayers = dbPlayers.Where(p => !apiIds.Contains(p.Id)).ToList();
-
-            foreach (var player in inactivePlayers)
-            {
-                player.Place = 6000;
-                player.OverallPlace = 6000;
-                await _database.UpdateSimplePlayerAsync(player);
-            }
-
-            //var apiPlayerIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
-            //var missingPlayers = dbPlayers.Where(dbPlayer => !apiPlayerIds.Contains(dbPlayer.Id)).ToList();
-
-            //foreach (var player in missingPlayers)
-            //{
-            //    await _database.UpdatePlayerAsync(player);
-            //}
-
-            //await _database.UpsertPlayersAsync(apiPlayers);
+            await _database.BulkUpsertPlayersAsync(apiPlayers);
         }
 
-        public async Task FillDatabaseWithOldRankingsAsync()
+        public async Task FillDatabaseWithOldRankingsUntilIdChangeAsync(Action<string>? statusCallback = null)
         {
             int startYear = 2014;
-            int currentYear = DateTime.UtcNow.Year;
-            int currentMonth = DateTime.UtcNow.Month;
-            int endYear = currentMonth == 1 ? currentYear - 1 : currentYear;
+            int endYear = 2025;
+            int endMonth = 9;
 
-            var tasks = new List<Task<List<(PlayerDB Player, int SyncYear)>>>();
+            var allPlayerTuples = new List<(PlayerDB Player, int SyncYear, int SyncMonth)>();
 
             for (int year = startYear; year <= endYear; year++)
             {
-                string dateString = $"{year}-01";
-                var task = _repositoryWithDate.GetPlayersAsync(dateString)
-                    .ContinueWith(t =>
+                int startMonth = 1;
+                int monthLimit = (year == endYear) ? endMonth : 1;
+
+                for (int month = startMonth; month <= monthLimit; month++)
+                {
+                    string dateString = $"{year}-{month:D2}";
+                    statusCallback?.Invoke($"Fetching {dateString} data…");
+
+                    try
                     {
-                        var players = t.Result;
-                        return players.Select(p => (Player: p, SyncYear: year)).ToList();
-                    });
+                        var players = await _repositoryWithDate.GetPlayersAsync(dateString);
+                        if (players != null && players.Count > 0)
+                        {
+                            allPlayerTuples.AddRange(players.Select(p => (Player: p, SyncYear: year, SyncMonth: month)));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"⚠️ Failed to fetch players for {dateString}: {ex.Message}");
+                    }
 
-                tasks.Add(task);
+                    await Task.Delay(200);
+                }
             }
-
-            var results = await Task.WhenAll(tasks);
-            var allPlayerTuples = results.SelectMany(x => x).ToList();
 
             var distinctPlayers = allPlayerTuples
                 .OrderBy(x => x.SyncYear)
+                .ThenBy(x => x.SyncMonth)
                 .GroupBy(x => x.Player.Id)
                 .Select(g => g.Last().Player)
                 .ToList();
 
             await _database.UpsertPlayersAsync(distinctPlayers);
-            await LoadPlayersFromApiOrDbAsync();
         }
 
         private async Task UpdateAppDataWithDate(string dateString)
@@ -161,6 +119,156 @@ namespace RankingApp.Services
         public async Task SaveAppDataAsync(AppData appData)
         {
             await _database.SaveAppDataAsync(appData);
+        }
+
+        public async Task DeleteAllPlayersInDatabse()
+        {
+            await _database.DeletePlayersAsync();
+        }
+
+        public async Task UpdateAppDefaultPlayer(string? name, string? surname)
+        {
+            var appData = await GetAppDataAsync();
+
+            if ( name != "" || surname != "")
+            {
+                var players = await _database.GetPlayersAsync();
+                var currentPlayer = players.Where(p =>  p.Name == name && p.Surname == surname).FirstOrDefault();
+                appData.Id = currentPlayer != null ? currentPlayer.Id : 0;
+                await SaveAppDataAsync(appData);
+            }
+        }
+
+        private async Task<OctoberSummary> UpdateOctoberWithIdReassignmentAsync(Action<string>? statusCallback = null)
+        {
+            string dateString = "2025-10";
+            statusCallback?.Invoke($"Processing October 2025 (handling ID changes)…");
+
+            var apiPlayers = await _repositoryWithDate.GetPlayersAsync(dateString);
+            if (apiPlayers == null || apiPlayers.Count == 0)
+                return new OctoberSummary(0, 0, 0, 0);
+
+            var dbPlayers = await _database.GetPlayersAsync();
+            int nextNewId = 20000;
+
+            int matched = 0;
+            int duplicatesFixed = 0;
+            int newPlayers = 0;
+
+            while (dbPlayers.Any(p => p.Id == nextNewId))
+                nextNewId++;
+
+            foreach (var apiPlayer in apiPlayers)
+            {
+                int apiId = apiPlayer.Id;
+
+                var match = dbPlayers.FirstOrDefault(p =>
+                    string.Equals(p.Name, apiPlayer.Name, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(p.Surname, apiPlayer.Surname, StringComparison.OrdinalIgnoreCase));
+
+                if (match != null)
+                {
+                    matched++;
+
+                    int oldId = match.Id;
+
+                    if (apiId != match.Id)
+                    {
+                        var occupant = dbPlayers.FirstOrDefault(p => p.Id == apiId);
+                        if (occupant != null && occupant.Id != match.Id)
+                        {
+                            int assignedNewId = nextNewId;
+                            nextNewId++;
+                            await _database.UpdatePlayerIdAsync(occupant.Id, assignedNewId);
+                            occupant.Id = assignedNewId;
+                            duplicatesFixed++;
+                            statusCallback?.Invoke($"⚠️ ID collision: moved {occupant.Name} {occupant.Surname} -> {assignedNewId}");
+                        }
+
+                        await _database.UpdatePlayerIdAsync(match.Id, apiId);
+                        match.Id = apiId;
+                    }
+
+                    apiPlayer.Id = match.Id;
+                }
+                else
+                {
+                    newPlayers++;
+
+                    var occupant = dbPlayers.FirstOrDefault(p => p.Id == apiId);
+                    if (occupant != null)
+                    {
+                        int assignedNewId = nextNewId;
+                        nextNewId++;
+                        await _database.UpdatePlayerIdAsync(occupant.Id, assignedNewId);
+                        occupant.Id = assignedNewId;
+                        duplicatesFixed++;
+                        statusCallback?.Invoke($"⚠️ ID collision: moved {occupant.Name} {occupant.Surname} -> {assignedNewId}");
+                    }
+                }
+
+                var upsertInMemory = dbPlayers.FirstOrDefault(p => p.Id == apiPlayer.Id);
+                if (upsertInMemory == null)
+                {
+                    // add a lightweight PlayerDB instance to in-memory list to reflect upcoming insert
+                    dbPlayers.Add(new PlayerDB
+                    {
+                        Id = apiPlayer.Id,
+                        Name = apiPlayer.Name,
+                        Surname = apiPlayer.Surname,
+                        Place = apiPlayer.Place,
+                        Points = apiPlayer.Points,
+                        PointsWithBonus = apiPlayer.PointsWithBonus,
+                        BirthDate = apiPlayer.BirthDate ?? ""
+                    });
+                }
+                else
+                {
+                    // update fields so in-memory reflect latest
+                    upsertInMemory.Name = apiPlayer.Name;
+                    upsertInMemory.Surname = apiPlayer.Surname;
+                    upsertInMemory.Place = apiPlayer.Place;
+                    upsertInMemory.Points = apiPlayer.Points;
+                    upsertInMemory.PointsWithBonus = apiPlayer.PointsWithBonus;
+                    upsertInMemory.BirthDate = apiPlayer.BirthDate ?? "";
+                }
+            }
+
+            statusCallback?.Invoke("💾 Saving updated October 2025 players to database...");
+            await _database.UpsertPlayersAsync(apiPlayers);
+
+            statusCallback?.Invoke($"✅ October 2025 processed — Matched: {matched}, New: {newPlayers}, Collisions fixed: {duplicatesFixed}, Total: {apiPlayers.Count}");
+            return new OctoberSummary(matched, duplicatesFixed, newPlayers, apiPlayers.Count);
+        }
+
+        public async Task FillDatabaseWithIdChangeTransitionAsync(Action<string>? statusCallback = null)
+        {
+            try
+            {
+                statusCallback?.Invoke("Updating players database — this may take a while…");
+                await FillDatabaseWithOldRankingsUntilIdChangeAsync(statusCallback);
+                var summary = await UpdateOctoberWithIdReassignmentAsync(statusCallback);
+
+                statusCallback?.Invoke(
+                                $"October 2025 processed.\n" +
+                                $"Matched existing players: {summary.Matched}\n" +
+                                $"Reassigned IDs (duplicates): {summary.DuplicatesFixed}\n" +
+                                $"New players added: {summary.NewPlayers}\n" +
+                                $"Total players processed: {summary.Total}");
+
+                var appData = await _database.GetAppDataAsync();
+                appData.CurrentYear = 2025;
+                appData.CurrentMonth = 10;
+                await _database.SaveAppDataAsync(appData);
+
+                statusCallback?.Invoke("✅ Player database update complete!");
+            }
+            catch (Exception ex)
+            {
+                statusCallback?.Invoke($"❌ Update failed: {ex.Message}");
+            }
+
+            
         }
     }
 }

@@ -120,6 +120,18 @@ namespace RankingApp.Services
             }
         }
 
+        public async Task<int> UpdatePlayerIdAsync(int oldId, int newId)
+        {
+            var exists = await _database.Table<PlayerDB>().Where(p => p.Id == newId).FirstOrDefaultAsync();
+            if (exists != null)
+            {
+                return 0;
+            }
+
+            var rows = await _database.ExecuteAsync("UPDATE PlayerDB SET Id = ? WHERE Id = ?", newId, oldId);
+            return rows;
+        }
+
         public async Task UpsertPlayersAsync(List<PlayerDB> players)
         {
             foreach (var player in players)
@@ -146,16 +158,69 @@ namespace RankingApp.Services
             }
         }
 
-        public async Task UpdateSimplePlayerAsync(PlayerDB player)
+        public async Task<int> DeletePlayersAsync()
         {
-            await _database.UpdateAsync(player);
+            return await _database.DeleteAllAsync<PlayerDB>();
         }
 
-        public async Task InsertPlayerAsync(PlayerDB player)
+        public async Task BulkUpsertPlayersAsync(List<PlayerDB> apiPlayers)
         {
-            player.Place = 6000;
-            player.OverallPlace = 6000;
-            await _database.InsertAsync(player);
+            // Get all local players once
+            var dbPlayers = await _database.Table<PlayerDB>().ToListAsync();
+            var dbById = dbPlayers.ToDictionary(p => p.Id);
+
+            var toInsert = new List<PlayerDB>();
+            var toUpdate = new List<PlayerDB>();
+
+            // Compare API vs DB
+            foreach (var apiPlayer in apiPlayers)
+            {
+                if (!dbById.TryGetValue(apiPlayer.Id, out var existing))
+                {
+                    // New player
+                    toInsert.Add(apiPlayer);
+                }
+                else
+                {
+                    // Update only if changed (use your actual fields)
+                    if (apiPlayer.PointsWithBonus != existing.PointsWithBonus ||
+                        apiPlayer.Points != existing.Points ||
+                        apiPlayer.Place != existing.Place ||
+                        apiPlayer.OverallPlace != existing.OverallPlace)
+                    {
+                        existing.PointsChanged = apiPlayer.PointsWithBonus - existing.PointsWithBonus;
+                        existing.PointsWithBonus = apiPlayer.PointsWithBonus;
+                        existing.Points = apiPlayer.Points;
+                        existing.Place = apiPlayer.Place;
+                        existing.OverallPlace = apiPlayer.OverallPlace;
+                        toUpdate.Add(existing);
+                    }
+                }
+            }
+
+            // Mark missing players inactive (if you have IsActive flag)
+            var apiIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
+            var toDeactivate = dbPlayers.Where(p => !apiIds.Contains(p.Id)).ToList();
+            foreach (var player in toDeactivate)
+            {
+                // Add this property to PlayerDB if not already there
+                player.Place = 6000;
+                player.OverallPlace = 6000;
+            }
+
+            // ✅ All DB writes inside one transaction (atomic & fast)
+            await Task.Run(() =>
+            {
+                _database.RunInTransactionAsync(conn =>
+                {
+                    if (toInsert.Count > 0)
+                        conn.InsertAll(toInsert, runInTransaction: false);
+                    if (toUpdate.Count > 0)
+                        conn.UpdateAll(toUpdate, runInTransaction: false);
+                    if (toDeactivate.Count > 0)
+                        conn.UpdateAll(toDeactivate, runInTransaction: false);
+                });
+            });
         }
 
         public async Task AddColumnIfNotExistsAsync(string tableName, string columnName, string columnType, string defaultValue = "0")
