@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
 using RankingApp.Views;
@@ -9,9 +10,10 @@ using Game = RankingApp.Models.Game;
 
 namespace RankingApp.ViewModels
 {
-    public partial class TournamentViewModel(DatabaseService database) : BaseViewModel
+    public partial class TournamentViewModel(DatabaseService database, PlayerReposotoryWithDate playerRepository) : BaseViewModel
     {
         private readonly DatabaseService _database = database;
+        private readonly PlayerReposotoryWithDate _playerRepository = playerRepository;
 
         private List<Game>? _games;
 
@@ -185,8 +187,8 @@ namespace RankingApp.ViewModels
                 Place = 10000,
                 Points = 0,
                 PointsWithBonus = 0,
-                Name = "Name",
-                Surname = "Surname",
+                Name = "Id changed",
+                Surname = "Error",
                 Gender = "male",
                 OverallPlace = 10000,
                 BirthDate = ""
@@ -194,7 +196,21 @@ namespace RankingApp.ViewModels
 
             if (OneTournament != null)
             {
-                player = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
+                var dBPlayer = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
+                if (dBPlayer == null)
+                {
+                    var dateString = OneTournament.Date.ToString("yyyy-MM-01");
+                    var players = await _playerRepository.GetPlayersAsync(dateString);
+                    var foundPlayer = players.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
+                    if (foundPlayer != null)
+                    {
+                        player = foundPlayer;
+                    }
+                }
+                else
+                {
+                    player = dBPlayer;
+                }
             }
 
             var game = new Game()
@@ -226,8 +242,8 @@ namespace RankingApp.ViewModels
                 Place = 10000,
                 Points = 0,
                 PointsWithBonus = 0,
-                Name = "Name",
-                Surname = "Surname",
+                Name = "Id changed",
+                Surname = "Error",
                 Gender = "male",
                 OverallPlace = 10000,
                 BirthDate = ""
@@ -235,7 +251,21 @@ namespace RankingApp.ViewModels
 
             if (OneTournament != null)
             {
-                player = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
+                var dBPlayer = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
+                if (dBPlayer == null)
+                {
+                    var dateString = OneTournament.Date.ToString("yyyy-MM-01");
+                    var players = await _playerRepository.GetPlayersAsync(dateString);
+                    var foundPlayer = players.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
+                    if (foundPlayer != null)
+                    {
+                        player = foundPlayer;
+                    }
+                }
+                else
+                {
+                    player = dBPlayer;
+                }
             }
 
             var doublesGame = new DoublesGame()
