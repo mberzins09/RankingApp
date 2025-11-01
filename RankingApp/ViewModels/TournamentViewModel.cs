@@ -199,7 +199,7 @@ namespace RankingApp.ViewModels
                 var dBPlayer = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
                 if (dBPlayer == null)
                 {
-                    var dateString = OneTournament.Date.ToString("yyyy-MM-01");
+                    var dateString = OneTournament.Date.ToString("yyyy-MM");
                     var players = await _playerRepository.GetPlayersAsync(dateString);
                     var foundPlayer = players.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
                     if (foundPlayer != null)
@@ -254,7 +254,7 @@ namespace RankingApp.ViewModels
                 var dBPlayer = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
                 if (dBPlayer == null)
                 {
-                    var dateString = OneTournament.Date.ToString("yyyy-MM-01");
+                    var dateString = OneTournament.Date.ToString("yyyy-MM");
                     var players = await _playerRepository.GetPlayersAsync(dateString);
                     var foundPlayer = players.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
                     if (foundPlayer != null)
