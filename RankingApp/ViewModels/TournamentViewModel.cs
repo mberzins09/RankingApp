@@ -121,10 +121,18 @@ namespace RankingApp.ViewModels
             OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
             await LoadGamesAsync();
 
-            var appData = await _database.GetAppDataAsync();
             if (OneTournament == null)
                 return;
 
+            await FillPlayersAsync();
+        }
+
+        public async Task FillPlayersAsync()
+        {
+            if (OneTournament == null)
+                return;
+
+            var appData = await _database.GetAppDataAsync();
             int tournamentYear = OneTournament.Date.Year;
             int tournamentMonth = OneTournament.Date.Month;
 
@@ -302,6 +310,7 @@ namespace RankingApp.ViewModels
 
             await _database.SaveTournamentAsync(OneTournament);
             await LoadGamesAsync();
+            await FillPlayersAsync();
         }
 
         public async Task EditCoefficient(string coef)
