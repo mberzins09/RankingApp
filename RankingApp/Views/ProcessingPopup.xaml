@@ -5,7 +5,9 @@
                x:Class="RankingApp.Views.ProcessingPopup"
                x:Name="RootPopup">
     <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
-        <ActivityIndicator IsRunning="True" WidthRequest="50" HeightRequest="50" />
-        <Label Text="{Binding Message, Source={x:Reference RootPopup}}" HorizontalOptions="Center" VerticalOptions="Center" />
+        <ActivityIndicator IsRunning="True" WidthRequest="50" HeightRequest="50" 
+                           Color="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"/>
+        <Label Text="{Binding Message, Source={x:Reference RootPopup}}" HorizontalOptions="Center" VerticalOptions="Center"
+               Style="{StaticResource PrimaryLabel}"/>
     </VerticalStackLayout>
 </toolkit:Popup>

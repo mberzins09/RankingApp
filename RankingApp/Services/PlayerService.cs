@@ -8,8 +8,6 @@ namespace RankingApp.Services
     {
         private readonly DatabaseService _database = database;
         private readonly PlayerReposotoryWithDate _repositoryWithDate = repositoryWithDate;
-        public record OctoberSummary(int Matched, int DuplicatesFixed, int NewPlayers, int Total);
-
         public async Task<List<PlayerDB>> LoadPlayersFromApiOrDbAsync(DateTime? date = null, Action<string>? progressCallback = null)
         {
             progressCallback?.Invoke("Checking current date...");
@@ -18,11 +16,11 @@ namespace RankingApp.Services
             string previousDateString = now.AddMonths(-1).ToString("yyyy-MM");
 
             progressCallback?.Invoke($"Fetching players for {currentDateString}...");
-            var apiPlayers = await _repositoryWithDate.GetPlayersAsync(currentDateString);
+            var apiPlayers = await _repositoryWithDate.GetPlayersAsync(currentDateString, false);
             if (apiPlayers == null || apiPlayers.Count == 0)
             {
                 progressCallback?.Invoke($"No data for {currentDateString}, trying {previousDateString}...");
-                apiPlayers = await _repositoryWithDate.GetPlayersAsync(previousDateString);
+                apiPlayers = await _repositoryWithDate.GetPlayersAsync(previousDateString, false);
                 if (apiPlayers != null && apiPlayers.Count > 0)
                 {
                     progressCallback?.Invoke($"Updating AppData for {previousDateString}...");
@@ -75,7 +73,7 @@ namespace RankingApp.Services
 
                     try
                     {
-                        var players = await _repositoryWithDate.GetPlayersAsync(dateString);
+                        var players = await _repositoryWithDate.GetPlayersAsync(dateString, true);
                         if (players != null && players.Count > 0)
                         {
                             allPlayerTuples.AddRange(players.Select(p => (Player: p, SyncYear: year, SyncMonth: month)));
@@ -97,7 +95,7 @@ namespace RankingApp.Services
                 .Select(g => g.Last().Player)
                 .ToList();
 
-            await _database.UpsertPlayersAsync(distinctPlayers);
+            await _database.BulkUpsertPlayersAsync(distinctPlayers);
         }
 
         private async Task UpdateAppDataWithDate(string dateString)
@@ -139,24 +137,26 @@ namespace RankingApp.Services
             }
         }
 
-        private async Task<OctoberSummary> UpdateOctoberWithIdReassignmentAsync(Action<string>? statusCallback = null)
+        private async Task UpdateOctoberWithIdReassignmentAsync(Action<string>? statusCallback = null)
         {
             string dateString = "2025-10";
             statusCallback?.Invoke($"Processing October 2025 (handling ID changes)…");
 
-            var apiPlayers = await _repositoryWithDate.GetPlayersAsync(dateString);
+            var apiPlayers = await _repositoryWithDate.GetPlayersAsync(dateString, false);
             if (apiPlayers == null || apiPlayers.Count == 0)
-                return new OctoberSummary(0, 0, 0, 0);
+            {
+                statusCallback?.Invoke("⚠️ No API players found for October 2025.");
+                statusCallback?.Invoke("Processing Finished.");
+                return;
+            }
 
             var dbPlayers = await _database.GetPlayersAsync();
             int nextNewId = 20000;
 
-            int matched = 0;
-            int duplicatesFixed = 0;
-            int newPlayers = 0;
-
             while (dbPlayers.Any(p => p.Id == nextNewId))
                 nextNewId++;
+
+            var idUpdates = new List<(int oldId, int newId)>();
 
             foreach (var apiPlayer in apiPlayers)
             {
@@ -168,77 +168,106 @@ namespace RankingApp.Services
 
                 if (match != null)
                 {
-                    matched++;
-
-                    int oldId = match.Id;
-
                     if (apiId != match.Id)
                     {
                         var occupant = dbPlayers.FirstOrDefault(p => p.Id == apiId);
                         if (occupant != null && occupant.Id != match.Id)
                         {
-                            int assignedNewId = nextNewId;
-                            nextNewId++;
-                            await _database.UpdatePlayerIdAsync(occupant.Id, assignedNewId);
+                            int assignedNewId = nextNewId++;
+                            idUpdates.Add((occupant.Id, assignedNewId));
                             occupant.Id = assignedNewId;
-                            duplicatesFixed++;
-                            statusCallback?.Invoke($"⚠️ ID collision: moved {occupant.Name} {occupant.Surname} -> {assignedNewId}");
+                            statusCallback?.Invoke($"ID changed for {occupant.Name} {occupant.Surname} -> {assignedNewId}");
                         }
 
-                        await _database.UpdatePlayerIdAsync(match.Id, apiId);
+                        idUpdates.Add((match.Id, apiId));
                         match.Id = apiId;
                     }
 
+                    match.Place = apiPlayer.Place;
+                    match.Points = apiPlayer.Points;
+                    match.PointsWithBonus = apiPlayer.PointsWithBonus;
+                    match.BirthDate = apiPlayer.BirthDate ?? "";
                     apiPlayer.Id = match.Id;
                 }
                 else
                 {
-                    newPlayers++;
-
                     var occupant = dbPlayers.FirstOrDefault(p => p.Id == apiId);
                     if (occupant != null)
                     {
-                        int assignedNewId = nextNewId;
-                        nextNewId++;
-                        await _database.UpdatePlayerIdAsync(occupant.Id, assignedNewId);
+                        int assignedNewId = nextNewId++;
+                        idUpdates.Add((occupant.Id, assignedNewId));
                         occupant.Id = assignedNewId;
-                        duplicatesFixed++;
-                        statusCallback?.Invoke($"⚠️ ID collision: moved {occupant.Name} {occupant.Surname} -> {assignedNewId}");
+                        statusCallback?.Invoke($"ID changed for {occupant.Name} {occupant.Surname} -> {assignedNewId}");
                     }
-                }
-
-                var upsertInMemory = dbPlayers.FirstOrDefault(p => p.Id == apiPlayer.Id);
-                if (upsertInMemory == null)
-                {
-                    // add a lightweight PlayerDB instance to in-memory list to reflect upcoming insert
-                    dbPlayers.Add(new PlayerDB
-                    {
-                        Id = apiPlayer.Id,
-                        Name = apiPlayer.Name,
-                        Surname = apiPlayer.Surname,
-                        Place = apiPlayer.Place,
-                        Points = apiPlayer.Points,
-                        PointsWithBonus = apiPlayer.PointsWithBonus,
-                        BirthDate = apiPlayer.BirthDate ?? ""
-                    });
-                }
-                else
-                {
-                    // update fields so in-memory reflect latest
-                    upsertInMemory.Name = apiPlayer.Name;
-                    upsertInMemory.Surname = apiPlayer.Surname;
-                    upsertInMemory.Place = apiPlayer.Place;
-                    upsertInMemory.Points = apiPlayer.Points;
-                    upsertInMemory.PointsWithBonus = apiPlayer.PointsWithBonus;
-                    upsertInMemory.BirthDate = apiPlayer.BirthDate ?? "";
                 }
             }
 
-            statusCallback?.Invoke("💾 Saving updated October 2025 players to database...");
-            await _database.UpsertPlayersAsync(apiPlayers);
+            if (idUpdates.Count > 0)
+            {
+                 statusCallback?.Invoke($"Applying {idUpdates.Count} ID updates in batch...");
+                 await _database.BatchUpdatePlayerIdsAsync(idUpdates);
+            }
 
-            statusCallback?.Invoke($"✅ October 2025 processed — Matched: {matched}, New: {newPlayers}, Collisions fixed: {duplicatesFixed}, Total: {apiPlayers.Count}");
-            return new OctoberSummary(matched, duplicatesFixed, newPlayers, apiPlayers.Count);
+            statusCallback?.Invoke("💾 Saving updated October 2025 players to database...");
+            await _database.BulkUpsertPlayersAsync(apiPlayers);
+        }
+
+        public async Task FillDatabaseWithNewRankingsAfterIdChangeAsync(Action<string>? statusCallback = null)
+        {
+            try
+            {
+                int startYear = 2025;
+                int startMonth = 11;
+
+                var currentDate = DateTime.Now;
+                int endYear = currentDate.Year;
+                int endMonth = currentDate.Month;
+
+                var allPlayerTuples = new List<(PlayerDB Player, int SyncYear, int SyncMonth)>();
+
+                for (int year = startYear; year <= endYear; year++)
+                {
+                    int monthStart = (year == startYear) ? startMonth : 1;
+                    int monthEnd = (year == endYear) ? endMonth : 12;
+
+                    for (int month = monthStart; month <= monthEnd; month++)
+                    {
+                        string dateString = $"{year}-{month:D2}";
+                        statusCallback?.Invoke($"Fetching {dateString} data (new API)…");
+
+                        try
+                        {
+                            var players = await _repositoryWithDate.GetPlayersAsync(dateString, false);
+                            if (players != null && players.Count > 0)
+                            {
+                                allPlayerTuples.AddRange(players.Select(p => (Player: p, SyncYear: year, SyncMonth: month)));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"⚠️ Failed to fetch players for {dateString}: {ex.Message}");
+                        }
+
+                        await Task.Delay(200);
+                    }
+                }
+
+                var distinctPlayers = allPlayerTuples
+                    .OrderBy(x => x.SyncYear)
+                    .ThenBy(x => x.SyncMonth)
+                    .GroupBy(x => x.Player.Id)
+                    .Select(g => g.Last().Player)
+                    .ToList();
+
+                statusCallback?.Invoke("💾 Saving new post-October rankings to database…");
+                await _database.BulkUpsertPlayersAsync(distinctPlayers);
+
+                statusCallback?.Invoke("✅ New rankings (post-October) update complete!");
+            }
+            catch (Exception ex)
+            {
+                statusCallback?.Invoke($"❌ Failed to update new rankings: {ex.Message}");
+            }
         }
 
         public async Task FillDatabaseWithIdChangeTransitionAsync(Action<string>? statusCallback = null)
@@ -247,18 +276,11 @@ namespace RankingApp.Services
             {
                 statusCallback?.Invoke("Updating players database — this may take a while…");
                 await FillDatabaseWithOldRankingsUntilIdChangeAsync(statusCallback);
-                var summary = await UpdateOctoberWithIdReassignmentAsync(statusCallback);
-
-                statusCallback?.Invoke(
-                                $"October 2025 processed.\n" +
-                                $"Matched existing players: {summary.Matched}\n" +
-                                $"Reassigned IDs (duplicates): {summary.DuplicatesFixed}\n" +
-                                $"New players added: {summary.NewPlayers}\n" +
-                                $"Total players processed: {summary.Total}");
-
+                await UpdateOctoberWithIdReassignmentAsync(statusCallback);
+                await FillDatabaseWithNewRankingsAfterIdChangeAsync(statusCallback);
                 var appData = await _database.GetAppDataAsync();
-                appData.CurrentYear = 2025;
-                appData.CurrentMonth = 10;
+                appData.CurrentYear = DateTime.Now.Year;
+                appData.CurrentMonth = DateTime.Now.Month;
                 await _database.SaveAppDataAsync(appData);
 
                 statusCallback?.Invoke("✅ Player database update complete!");
@@ -267,8 +289,6 @@ namespace RankingApp.Services
             {
                 statusCallback?.Invoke($"❌ Update failed: {ex.Message}");
             }
-
-            
         }
     }
 }

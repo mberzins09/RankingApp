@@ -19,7 +19,7 @@
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 60, *, 5" ColumnDefinitions="5, 100, *, 100, 5">
         <!-- Row 1 -->
         <Button Text="Refresh Rankings" Command="{Binding UpdateAllPlayersCommand}"
-                Style="{StaticResource PrimaryButton}" WidthRequest="140" HeightRequest="40" Grid.ColumnSpan="2"
+                Style="{StaticResource PrimaryButton}" Grid.ColumnSpan="3"
                 Grid.Row="1" Grid.Column="1"/>
         <!-- Row 2 -->
         <Picker Grid.Row="2" Grid.Column="1" WidthRequest="100" HeightRequest="60" FontSize="20"

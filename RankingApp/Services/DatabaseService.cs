@@ -158,6 +158,20 @@ namespace RankingApp.Services
             }
         }
 
+        public async Task BatchUpdatePlayerIdsAsync(IEnumerable<(int oldId, int newId)> updates)
+        {
+            if (updates == null || !updates.Any())
+                return;
+
+            await _database.RunInTransactionAsync(transaction =>
+            {
+                foreach (var (oldId, newId) in updates)
+                {
+                    transaction.Execute("UPDATE PlayerDB SET Id = ? WHERE Id = ?", newId, oldId);
+                }
+            });
+        }
+
         public async Task<int> DeletePlayersAsync()
         {
             return await _database.DeleteAllAsync<PlayerDB>();
@@ -165,24 +179,20 @@ namespace RankingApp.Services
 
         public async Task BulkUpsertPlayersAsync(List<PlayerDB> apiPlayers)
         {
-            // Get all local players once
             var dbPlayers = await _database.Table<PlayerDB>().ToListAsync();
             var dbById = dbPlayers.ToDictionary(p => p.Id);
 
             var toInsert = new List<PlayerDB>();
             var toUpdate = new List<PlayerDB>();
 
-            // Compare API vs DB
             foreach (var apiPlayer in apiPlayers)
             {
                 if (!dbById.TryGetValue(apiPlayer.Id, out var existing))
                 {
-                    // New player
                     toInsert.Add(apiPlayer);
                 }
                 else
                 {
-                    // Update only if changed (use your actual fields)
                     if (apiPlayer.PointsWithBonus != existing.PointsWithBonus ||
                         apiPlayer.Points != existing.Points ||
                         apiPlayer.Place != existing.Place ||
@@ -198,17 +208,14 @@ namespace RankingApp.Services
                 }
             }
 
-            // Mark missing players inactive (if you have IsActive flag)
             var apiIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
             var toDeactivate = dbPlayers.Where(p => !apiIds.Contains(p.Id)).ToList();
             foreach (var player in toDeactivate)
             {
-                // Add this property to PlayerDB if not already there
                 player.Place = 6000;
                 player.OverallPlace = 6000;
             }
 
-            // ✅ All DB writes inside one transaction (atomic & fast)
             await Task.Run(() =>
             {
                 _database.RunInTransactionAsync(conn =>

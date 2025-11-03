@@ -12,23 +12,23 @@ namespace RankingApp.Services
             _httpClient = new HttpClient();
         }
 
-        public async Task<List<Player>?> GetPlayersAsync(string gender, string date)
+        public async Task<List<Player>?> GetPlayersAsync(string gender, string date, bool isOldAPIBody)
         {
             if (DateTime.TryParseExact(date, "yyyy-MM", null, System.Globalization.DateTimeStyles.None, out var parsed))
             {
-                date = parsed.ToString("yyyy-MM-01");
+                date = isOldAPIBody ? parsed.ToString("yyyy-MM") : parsed.ToString("yyyy-MM-01");
             }
 
             string year = date.Split('-')[0];
-
-            var requestBody = new { date, gender, year };
+            object requestBody;
+            requestBody = isOldAPIBody ? new { date, gender} : new {date, gender, year};
 
             var response = await _httpClient.PostAsJsonAsync("https://www.lgtf.lv/api/getRanking", requestBody);
 
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<PlayersResponseDates>();
-                return result?.Players ?? new List<Player>(); ;
+                return result?.Players ?? new List<Player>();
             }
 
             return null;

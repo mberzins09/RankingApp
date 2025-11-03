@@ -166,12 +166,12 @@
                 <Setter Property="BackgroundColor">
                     <Setter.Value>
                         <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray200}" />
+                                         Dark="{StaticResource Gray100}" />
                     </Setter.Value>
                 </Setter>
                 <Setter Property="TextColor" >
                     <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
+                        <AppThemeBinding Light="{StaticResource Gray100}"
                                          Dark="{StaticResource Gray900}" />
                     </Setter.Value>
                 </Setter>

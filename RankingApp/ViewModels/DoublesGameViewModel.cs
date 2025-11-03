@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels
 {
-    public partial class DoublesGameViewModel(DatabaseService databaseService) : BaseViewModel
+    public partial class DoublesGameViewModel(DatabaseService databaseService, PlayerReposotoryWithDate playerReposotory) : BaseViewModel
     {
         private readonly DatabaseService _databaseService = databaseService;
+        private readonly PlayerReposotoryWithDate _playerReposotory = playerReposotory;
 
         [ObservableProperty]
         private DoublesGame? oneDoublesGame;
@@ -28,6 +30,7 @@ namespace RankingApp.ViewModels
         private string? selectionMode; // "MyPartner", "Opponent1", "Opponent2"
 
         private List<PlayerDB> _allPlayers = [];
+        private List<PlayerDB> _tournamentRankingPlayers = [];
 
         public ObservableCollection<int> SetsOptions { get; } = [0, 1, 2, 3, 4];
 
@@ -46,6 +49,7 @@ namespace RankingApp.ViewModels
 
         partial void OnSelectedPlayerChanged(PlayerDB? value)
         {
+            SearchText = String.Empty;
             if (value is null || OneDoublesGame is null || string.IsNullOrEmpty(SelectionMode))
                 return;
 
@@ -82,12 +86,37 @@ namespace RankingApp.ViewModels
         {
             IsSearchDisabled = true;
             OneDoublesGame = await _databaseService.GetDoublesGameAsync(Data.GameId);
-            var players = await _databaseService.GetPlayersAsync();
             var tournament = await _databaseService.GetTournamentAsync(OneDoublesGame.TournamentId);
             OneDoublesGame.GameCoefficient = tournament.Coefficient;
-            _allPlayers = players.Where(x => x.Id != tournament.TournamentPlayerId).OrderByDescending(x => x.PointsWithBonus).ToList();
-            Players = new ObservableCollection<PlayerDB>(_allPlayers);
+            var appData = await _databaseService.GetAppDataAsync();
+            var dbPlayers = await _databaseService.GetPlayersAsync();
+
+            _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderBy(x => x.OverallPlace).ToList();
             SelectionMode = SelectionOptions[0];
+            int tournamentYear = tournament.Date.Year;
+            int tournamentMonth = tournament.Date.Month;
+            bool sameRankingMonth = (tournamentYear == appData.CurrentYear && tournamentMonth == appData.CurrentMonth);
+            if (!sameRankingMonth)
+            {
+                string dateString = tournament.Date.ToString("yyyy-MM");
+                bool isOldAPIBody = tournamentYear < 2025 || (tournamentYear == 2025 && tournamentMonth <= 10);
+
+                var apiPlayers = await _playerReposotory.GetPlayersAsync(dateString, isOldAPIBody);
+
+                _tournamentRankingPlayers = apiPlayers ?? [];
+
+                var inactivePlayers = _allPlayers.Where(x => x.Place == 6000).ToList();
+                var combined = _tournamentRankingPlayers.Concat(inactivePlayers)
+                                                        .OrderBy(x => x.OverallPlace)
+                                                        .ToList();
+
+                Players = new ObservableCollection<PlayerDB>(combined);
+            }
+            else
+            {
+                Players = new ObservableCollection<PlayerDB>(_allPlayers);
+            }
+
             await _databaseService.SaveDoublesGameAsync(OneDoublesGame);
             IsSearchDisabled = false;
         }

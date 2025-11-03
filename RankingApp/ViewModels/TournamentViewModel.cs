@@ -15,6 +15,7 @@ namespace RankingApp.ViewModels
         private readonly DatabaseService _database = database;
         private readonly PlayerReposotoryWithDate _playerRepository = playerRepository;
 
+        private List<PlayerDB> _playersCache = new();
         private List<Game>? _games;
 
         private List<DoublesGame>? _doubleGames;
@@ -119,6 +120,25 @@ namespace RankingApp.ViewModels
         {
             OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
             await LoadGamesAsync();
+
+            var appData = await _database.GetAppDataAsync();
+            if (OneTournament == null)
+                return;
+
+            int tournamentYear = OneTournament.Date.Year;
+            int tournamentMonth = OneTournament.Date.Month;
+
+            bool isOldAPIBody = tournamentYear is >= 2014 and <= 2025 && tournamentMonth is >= 1 and <= 10;
+
+            if (appData.CurrentYear != tournamentYear || appData.CurrentMonth != tournamentMonth)
+            {
+                var dateString = OneTournament.Date.ToString("yyyy-MM");
+                _playersCache = await _playerRepository.GetPlayersAsync(dateString, isOldAPIBody);
+            }
+            else
+            {
+                _playersCache = await _database.GetPlayersAsync();
+            }
         }
 
         public async Task LoadGamesAsync()
@@ -174,12 +194,10 @@ namespace RankingApp.ViewModels
             FifthSetTotal = fifthSetGames.Count();
             var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
 
-            FifthSetWinPercentage = FifthSetTotal > 0
-                ? Math.Round((double)fifthSetWins / FifthSetTotal * 100, 2)
-                : 0;
+            FifthSetWinPercentage = FifthSetTotal > 0 ? Math.Round((double)fifthSetWins / FifthSetTotal * 100, 2) : 0;
         }
 
-        public async Task CreateNewGameSave()
+        public async Task CreateNewGameAsync(bool isDoubles)
         {
             var player = new PlayerDB()
             {
@@ -196,95 +214,65 @@ namespace RankingApp.ViewModels
 
             if (OneTournament != null)
             {
-                var dBPlayer = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
-                if (dBPlayer == null)
+                if (_playersCache == null || _playersCache.Count == 0)
                 {
-                    var dateString = OneTournament.Date.ToString("yyyy-MM");
-                    var players = await _playerRepository.GetPlayersAsync(dateString);
-                    var foundPlayer = players.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
-                    if (foundPlayer != null)
-                    {
-                        player = foundPlayer;
-                    }
+                    _playersCache = await _database.GetPlayersAsync();
                 }
-                else
+
+                var foundPlayer = _playersCache.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
+
+                if (foundPlayer != null)
                 {
-                    player = dBPlayer;
+                    player = foundPlayer;
                 }
             }
 
-            var game = new Game()
+            string name = player.Name == "Edgars(R)" ? "Edgars" : player.Name;
+            string coef = OneTournament?.Coefficient ?? "0.5";
+            DateTime date = OneTournament?.Date ?? DateTime.Today;
+            int tournamentId = OneTournament?.Id ?? Data.TournamentId;
+            string tournamentName = OneTournament?.Name ?? "New";
+
+            if (isDoubles)
             {
-                MyName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
-                MySurname = player.Surname,
-                MyPoints = player.Points,
-                MyPointsWithBonus = player.PointsWithBonus,
-                MyAge = player.Age,
-                MyPlace = player.Place,
-                GameCoefficient = OneTournament != null ? OneTournament.Coefficient : "0.5",
-                TournamentDate = OneTournament != null ? OneTournament.Date : DateTime.Today,
-                IsOpponentForeign = false,
-                OpponentPoints = 0,
-                TournamentId = OneTournament != null ? OneTournament.Id : Data.TournamentId,
-                TournamentName = OneTournament != null ? OneTournament.Name : "New"
-            };
-
-            await _database.SaveGameAsync(game);
-
-            Data.GameId = game.Id;
-        }
-
-        public async Task CreateNewDoublesGameSave()
-        {
-            var player = new PlayerDB()
-            {
-                Id = 10000,
-                Place = 10000,
-                Points = 0,
-                PointsWithBonus = 0,
-                Name = "Id changed",
-                Surname = "Error",
-                Gender = "male",
-                OverallPlace = 10000,
-                BirthDate = ""
-            };
-
-            if (OneTournament != null)
-            {
-                var dBPlayer = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
-                if (dBPlayer == null)
+                var doublesGame = new DoublesGame()
                 {
-                    var dateString = OneTournament.Date.ToString("yyyy-MM");
-                    var players = await _playerRepository.GetPlayersAsync(dateString);
-                    var foundPlayer = players.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
-                    if (foundPlayer != null)
-                    {
-                        player = foundPlayer;
-                    }
-                }
-                else
-                {
-                    player = dBPlayer;
-                }
+                    MyName = name,
+                    MySurname = player.Surname,
+                    MyPoints = player.Points,
+                    MyPointsWithBonus = player.PointsWithBonus,
+                    MyAge = player.Age,
+                    MyPlace = player.Place,
+                    GameCoefficient = coef,
+                    TournamentDate = date,
+                    TournamentId = tournamentId,
+                    TournamentName = tournamentName
+                };
+
+                await _database.SaveDoublesGameAsync(doublesGame);
+                Data.GameId = doublesGame.Id;
             }
-
-            var doublesGame = new DoublesGame()
+            else
             {
-                MyName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
-                MySurname = player.Surname,
-                MyPoints = player.Points,
-                MyPointsWithBonus = player.PointsWithBonus,
-                MyAge = player.Age,
-                MyPlace = player.Place,
-                GameCoefficient = OneTournament != null ? OneTournament.Coefficient : "0.5",
-                TournamentDate = OneTournament != null ? OneTournament.Date : DateTime.Today,
-                TournamentId = OneTournament != null ? OneTournament.Id : Data.TournamentId,
-                TournamentName = OneTournament != null ? OneTournament.Name : "New"
-            };
+                var game = new Game()
+                {
+                    MyName = name,
+                    MySurname = player.Surname,
+                    MyPoints = player.Points,
+                    MyPointsWithBonus = player.PointsWithBonus,
+                    MyAge = player.Age,
+                    MyPlace = player.Place,
+                    GameCoefficient = coef,
+                    TournamentDate = date,
+                    IsOpponentForeign = false,
+                    OpponentPoints = 0,
+                    TournamentId = tournamentId,
+                    TournamentName = tournamentName
+                };
 
-            await _database.SaveDoublesGameAsync(doublesGame);
-
-            Data.GameId = doublesGame.Id;
+                await _database.SaveGameAsync(game);
+                Data.GameId = game.Id;
+            }
         }
 
         public async Task EditDate(DateTime date)
