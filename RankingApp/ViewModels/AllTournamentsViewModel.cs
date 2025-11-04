@@ -146,27 +146,36 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         PlayerDB? playerDB = null;
 
         if (appData.AppUserPlayerId != 0)
+        {
             playerDB = await _database.GetPlayerAsync(appData.AppUserPlayerId);
 
-        playerDB ??= await _database.GetPlayerAsync(694);
+            if (playerDB == null)
+            {
+                if (appData.AppUserOldId != 0 && appData.AppUserOldId != appData.AppUserPlayerId)
+                {
+                    playerDB = await _database.GetPlayerAsync(appData.AppUserOldId);
+                }
 
-        var player = new PlayerDB()
+                if (playerDB == null && appData.AppUserNewId != 0 && appData.AppUserNewId != appData.AppUserPlayerId)
+                {
+                    playerDB = await _database.GetPlayerAsync(appData.AppUserNewId);
+                }
+            }
+        }
+
+        var player = playerDB ?? new PlayerDB()
         {
-            Id = 10000, Place = 10000, Points = 0, PointsWithBonus = 0, Name = "Name", Surname = "Surname", Gender = "male", OverallPlace = 10000, BirthDate = ""
+            Id = 10000,
+            Place = 10000,
+            Points = 0,
+            PointsWithBonus = 0,
+            Name = "Not Set",
+            Surname = "Default Player",
+            Gender = "male",
+            OverallPlace = 10000,
+            BirthDate = ""
         };
 
-        if (playerDB != null)
-        {
-            player.Id = playerDB.Id;
-            player.Place = playerDB.Place;
-            player.Points = playerDB.Points;
-            player.PointsWithBonus = playerDB.PointsWithBonus;
-            player.Name = playerDB.Name;
-            player.Surname = playerDB.Surname;
-            player.Gender = playerDB.Gender;
-            player.OverallPlace = playerDB.OverallPlace;
-            player.BirthDate = playerDB.BirthDate;
-        }
         var tournament = new Tournament()
         {
             Coefficient = "0.5",
