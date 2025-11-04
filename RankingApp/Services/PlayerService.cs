@@ -283,12 +283,16 @@ namespace RankingApp.Services
             var appData = await GetAppDataAsync();
             int persistedId = appData.AppUserPlayerId;
             if (persistedId == 0)
+            {
                 return;
+            }
 
             if (appData.AppUserOldId > 0 && appData.AppUserNewId > 0)
             {
                 if (appData.AppUserOldId == persistedId || appData.AppUserNewId == persistedId)
+                {
                     return;
+                }
             }
 
             async Task<List<PlayerDB>> GetSafely(string date)
