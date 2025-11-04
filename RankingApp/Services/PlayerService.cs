@@ -289,7 +289,7 @@ namespace RankingApp.Services
 
             if (appData.AppUserOldId > 0 && appData.AppUserNewId > 0)
             {
-                if (appData.AppUserOldId == persistedId || appData.AppUserNewId == persistedId)
+                if ((appData.AppUserOldId == persistedId || appData.AppUserNewId == persistedId) && appData.AppUserOldId != appData.AppUserNewId)
                 {
                     return;
                 }
@@ -324,8 +324,8 @@ namespace RankingApp.Services
             var foundInOldById = oldList.FirstOrDefault(p => p.Id == persistedId);
             var foundInNewById = newList.FirstOrDefault(p => p.Id == persistedId);
 
-            PlayerDB? matchOld = null;
-            PlayerDB? matchNew = null;
+            PlayerDB? matchOld = foundInOldById;
+            PlayerDB? matchNew = foundInNewById;
 
             if (foundInOldById != null)
                 matchOld = foundInOldById;
@@ -362,15 +362,20 @@ namespace RankingApp.Services
             if (appData.AppUserOldId != 0 && appData.AppUserNewId == 0 && matchOld != null)
             {
                 var probableNew = newList.FirstOrDefault(p => PlayerMatches(p, matchOld));
-                if (probableNew != null)
+                if (probableNew != null && probableNew.Id != appData.AppUserOldId)
                     appData.AppUserNewId = probableNew.Id;
             }
 
             if (appData.AppUserNewId != 0 && appData.AppUserOldId == 0 && matchNew != null)
             {
                 var probableOld = oldList.FirstOrDefault(p => PlayerMatches(p, matchNew));
-                if (probableOld != null)
+                if (probableOld != null && probableOld.Id != appData.AppUserNewId)
                     appData.AppUserOldId = probableOld.Id;
+            }
+
+            if (appData.AppUserOldId == appData.AppUserNewId)
+            {
+                appData.AppUserNewId = 0;
             }
 
             if (appData.AppUserOldId != 0 || appData.AppUserNewId != 0)
