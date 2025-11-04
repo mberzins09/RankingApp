@@ -7,6 +7,8 @@ namespace RankingApp.Models
         [PrimaryKey]
         public int Id { get; set; } = 1; // Always 1, only one row
         public int AppUserPlayerId { get; set; }
+        public int AppUserOldId { get; set; } = 0;
+        public int AppUserNewId { get; set; } = 0;
         public int CurrentMonth { get; set; }
         public int CurrentYear { get; set; }
         public bool GamesIsUpdated { get; set; }

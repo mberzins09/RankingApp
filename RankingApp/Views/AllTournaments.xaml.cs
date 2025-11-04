@@ -18,6 +18,7 @@ public partial class AllTournaments : ContentPage
         base.OnAppearing();
         await _viewModel.AddPlayerDBTable();
         await _viewModel.Migrate();
+        await _viewModel.CheckRankingUpdateAsync(DateTime.Now);
         await _viewModel.LoadDataAsync();
         _viewModel.SearchText = String.Empty;
     }

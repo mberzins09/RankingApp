@@ -124,19 +124,6 @@ namespace RankingApp.Services
             await _database.DeletePlayersAsync();
         }
 
-        public async Task UpdateAppDefaultPlayer(string? name, string? surname)
-        {
-            var appData = await GetAppDataAsync();
-
-            if ( name != "" || surname != "")
-            {
-                var players = await _database.GetPlayersAsync();
-                var currentPlayer = players.Where(p =>  p.Name == name && p.Surname == surname).FirstOrDefault();
-                appData.Id = currentPlayer != null ? currentPlayer.Id : 0;
-                await SaveAppDataAsync(appData);
-            }
-        }
-
         private async Task UpdateOctoberWithIdReassignmentAsync(Action<string>? statusCallback = null)
         {
             string dateString = "2025-10";
@@ -289,6 +276,98 @@ namespace RankingApp.Services
             {
                 statusCallback?.Invoke($"❌ Update failed: {ex.Message}");
             }
+        }
+
+        public async Task EnsureAppUserOldAndNewIdsAsync()
+        {
+            var appData = await GetAppDataAsync();
+            if (appData.AppUserOldId > 0 && appData.AppUserNewId > 0)
+                return;
+
+            int persistedId = appData.AppUserPlayerId;
+            if (persistedId == 0)
+                return;
+
+            async Task<List<PlayerDB>> GetSafely(string date)
+            {
+                try
+                {
+                    var list = await _repositoryWithDate.GetPlayersAsync(date, false);
+                    return list ?? [];
+                }
+                catch { return []; }
+            }
+
+            var oldList = await GetSafely("2025-09");
+            var newList = await GetSafely("2025-11");
+
+            if (!newList.Any())
+                newList = await GetSafely("2025-10");
+
+            bool PlayerMatches(PlayerDB a, PlayerDB b)
+            {
+                if (a == null || b == null) return false;
+                bool nameMatch = string.Equals(a.Name?.Trim(), b.Name?.Trim(), StringComparison.OrdinalIgnoreCase);
+                bool surnameMatch = string.Equals(a.Surname?.Trim(), b.Surname?.Trim(), StringComparison.OrdinalIgnoreCase);
+                if (!string.IsNullOrWhiteSpace(a.BirthDate) && !string.IsNullOrWhiteSpace(b.BirthDate))
+                    return nameMatch && surnameMatch && string.Equals(a.BirthDate.Trim(), b.BirthDate.Trim(), StringComparison.OrdinalIgnoreCase);
+                return nameMatch && surnameMatch;
+            }
+
+            var foundInOldById = oldList.FirstOrDefault(p => p.Id == persistedId);
+            var foundInNewById = newList.FirstOrDefault(p => p.Id == persistedId);
+
+            PlayerDB? matchOld = null;
+            PlayerDB? matchNew = null;
+
+            if (foundInOldById != null)
+                matchOld = foundInOldById;
+            if (foundInNewById != null)
+                matchNew = foundInNewById;
+
+            var dbPlayers = await _database.GetPlayersAsync();
+            var dbUser = dbPlayers.FirstOrDefault(p => p.Id == persistedId);
+
+            if (dbUser != null)
+            {
+                if (matchOld == null)
+                    matchOld = oldList.FirstOrDefault(p => PlayerMatches(p, dbUser));
+                if (matchNew == null)
+                    matchNew = newList.FirstOrDefault(p => PlayerMatches(p, dbUser));
+            }
+            else
+            {
+                if (foundInOldById != null && matchNew == null)
+                {
+                    matchNew = newList.FirstOrDefault(p => PlayerMatches(p, foundInOldById));
+                }
+                if (foundInNewById != null && matchOld == null)
+                {
+                    matchOld = oldList.FirstOrDefault(p => PlayerMatches(p, foundInNewById));
+                }
+            }
+
+            if (matchOld != null)
+                appData.AppUserOldId = matchOld.Id;
+            if (matchNew != null)
+                appData.AppUserNewId = matchNew.Id;
+
+            if (appData.AppUserOldId != 0 && appData.AppUserNewId == 0 && matchOld != null)
+            {
+                var probableNew = newList.FirstOrDefault(p => PlayerMatches(p, matchOld));
+                if (probableNew != null)
+                    appData.AppUserNewId = probableNew.Id;
+            }
+
+            if (appData.AppUserNewId != 0 && appData.AppUserOldId == 0 && matchNew != null)
+            {
+                var probableOld = oldList.FirstOrDefault(p => PlayerMatches(p, matchNew));
+                if (probableOld != null)
+                    appData.AppUserOldId = probableOld.Id;
+            }
+
+            if (appData.AppUserOldId != 0 || appData.AppUserNewId != 0)
+                await SaveAppDataAsync(appData);
         }
     }
 }

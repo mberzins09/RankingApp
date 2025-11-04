@@ -1,3 +1,4 @@
+﻿using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RankingApp.Models;
@@ -7,9 +8,10 @@ using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels;
 
-public partial class AllTournamentsViewModel(DatabaseService database) : BaseViewModel
+public partial class AllTournamentsViewModel(DatabaseService database, PlayerService playerService) : BaseViewModel
 {
     private readonly DatabaseService _database = database;
+    private readonly PlayerService _playerService = playerService;
     
     private List<Tournament> _allTournaments = [];
     
@@ -72,6 +74,7 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
 
     public async Task LoadDataAsync()
     {
+        await _playerService.EnsureAppUserOldAndNewIdsAsync();
         var tournaments = await _database.GetTournamentsAsync();
         _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
         var allGames = await _database.GetGamesAsync();
@@ -177,5 +180,58 @@ public partial class AllTournamentsViewModel(DatabaseService database) : BaseVie
         
         await _database.SaveTournamentAsync(tournament);
         Data.TournamentId = tournament.Id;
+    }
+
+    public async Task CheckRankingUpdateAsync(DateTime systemDate)
+    {
+        var appData = await _database.GetAppDataAsync();
+
+        if (appData == null)
+            return;
+
+        if (appData.CurrentYear < systemDate.Year ||
+            (appData.CurrentYear == systemDate.Year && appData.CurrentMonth < systemDate.Month))
+        {
+            bool confirm = await Shell.Current.DisplayAlert(
+                "Update Rankings",
+                "You haven't updated to the newest ranking. Would you like to update it?",
+                "Yes",
+                "No");
+
+            if (!confirm)
+                return;
+
+            var popup = new ProcessingPopup { Message = "Loading players..." };
+            _ = Application.Current.MainPage.ShowPopupAsync(popup);
+
+            try
+            {
+                await _playerService.LoadPlayersFromApiOrDbAsync(systemDate, status =>
+                {
+                    MainThread.BeginInvokeOnMainThread(() => popup.Message = status);
+                });
+
+                appData.CurrentYear = systemDate.Year;
+                appData.CurrentMonth = systemDate.Month;
+                await _database.SaveAppDataAsync(appData);
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    popup.Message = "✅ Rankings updated successfully!";
+                });
+            }
+            catch (Exception ex)
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    popup.Message = $"❌ Error: {ex.Message}";
+                });
+            }
+            finally
+            {
+                await Task.Delay(1000);
+                await popup.CloseAsync();
+            }
+        }
     }
 }

@@ -55,18 +55,6 @@ namespace RankingApp.ViewModels
         [RelayCommand]
         public async Task UpdateAllPlayersAsync()
         {
-            string name = "";
-            string surname = "";
-            var dbPlayers = await _playerService.GetPlayersFromDbAsync();
-            var appData = await _playerService.GetAppDataAsync();
-
-            var appPlayer = dbPlayers.Where(p => p.Id == appData.Id).FirstOrDefault();
-            if (appPlayer != null)
-            {
-                name = appPlayer.Name;
-                surname = appPlayer.Surname;
-            }
-
             var popup = new ProcessingPopup { Message = "Starting process..." };
             _ = Application.Current.MainPage.ShowPopupAsync(popup);
 
@@ -80,7 +68,6 @@ namespace RankingApp.ViewModels
                         popup.Message = status;
                     });
                 });
-                await _playerService.UpdateAppDefaultPlayer(name, surname);
 
                 await Task.Delay(1500);
             }

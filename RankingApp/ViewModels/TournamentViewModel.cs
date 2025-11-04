@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RankingApp.Data_Storage;
 using RankingApp.Models;
@@ -227,7 +228,39 @@ namespace RankingApp.ViewModels
                     _playersCache = await _database.GetPlayersAsync();
                 }
 
-                var foundPlayer = _playersCache.FirstOrDefault(p => p.Id == OneTournament.TournamentPlayerId);
+                var appData = await _database.GetAppDataAsync();
+                int oldId = appData.AppUserOldId;
+                int newId = appData.AppUserNewId;
+                int tournamentPlayerId = OneTournament.TournamentPlayerId;
+
+                DateTime date = OneTournament.Date;
+                int year = date.Year;
+                int month = date.Month;
+
+                PlayerDB? foundPlayer = null;
+
+                if (year < 2025 || (year == 2025 && month <= 9))
+                {
+                    if (tournamentPlayerId == oldId)
+                        foundPlayer = _playersCache.FirstOrDefault(p => p.Id == oldId);
+                }
+                else if (year > 2025 || (year == 2025 && month >= 11))
+                {
+                    if (tournamentPlayerId == newId)
+                        foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId);
+                }
+                else if (year == 2025 && month == 10)
+                {
+                    foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId)
+                               ?? _playersCache.FirstOrDefault(p => p.Id == oldId);
+                }
+                else
+                {
+                    foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId)
+                               ?? _playersCache.FirstOrDefault(p => p.Id == oldId);
+                }
+
+                foundPlayer ??= _playersCache.FirstOrDefault(p => p.Id == tournamentPlayerId);
 
                 if (foundPlayer != null)
                 {
@@ -237,7 +270,7 @@ namespace RankingApp.ViewModels
 
             string name = player.Name == "Edgars(R)" ? "Edgars" : player.Name;
             string coef = OneTournament?.Coefficient ?? "0.5";
-            DateTime date = OneTournament?.Date ?? DateTime.Today;
+            DateTime tDate = OneTournament?.Date ?? DateTime.Today;
             int tournamentId = OneTournament?.Id ?? Data.TournamentId;
             string tournamentName = OneTournament?.Name ?? "New";
 
@@ -252,7 +285,7 @@ namespace RankingApp.ViewModels
                     MyAge = player.Age,
                     MyPlace = player.Place,
                     GameCoefficient = coef,
-                    TournamentDate = date,
+                    TournamentDate = tDate,
                     TournamentId = tournamentId,
                     TournamentName = tournamentName
                 };
@@ -271,7 +304,7 @@ namespace RankingApp.ViewModels
                     MyAge = player.Age,
                     MyPlace = player.Place,
                     GameCoefficient = coef,
-                    TournamentDate = date,
+                    TournamentDate = tDate,
                     IsOpponentForeign = false,
                     OpponentPoints = 0,
                     TournamentId = tournamentId,

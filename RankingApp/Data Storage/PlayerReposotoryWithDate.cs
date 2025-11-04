@@ -56,8 +56,8 @@ namespace RankingApp.Data_Storage
                 Id = 10000,
                 Name = "Unranked",
                 Surname = "Player",
-                Place = 0,
-                OverallPlace = 0,
+                Place = 10000,
+                OverallPlace = 10000,
                 Points = 0,
                 PointsWithBonus = 0
             };

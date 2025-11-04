@@ -243,6 +243,12 @@ namespace RankingApp.Services
             }
         }
 
+        public async Task MigrateAppDataTableAsync()
+        {
+            await AddColumnIfNotExistsAsync("AppData", "AppUserOldId", "INTEGER", "0");
+            await AddColumnIfNotExistsAsync("AppData", "AppUserNewId", "INTEGER", "0");
+        }
+
         public async Task MigrateGameTableAsync()
         {
             // Add new columns if not exist
@@ -340,6 +346,8 @@ namespace RankingApp.Services
                 appData.GamesIsUpdated = true;
                 await SaveAppDataAsync(appData);
             }
+
+            await MigrateAppDataTableAsync();
         }
     }
 }
