@@ -1,5 +1,6 @@
 ﻿using RankingApp.Models;
 using RankingApp.Services;
+using System.Reflection;
 
 namespace RankingApp.Data_Storage
 {
@@ -8,10 +9,10 @@ namespace RankingApp.Data_Storage
         private readonly PlayerServiceWithDate _dataService = dataService;
         private List<PlayerDB>? _players;
 
-        public async Task<List<PlayerDB>> GetPlayersAsync(string date)
+        public async Task<List<PlayerDB>> GetPlayersAsync(string date, bool isOldAPIBody)
         {
-            var males = await _dataService.GetPlayersAsync("virietis", date);
-            var females = await _dataService.GetPlayersAsync("sieviete", date);
+            var males = await _dataService.GetPlayersAsync("virietis", date, isOldAPIBody);
+            var females = await _dataService.GetPlayersAsync("sieviete", date, isOldAPIBody);
 
             var malesDb = males?.Select(player => new PlayerDB()
             {
@@ -55,8 +56,8 @@ namespace RankingApp.Data_Storage
                 Id = 10000,
                 Name = "Unranked",
                 Surname = "Player",
-                Place = 0,
-                OverallPlace = 0,
+                Place = 10000,
+                OverallPlace = 10000,
                 Points = 0,
                 PointsWithBonus = 0
             };

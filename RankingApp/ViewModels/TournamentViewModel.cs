@@ -1,5 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
 using RankingApp.Views;
@@ -9,20 +11,54 @@ using Game = RankingApp.Models.Game;
 
 namespace RankingApp.ViewModels
 {
-    public partial class TournamentViewModel(DatabaseService database) : BaseViewModel
+    public partial class TournamentViewModel(DatabaseService database, PlayerReposotoryWithDate playerRepository) : BaseViewModel
     {
         private readonly DatabaseService _database = database;
+        private readonly PlayerReposotoryWithDate _playerRepository = playerRepository;
+
+        private List<PlayerDB> _playersCache = new();
+        private List<Game>? _games;
+
+        private List<DoublesGame>? _doubleGames;
 
         [ObservableProperty]
-        private ObservableCollection<Game>? games;
+        private int totalGames;
+
+        [ObservableProperty]
+        private int totalWins;
+
+        [ObservableProperty]
+        private int totalLosses;
+
+        [ObservableProperty]
+        private int totalSets;
+
+        [ObservableProperty]
+        private double fifthSetWinPercentage;
+
+        [ObservableProperty]
+        private int fifthSetTotal;
 
         [ObservableProperty]
         private Tournament? oneTournament;
 
         [ObservableProperty]
-        private Game? selectedGame;
+        private IGame? selectedItem;
 
         public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "4"];
+
+        public List<string> GameModes { get; } = ["Singles", "Doubles"];
+
+        [ObservableProperty]
+        private string selectedGameMode = "Singles";
+
+        [ObservableProperty]
+        private ObservableCollection<IGame>? displayGames;
+
+        partial void OnSelectedGameModeChanged(string value)
+        {
+            RefreshDisplayGames();
+        }
 
         partial void OnOneTournamentChanged(Tournament? value)
         {
@@ -52,13 +88,25 @@ namespace RankingApp.ViewModels
             }
         }
 
-        partial void OnSelectedGameChanged(Game? value)
+        partial void OnSelectedItemChanged(IGame? value)
         {
-            if (value != null)
+            if (value is null)
+                return;
+
+            switch (value)
             {
-                Data.GameId = value.Id;
-                Shell.Current.GoToAsync(nameof(GameView));
+                case Game game:
+                    Data.GameId = game.Id;
+                    Shell.Current.GoToAsync(nameof(GameView));
+                    break;
+
+                case DoublesGame doublesGame:
+                    Data.GameId = doublesGame.Id;
+                    Shell.Current.GoToAsync(nameof(DoublesGameView));
+                    break;
             }
+
+            SelectedItem = null;
         }
 
         public async Task SaveTournamentAsync()
@@ -73,30 +121,92 @@ namespace RankingApp.ViewModels
         {
             OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
             await LoadGamesAsync();
+
+            if (OneTournament == null)
+                return;
+
+            await FillPlayersAsync();
+        }
+
+        public async Task FillPlayersAsync()
+        {
+            if (OneTournament == null)
+                return;
+
+            var appData = await _database.GetAppDataAsync();
+            int tournamentYear = OneTournament.Date.Year;
+            int tournamentMonth = OneTournament.Date.Month;
+
+            bool isOldAPIBody = tournamentYear is >= 2014 and <= 2025 && tournamentMonth is >= 1 and <= 10;
+
+            if (appData.CurrentYear != tournamentYear || appData.CurrentMonth != tournamentMonth)
+            {
+                var dateString = OneTournament.Date.ToString("yyyy-MM");
+                _playersCache = await _playerRepository.GetPlayersAsync(dateString, isOldAPIBody);
+            }
+            else
+            {
+                _playersCache = await _database.GetPlayersAsync();
+            }
         }
 
         public async Task LoadGamesAsync()
         {
             OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
             var allGames = await _database.GetGamesAsync();
-            var tournamentGames = allGames.Where(x => x.TournamentId == Data.TournamentId).ToList();
-            Games = new ObservableCollection<Game>(tournamentGames);
+            _games = [.. allGames.Where(x => x.TournamentId == Data.TournamentId)];
+
+            var allDoublesGames = await _database.GetDoublesGamesAsync();
+            _doubleGames = [.. allDoublesGames.Where(x => x.TournamentId == Data.TournamentId)];
+
             OneTournament.PointsDifference = allGames
                                           .Where(x => x.TournamentId == Data.TournamentId)
                                           .Sum(x => x.RatingDifference);
+
+            RefreshDisplayGames();
         }
 
         [RelayCommand]
-        private async Task DeleteGameAsync(Game game)
+        private async Task DeleteItemAsync(IGame item)
         {
-            if (game == null)
-                return;
+            switch (item)
+            {
+                case Game game:
+                    await _database.DeleteGameAsync(game);
+                    break;
 
-            await _database.DeleteGameAsync(game);
+                case DoublesGame doublesGame:
+                    await _database.DeleteDoublesGameAsync(doublesGame);
+                    break;
+
+                default:
+                    return;
+            }
+
             await LoadGamesAsync();
         }
 
-        public async Task CreateNewGameSave()
+        private void RefreshDisplayGames()
+        {
+            IEnumerable<IGame> games = SelectedGameMode == "Doubles"
+        ? _doubleGames ?? Enumerable.Empty<IGame>()
+        : _games ?? Enumerable.Empty<IGame>();
+
+            DisplayGames = new ObservableCollection<IGame>(games);
+
+            TotalGames = games.Count();
+            TotalWins = games.Count(g => g.IsWin);
+            TotalLosses = TotalGames - TotalWins;
+            TotalSets = games.Sum(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0));
+
+            var fifthSetGames = games.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
+            FifthSetTotal = fifthSetGames.Count();
+            var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
+
+            FifthSetWinPercentage = FifthSetTotal > 0 ? Math.Round((double)fifthSetWins / FifthSetTotal * 100, 2) : 0;
+        }
+
+        public async Task CreateNewGameAsync(bool isDoubles)
         {
             var player = new PlayerDB()
             {
@@ -104,8 +214,8 @@ namespace RankingApp.ViewModels
                 Place = 10000,
                 Points = 0,
                 PointsWithBonus = 0,
-                Name = "Name",
-                Surname = "Surname",
+                Name = "Id changed",
+                Surname = "Error",
                 Gender = "male",
                 OverallPlace = 10000,
                 BirthDate = ""
@@ -113,28 +223,80 @@ namespace RankingApp.ViewModels
 
             if (OneTournament != null)
             {
-                player = await _database.GetPlayerAsync(OneTournament.TournamentPlayerId);
+                if (_playersCache == null || _playersCache.Count == 0)
+                {
+                    _playersCache = await _database.GetPlayersAsync();
+                }
+
+                var appData = await _database.GetAppDataAsync();
+                int oldId = appData.AppUserOldId;
+                int newId = appData.AppUserNewId;
+                int tournamentPlayerId = OneTournament.TournamentPlayerId;
+
+                DateTime date = OneTournament.Date;
+
+                PlayerDB? foundPlayer = null;
+
+                if (tournamentPlayerId == oldId || tournamentPlayerId == newId)
+                {
+                    foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId)
+                               ?? _playersCache.FirstOrDefault(p => p.Id == oldId);
+                }
+
+                foundPlayer ??= _playersCache.FirstOrDefault(p => p.Id == tournamentPlayerId);
+
+                if (foundPlayer != null)
+                {
+                    player = foundPlayer;
+                }
             }
 
-            var game = new Game()
+            string name = player.Name == "Edgars(R)" ? "Edgars" : player.Name;
+            string coef = OneTournament?.Coefficient ?? "0.5";
+            DateTime tDate = OneTournament?.Date ?? DateTime.Today;
+            int tournamentId = OneTournament?.Id ?? Data.TournamentId;
+            string tournamentName = OneTournament?.Name ?? "New";
+
+            if (isDoubles)
             {
-                MyName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
-                MySurname = player.Surname,
-                MyPoints = player.Points,
-                MyPointsWithBonus = player.PointsWithBonus,
-                MyAge = player.Age,
-                MyPlace = player.Place,
-                GameCoefficient = OneTournament != null ? OneTournament.Coefficient : "0.5",
-                TournamentDate = OneTournament != null ? OneTournament.Date : DateTime.Today,
-                IsOpponentForeign = false,
-                OpponentPoints = 0,
-                TournamentId = OneTournament != null ? OneTournament.Id : Data.TournamentId,
-                TournamentName = OneTournament != null ? OneTournament.Name : "New"
-            };
+                var doublesGame = new DoublesGame()
+                {
+                    MyName = name,
+                    MySurname = player.Surname,
+                    MyPoints = player.Points,
+                    MyPointsWithBonus = player.PointsWithBonus,
+                    MyAge = player.Age,
+                    MyPlace = player.Place,
+                    GameCoefficient = coef,
+                    TournamentDate = tDate,
+                    TournamentId = tournamentId,
+                    TournamentName = tournamentName
+                };
 
-            await _database.SaveGameAsync(game);
+                await _database.SaveDoublesGameAsync(doublesGame);
+                Data.GameId = doublesGame.Id;
+            }
+            else
+            {
+                var game = new Game()
+                {
+                    MyName = name,
+                    MySurname = player.Surname,
+                    MyPoints = player.Points,
+                    MyPointsWithBonus = player.PointsWithBonus,
+                    MyAge = player.Age,
+                    MyPlace = player.Place,
+                    GameCoefficient = coef,
+                    TournamentDate = tDate,
+                    IsOpponentForeign = false,
+                    OpponentPoints = 0,
+                    TournamentId = tournamentId,
+                    TournamentName = tournamentName
+                };
 
-            Data.GameId = game.Id;
+                await _database.SaveGameAsync(game);
+                Data.GameId = game.Id;
+            }
         }
 
         public async Task EditDate(DateTime date)
@@ -142,8 +304,12 @@ namespace RankingApp.ViewModels
             if (OneTournament is null)
                 return;
 
-            var Games = await _database.GetGamesAsync();
-            var dateGames = Games.Where(x => x.TournamentId == OneTournament.Id).ToList();
+            var games = await _database.GetGamesAsync();
+            var doublesGames = await _database.GetDoublesGamesAsync();
+
+            var dateGames = games.Where(x => x.TournamentId == OneTournament.Id).ToList();
+            var dateDoublesGames = doublesGames.Where(x => x.TournamentId == OneTournament.Id).ToList();
+            
             foreach (var game in dateGames)
             {
                 game.TournamentDate = date;
@@ -151,7 +317,16 @@ namespace RankingApp.ViewModels
                 await _database.SaveGameAsync(game);
             }
 
+            foreach (var doubleGame in dateDoublesGames)
+            {
+                doubleGame.TournamentDate = date;
+
+                await _database.SaveDoublesGameAsync(doubleGame);
+            }
+
             await _database.SaveTournamentAsync(OneTournament);
+            await LoadGamesAsync();
+            await FillPlayersAsync();
         }
 
         public async Task EditCoefficient(string coef)
@@ -159,13 +334,24 @@ namespace RankingApp.ViewModels
             if (OneTournament is null)
                 return;
 
-            var Games = await _database.GetGamesAsync();
-            var coefGames = Games.Where(x => x.TournamentId == OneTournament.Id).ToList();
+            var games = await _database.GetGamesAsync();
+            var doublesGames = await _database.GetDoublesGamesAsync();
+
+            var coefGames = games.Where(x => x.TournamentId == OneTournament.Id).ToList();
+            var coefDoublesGames = doublesGames.Where(x => x.TournamentId == OneTournament.Id).ToList();
+
             foreach (var game in coefGames)
             {
                 game.GameCoefficient = coef;
 
                 await _database.SaveGameAsync(game);
+            }
+
+            foreach (var doublegame in coefDoublesGames)
+            {
+                doublegame.GameCoefficient = coef;
+
+                await _database.SaveDoublesGameAsync(doublegame);
             }
 
             await _database.SaveTournamentAsync(OneTournament);
@@ -177,8 +363,12 @@ namespace RankingApp.ViewModels
             if (OneTournament is null)
                 return;
 
-            var Games = await _database.GetGamesAsync();
-            var nameGames = Games.Where(x => x.TournamentId == OneTournament.Id).ToList();
+            var games = await _database.GetGamesAsync();
+            var doublesGames = await _database.GetDoublesGamesAsync();
+
+            var nameGames = games.Where(x => x.TournamentId == OneTournament.Id).ToList();
+            var nameDoublesGames = doublesGames.Where(x => x.TournamentId == OneTournament.Id).ToList();
+
             foreach (var game in nameGames)
             {
                 game.TournamentName = name;
@@ -186,7 +376,15 @@ namespace RankingApp.ViewModels
                 await _database.SaveGameAsync(game);
             }
 
+            foreach (var doubleGame in nameDoublesGames)
+            {
+                doubleGame.TournamentName = name;
+
+                await _database.SaveDoublesGameAsync(doubleGame);
+            }
+
             await _database.SaveTournamentAsync(OneTournament);
+            await LoadGamesAsync();
         }
     }
 }

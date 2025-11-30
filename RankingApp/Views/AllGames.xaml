@@ -6,21 +6,67 @@
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
              x:DataType="viewmodel:AllGamesViewModel"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
+             x:Name="ThisPage"
              Title="All Games"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, *, 5">
-        <SearchBar Grid.Row="1" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
-        <ListView Grid.Row="2" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Games}">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="model:Game">
-                    <ViewCell>
-                        <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="*, *">
-                            <Label Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" FontSize="15" FontAttributes="Bold"/>
-                            <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14"/>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 50, *, 2" ColumnDefinitions="100, 100, *">
+        <Picker Grid.Row="1" 
+                Title="Select Game Mode" 
+                ItemsSource="{Binding GameModes}" 
+                SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" 
+                Style="{StaticResource PrimaryPicker}" 
+                WidthRequest="100"/>
+        <Picker Grid.Row="1"
+                Grid.Column="1"
+                Title="Select Year"
+                ItemsSource="{Binding Years}"
+                SelectedItem="{Binding SelectedYear}"
+                Style="{StaticResource PrimaryPicker}"
+                WidthRequest="100">
+            <Picker.ItemDisplayBinding>
+                <Binding Converter="{StaticResource YearDisplayConverter}" />
+            </Picker.ItemDisplayBinding>
+        </Picker>
+        <Grid Grid.Row="2" Grid.ColumnSpan="3" RowDefinitions="30, 30, 40, *" ColumnDefinitions="*, *, *, *">
+            <HorizontalStackLayout Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
+                <Label Text="Games: " Style="{StaticResource ListItemLabel}"/>
+                <Label Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
+                <Label Text="Balance: " Style="{StaticResource ListItemLabel}"/>
+                <Label Text="{Binding TotalWins}" Style="{StaticResource ListItemLabel}"/>
+                <Label Text=" - " Style="{StaticResource ListItemLabel}"/>
+                <Label Text="{Binding TotalLosses}" Style="{StaticResource ListItemLabel}"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
+                <Label Text="5 Set games: " Style="{StaticResource ListItemLabel}"/>
+                <Label Text="{Binding FifthSetTotal}" Style="{StaticResource ListItemLabel}"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
+                <Label Text="5 Set Win %: " Style="{StaticResource ListItemLabel}"/>
+                <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
+            </HorizontalStackLayout>
+            <SearchBar Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
+            <CollectionView Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding DisplayGames}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:IGame">
+                        <Grid RowDefinitions="*, *" ColumnDefinitions="*, 50, 2" Padding="5">
+                            <Label Grid.ColumnSpan="3" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}"
+                                   FontSize="{Binding BindingContext.GameFontSize, Source={x:Reference ThisPage}}" FontAttributes="Bold" />
+                            <Label Grid.Column="1" Grid.Row="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}"
+                                   FontSize="14" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14" />
                         </Grid>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
     </Grid>
 </ContentPage>

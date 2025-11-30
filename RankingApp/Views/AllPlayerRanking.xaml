@@ -16,19 +16,21 @@
             <converters:PointsChangedToColorConverter x:Key="PointsChangedToColorConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 60, *, 5" ColumnDefinitions="5, 100, *, 100, 5">
-    <ActivityIndicator Grid.Row="1" Grid.Column ="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Style="{StaticResource PrimaryActivity}"/>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 60, *, 5" ColumnDefinitions="5, 100, *, 100, 5">
         <!-- Row 1 -->
-        <Picker Grid.Row="1" Grid.Column="1" WidthRequest="100" HeightRequest="60" FontSize="20"
+        <Button Text="Refresh Rankings" Command="{Binding UpdateAllPlayersCommand}"
+                Style="{StaticResource PrimaryButton}" Grid.ColumnSpan="3"
+                Grid.Row="1" Grid.Column="1"/>
+        <!-- Row 2 -->
+        <Picker Grid.Row="2" Grid.Column="1" WidthRequest="100" HeightRequest="60" FontSize="20"
                 Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" />
-        <Label Grid.Row="1" Grid.Column="2" FontSize="20" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
-        <rankingApp:FormDatePicker Grid.Row="1" Grid.Column="3" Date="{Binding SelectedDate, Mode=TwoWay}"
+        <Label Grid.Row="2" Grid.Column="2" FontSize="20" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
+        <rankingApp:FormDatePicker Grid.Row="2" Grid.Column="3" Date="{Binding SelectedDate, Mode=TwoWay}"
                                    MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
                                    WidthRequest="100" HeightRequest="60"/>
-        <!-- Row 2 -->
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" RowDefinitions="40, 15, *" ColumnDefinitions="2, *, 50, 1, 55, 40, 2" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Column="1" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"
-                       IsReadOnly="{Binding IsSearchEnabled}"/>
+        <!-- Row 3 -->
+        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" RowDefinitions="40, 15, *" ColumnDefinitions="2, *, 50, 1, 55, 40, 2" Style="{StaticResource PrimaryGrid}">
+            <SearchBar Grid.Column="1" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
             <Label Grid.Row="1" Grid.Column="1" Text="               Player" HorizontalOptions="Start" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="2" Text="Points" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="4" Text="WithBonus" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>

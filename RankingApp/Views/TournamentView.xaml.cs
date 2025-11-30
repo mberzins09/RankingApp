@@ -21,8 +21,14 @@ public partial class TournamentView : ContentPage
 
     private async void BtnAddGame_OnClicked(object? sender, EventArgs e)
     {
-        await _viewModel.CreateNewGameSave();
+        await _viewModel.CreateNewGameAsync(false);
         await Shell.Current.GoToAsync(nameof(GameView));
+    }
+
+    private async void BtnAddDoublesGame_OnClicked(object? sender, EventArgs e)
+    {
+        await _viewModel.CreateNewGameAsync(true);
+        await Shell.Current.GoToAsync(nameof(DoublesGameView));
     }
 
     private async void BtnSave_OnClicked(object? sender, EventArgs e)

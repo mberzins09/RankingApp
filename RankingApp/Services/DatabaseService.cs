@@ -16,6 +16,7 @@ namespace RankingApp.Services
             _database.CreateTableAsync<Game>().Wait();
             _database.CreateTableAsync<Tournament>().Wait();
             _database.CreateTableAsync<AppData>().Wait();
+            _database.CreateTableAsync<DoublesGame>().Wait();
         }
 
         public async Task<List<PlayerDB>> GetPlayersAsync()
@@ -86,6 +87,26 @@ namespace RankingApp.Services
             await _database.InsertOrReplaceAsync(appData);
         }
 
+        public async Task<List<DoublesGame>> GetDoublesGamesAsync()
+        {
+            return await _database.Table<DoublesGame>().ToListAsync();
+        }
+
+        public async Task<DoublesGame> GetDoublesGameAsync(int id)
+        {
+            return await _database.Table<DoublesGame>().Where(i => i.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> SaveDoublesGameAsync(DoublesGame doublesGame)
+        {
+            return (doublesGame.Id != 0) ? await _database.UpdateAsync(doublesGame) : await _database.InsertAsync(doublesGame);
+        }
+
+        public async Task<int> DeleteDoublesGameAsync(DoublesGame doublesGame)
+        {
+            return await _database.DeleteAsync(doublesGame);
+        }
+
         public async Task UpdatePlayerAsync(PlayerDB player)
         {
             var existingPlayer = await _database.Table<PlayerDB>()
@@ -97,6 +118,18 @@ namespace RankingApp.Services
                 existingPlayer.OverallPlace = 6000;
                 await _database.UpdateAsync(existingPlayer);
             }
+        }
+
+        public async Task<int> UpdatePlayerIdAsync(int oldId, int newId)
+        {
+            var exists = await _database.Table<PlayerDB>().Where(p => p.Id == newId).FirstOrDefaultAsync();
+            if (exists != null)
+            {
+                return 0;
+            }
+
+            var rows = await _database.ExecuteAsync("UPDATE PlayerDB SET Id = ? WHERE Id = ?", newId, oldId);
+            return rows;
         }
 
         public async Task UpsertPlayersAsync(List<PlayerDB> players)
@@ -125,6 +158,78 @@ namespace RankingApp.Services
             }
         }
 
+        public async Task BatchUpdatePlayerIdsAsync(IEnumerable<(int oldId, int newId)> updates)
+        {
+            if (updates == null || !updates.Any())
+                return;
+
+            await _database.RunInTransactionAsync(transaction =>
+            {
+                foreach (var (oldId, newId) in updates)
+                {
+                    transaction.Execute("UPDATE PlayerDB SET Id = ? WHERE Id = ?", newId, oldId);
+                }
+            });
+        }
+
+        public async Task<int> DeletePlayersAsync()
+        {
+            return await _database.DeleteAllAsync<PlayerDB>();
+        }
+
+        public async Task BulkUpsertPlayersAsync(List<PlayerDB> apiPlayers)
+        {
+            var dbPlayers = await _database.Table<PlayerDB>().ToListAsync();
+            var dbById = dbPlayers.ToDictionary(p => p.Id);
+
+            var toInsert = new List<PlayerDB>();
+            var toUpdate = new List<PlayerDB>();
+
+            foreach (var apiPlayer in apiPlayers)
+            {
+                if (!dbById.TryGetValue(apiPlayer.Id, out var existing))
+                {
+                    toInsert.Add(apiPlayer);
+                }
+                else
+                {
+                    if (apiPlayer.PointsWithBonus != existing.PointsWithBonus ||
+                        apiPlayer.Points != existing.Points ||
+                        apiPlayer.Place != existing.Place ||
+                        apiPlayer.OverallPlace != existing.OverallPlace)
+                    {
+                        existing.PointsChanged = apiPlayer.PointsWithBonus - existing.PointsWithBonus;
+                        existing.PointsWithBonus = apiPlayer.PointsWithBonus;
+                        existing.Points = apiPlayer.Points;
+                        existing.Place = apiPlayer.Place;
+                        existing.OverallPlace = apiPlayer.OverallPlace;
+                        toUpdate.Add(existing);
+                    }
+                }
+            }
+
+            var apiIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
+            var toDeactivate = dbPlayers.Where(p => !apiIds.Contains(p.Id)).ToList();
+            foreach (var player in toDeactivate)
+            {
+                player.Place = 6000;
+                player.OverallPlace = 6000;
+            }
+
+            await Task.Run(() =>
+            {
+                _database.RunInTransactionAsync(conn =>
+                {
+                    if (toInsert.Count > 0)
+                        conn.InsertAll(toInsert, runInTransaction: false);
+                    if (toUpdate.Count > 0)
+                        conn.UpdateAll(toUpdate, runInTransaction: false);
+                    if (toDeactivate.Count > 0)
+                        conn.UpdateAll(toDeactivate, runInTransaction: false);
+                });
+            });
+        }
+
         public async Task AddColumnIfNotExistsAsync(string tableName, string columnName, string columnType, string defaultValue = "0")
         {
             try
@@ -136,6 +241,12 @@ namespace RankingApp.Services
                 if (!ex.Message.Contains("duplicate column name"))
                     throw;
             }
+        }
+
+        public async Task MigrateAppDataTableAsync()
+        {
+            await AddColumnIfNotExistsAsync("AppData", "AppUserOldId", "INTEGER", "0");
+            await AddColumnIfNotExistsAsync("AppData", "AppUserNewId", "INTEGER", "0");
         }
 
         public async Task MigrateGameTableAsync()
@@ -235,6 +346,8 @@ namespace RankingApp.Services
                 appData.GamesIsUpdated = true;
                 await SaveAppDataAsync(appData);
             }
+
+            await MigrateAppDataTableAsync();
         }
     }
 }

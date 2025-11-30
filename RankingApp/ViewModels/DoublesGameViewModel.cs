@@ -3,14 +3,16 @@ using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace RankingApp.ViewModels
 {
-    public partial class GameViewModel(DatabaseService databaseService, PlayerReposotoryWithDate playerReposotory) : BaseViewModel
+    public partial class DoublesGameViewModel(DatabaseService databaseService, PlayerReposotoryWithDate playerReposotory) : BaseViewModel
     {
         private readonly DatabaseService _databaseService = databaseService;
         private readonly PlayerReposotoryWithDate _playerReposotory = playerReposotory;
+
+        [ObservableProperty]
+        private DoublesGame? oneDoublesGame;
 
         [ObservableProperty]
         private bool isSearchDisabled;
@@ -19,32 +21,25 @@ namespace RankingApp.ViewModels
         private ObservableCollection<PlayerDB>? players;
 
         [ObservableProperty]
-        private Game? oneGame;
-
-        [ObservableProperty]
-        private PlayerDB? selectedOpponent;
+        private PlayerDB? selectedPlayer;
 
         [ObservableProperty]
         private string? searchText;
 
         [ObservableProperty]
-        private BoolOption? selectedOpponentForeignOption;
+        private string? selectionMode; // "MyPartner", "Opponent1", "Opponent2"
 
         private List<PlayerDB> _allPlayers = [];
         private List<PlayerDB> _tournamentRankingPlayers = [];
+
         public ObservableCollection<int> SetsOptions { get; } = [0, 1, 2, 3, 4];
-        public List<BoolOption> IsOpponentForeignOptions { get; } = new()
-        {
-            new BoolOption { Value = true, Label = "Yes" },
-            new BoolOption { Value = false, Label = "No" }
-        };
 
-        partial void OnSelectedOpponentForeignOptionChanged(BoolOption? value)
-        {
-            if (OneGame is null || value is null)
-                return;
+        public List<string> SelectionOptions { get; } = ["MyPartner", "Opponent 1", "Opponent 2"];
 
-            OneGame.IsOpponentForeign = value.Value;
+        partial void OnSelectionModeChanged(string? value)
+        {
+            // Optionally clear selection when mode changes
+            SelectedPlayer = null;
         }
 
         partial void OnSearchTextChanged(string? value)
@@ -52,24 +47,52 @@ namespace RankingApp.ViewModels
             FilterPlayers(value ?? string.Empty);
         }
 
-        partial void OnSelectedOpponentChanged(PlayerDB? value)
+        partial void OnSelectedPlayerChanged(PlayerDB? value)
         {
-            if (value is null || OneGame is null)
+            SearchText = String.Empty;
+            if (value is null || OneDoublesGame is null || string.IsNullOrEmpty(SelectionMode))
                 return;
 
-            AssignOpponentProperties(value);
+            switch (SelectionMode)
+            {
+                case "MyPartner":
+                    OneDoublesGame.MyPartnerName = value.Name;
+                    OneDoublesGame.MyPartnerSurname = value.Surname;
+                    OneDoublesGame.MyPartnerPoints = value.Points;
+                    OneDoublesGame.MyPartnerAge = value.Age;
+                    OneDoublesGame.MyPartnerPointsWithBonus = value.PointsWithBonus;
+                    OneDoublesGame.MyPartnerPlace = value.Place;
+                    break;
+                case "Opponent 1":
+                    OneDoublesGame.Opponent1Name = value.Name;
+                    OneDoublesGame.Opponent1Surname = value.Surname;
+                    OneDoublesGame.Opponent1Points = value.Points;
+                    OneDoublesGame.Opponent1Age = value.Age;
+                    OneDoublesGame.Opponent1Place = value.Place;
+                    OneDoublesGame.Opponent1PointsWithBonus = value.PointsWithBonus;
+                    break;
+                case "Opponent 2":
+                    OneDoublesGame.Opponent2Name = value.Name;
+                    OneDoublesGame.Opponent2Surname = value.Surname;
+                    OneDoublesGame.Opponent2Points = value.Points;
+                    OneDoublesGame.Opponent2Age = value.Age;
+                    OneDoublesGame.Opponent2PointsWithBonus = value.PointsWithBonus;
+                    OneDoublesGame.Opponent2Place = value.Place;
+                    break;
+            }
         }
 
         public async Task LoadDataAsync()
         {
             IsSearchDisabled = true;
-            OneGame = await _databaseService.GetGameAsync(Data.GameId);
-            var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
-            OneGame.GameCoefficient = tournament.Coefficient;
+            OneDoublesGame = await _databaseService.GetDoublesGameAsync(Data.GameId);
+            var tournament = await _databaseService.GetTournamentAsync(OneDoublesGame.TournamentId);
+            OneDoublesGame.GameCoefficient = tournament.Coefficient;
             var appData = await _databaseService.GetAppDataAsync();
             var dbPlayers = await _databaseService.GetPlayersAsync();
 
             _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderBy(x => x.OverallPlace).ToList();
+            SelectionMode = SelectionOptions[0];
             int tournamentYear = tournament.Date.Year;
             int tournamentMonth = tournament.Date.Month;
             bool sameRankingMonth = (tournamentYear == appData.CurrentYear && tournamentMonth == appData.CurrentMonth);
@@ -94,14 +117,14 @@ namespace RankingApp.ViewModels
                 Players = new ObservableCollection<PlayerDB>(_allPlayers);
             }
 
-            SelectedOpponentForeignOption = IsOpponentForeignOptions.FirstOrDefault(x => x.Value == OneGame.IsOpponentForeign);
-            await _databaseService.SaveGameAsync(OneGame);
+            await _databaseService.SaveDoublesGameAsync(OneDoublesGame);
             IsSearchDisabled = false;
         }
 
-        public async Task SaveGameAsync()
+        public async Task SaveDoublesGameAsync()
         {
-            await _databaseService.SaveGameAsync(OneGame);
+            if (OneDoublesGame != null)
+                await _databaseService.SaveDoublesGameAsync(OneDoublesGame);
         }
 
         public void FilterPlayers(string? searchText)
@@ -118,19 +141,6 @@ namespace RankingApp.ViewModels
                             .ToList();
 
             Players = new ObservableCollection<PlayerDB>(filtered);
-        }
-
-        private void AssignOpponentProperties(PlayerDB opponent)
-        {
-            if (OneGame is null)
-                return;
-
-            OneGame.Name = opponent.Name;
-            OneGame.Surname = opponent.Surname;
-            OneGame.OpponentPoints = opponent.Points;
-            OneGame.OpponentPointsWithBonus = opponent.PointsWithBonus;
-            OneGame.OpponentAge = opponent.Age;
-            OneGame.OpponentPlace = opponent.Place;
         }
     }
 }

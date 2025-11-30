@@ -3,7 +3,7 @@ using SQLite;
 
 namespace RankingApp.Models
 {
-    public partial class Game : ObservableObject
+    public partial class Game : ObservableObject, IGame
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
@@ -83,7 +83,7 @@ namespace RankingApp.Models
 
         public string GameName => $"{TournamentName} - {DateToString}";
 
-        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName} {Gamescore}";
+        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName}";
 
         public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
 

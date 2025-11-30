@@ -1,6 +1,4 @@
 using RankingApp.ViewModels;
-using System.Collections.ObjectModel;
-using RankingApp.Models;
 
 namespace RankingApp.Views;
 

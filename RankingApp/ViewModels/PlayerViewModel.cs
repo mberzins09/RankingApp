@@ -1,7 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RankingApp.Models;
 using RankingApp.Services;
+using RankingApp.Views;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -15,11 +17,6 @@ namespace RankingApp.ViewModels
         private List<PlayerDB>? _filteredPlayers = new();
         private AppData? _cachedAppData;
         private System.Timers.Timer? _searchDebounceTimer;
-        [ObservableProperty]
-        private bool isSearchEnabled;
-
-        [ObservableProperty]
-        private bool isBusy;
 
         [ObservableProperty]
         private DateTime minDate = new(2014, 1, 1);
@@ -55,11 +52,49 @@ namespace RankingApp.ViewModels
             await _playerService.SaveAppDataAsync(appData);
         }
 
+        [RelayCommand]
+        public async Task UpdateAllPlayersAsync()
+        {
+            var popup = new ProcessingPopup { Message = "Starting process..." };
+            _ = Application.Current.MainPage.ShowPopupAsync(popup);
+
+            try
+            {
+                await _playerService.DeleteAllPlayersInDatabse();
+                await _playerService.FillDatabaseWithIdChangeTransitionAsync(status =>
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        popup.Message = status;
+                    });
+                });
+
+                await Task.Delay(1500);
+            }
+            catch (Exception ex)
+            {
+                MainThread.BeginInvokeOnMainThread(() => popup.Message = $"Error: {ex.Message}");
+                await Task.Delay(3000);
+            }
+            finally
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    try
+                    {
+                        await popup.CloseAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error closing popup: {ex.Message}");
+                    }
+                });
+            }
+        }
+
         partial void OnSelectedFilterChanged(string value)
         {
-            IsSearchEnabled = true;
             FilterPlayers();
-            IsSearchEnabled = false;
         }
 
         partial void OnSelectedDateChanged(DateTime value)
@@ -93,37 +128,36 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
-            IsSearchEnabled = true;
             _allPlayers = await _playerService.GetPlayersFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
             FilterPlayers();
             await UpdateAppDataLabel();
-            IsSearchEnabled = false;
         }
 
         public async Task LoadPlayersFromApiAsync(DateTime? date = null)
         {
-            IsBusy = true;
-            IsSearchEnabled = true;
+            var popup = new ProcessingPopup { Message = "Loading players..." };
+            _ = Application.Current.MainPage.ShowPopupAsync(popup);
 
             try
             {
-                _allPlayers = await _playerService.LoadPlayersFromApiOrDbAsync(date);
+                _allPlayers = await _playerService.LoadPlayersFromApiOrDbAsync(date, status => MainThread.BeginInvokeOnMainThread(() => popup.Message = status));
                 _cachedAppData = await _playerService.GetAppDataAsync();
-
                 FilterPlayers();
                 await UpdateAppDataLabel();
-
-                await Application.Current.MainPage.DisplayAlert("Success", "Players loaded successfully.", "OK");
+                MainThread.BeginInvokeOnMainThread(() => popup.Message = "✅ Players loaded successfully!");
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    popup.Message = $"❌ Error: {ex.Message}";
+                });
             }
             finally
             {
-                IsBusy = false;
-                IsSearchEnabled = false;
+                await Task.Delay(1000); // short pause to show final message
+                await MainThread.InvokeOnMainThreadAsync(async () => await popup.CloseAsync());
             }
         }
 
