@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Handlers;
 using RankingApp.Data_Storage;
 using RankingApp.Services;
 using RankingApp.ViewModels;
@@ -46,6 +47,30 @@ namespace RankingApp
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
+
+            // Register handler here
+            builder.ConfigureMauiHandlers(handlers =>
+            {
+#if ANDROID
+                handlers.AddHandler<Entry, EntryHandler>();
+                EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                {
+                    handler.PlatformView.Background = null; // removes underline
+                });
+
+                PickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                {
+                    handler.PlatformView.Background = null;
+                    handler.PlatformView.SetPadding(0, 0, 0, 0);
+                });
+
+                DatePickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                {
+                    handler.PlatformView.Background = null;
+                    handler.PlatformView.SetPadding(0, 0, 0, 0);
+                });
+#endif
+            });
 
             return builder.Build();
         }
