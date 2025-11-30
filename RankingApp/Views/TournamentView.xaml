@@ -10,7 +10,7 @@
              Title="Tournament"
              Style="{StaticResource PrimaryContentPage}">
     
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 50, 35, 35, 35, *, 5" ColumnDefinitions="5, 100, *, *, 50, 50, 5">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 50, 50, Auto, *, 5" ColumnDefinitions="5, 100, *, *, 50, 50, 5">
         <!-- Row 0 -->
         <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
                      Source="savenoborder.png" x:Name="BtnSaveTournament" Clicked="BtnSave_OnClicked" />
@@ -20,70 +20,71 @@
         <ImageButton Grid.Row="0" Grid.Column="5" HorizontalOptions="Start" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
              Source="doublesnoborder.png" x:Name="BtnAddDoublesGame" Clicked="BtnAddDoublesGame_OnClicked" />
         <!-- Row 1 -->
-        <Entry Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name, Mode=TwoWay}" FontSize="18"/>
-        <Picker Grid.Row="1" Grid.Column="1" Style="{StaticResource PrimaryPicker}" Title="Select Game Mode"
-                ItemsSource="{Binding GameModes}" SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" />
+        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="Auto, *">
+            <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Start" Spacing="5">
+                <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}"/>
+                <Label Text="{Binding OneTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}"/>
+            </HorizontalStackLayout>
+            <Entry Grid.Column="1" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" FontSize="16"/>
+        </Grid>
         <!-- Row 2 -->
-        <Label Grid.Row="2" Grid.Column="1" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" Text="Player:"/>
-        <HorizontalStackLayout Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="4" Style="{StaticResource PrimaryHorizontal}">
-            <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" />
-            <Label Text="{Binding OneTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" />
-        </HorizontalStackLayout>
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="*, *, *" ColumnSpacing="10">
+            <HorizontalStackLayout >
+                <Label Text="Coef:" Grid.Column="0" Style="{StaticResource PrimaryLabel}"/>
+                <Picker Grid.Column="1" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding CoefficientOptions}"
+                        SelectedItem="{Binding OneTournament.Coefficient, Mode=TwoWay}" FontSize="16"/>
+            </HorizontalStackLayout>
+            <app:FormDatePicker Grid.Column="1" MinimumDate="01/01/2000" MaximumDate="01/01/2200" Date="{Binding OneTournament.Date, Mode=TwoWay}"
+                                Format="d MMM yyyy" WidthRequest="120" HeightRequest="40"/>
+            <Picker Grid.Column="2" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding GameModes}"
+                    SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}"/>
+        </Grid>
         <!-- Row 3 -->
-        <Label Grid.Row="3" Grid.Column="1" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" Text="Coefficient:"/>
-        <Picker Style="{StaticResource PrimaryPicker}" Title="Select Coefficient" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="4"
-                ItemsSource="{Binding CoefficientOptions}" SelectedItem="{Binding OneTournament.Coefficient, Mode=TwoWay}"
-                FontSize="16" WidthRequest="100" HeightRequest="40"/>
+        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="15, 15, 15, 15" ColumnDefinitions="*, 60, 60, 60, 60" ColumnSpacing="10" RowSpacing="2">
+            <!-- Header row -->
+            <Label Grid.Row="0" Grid.Column="0" Text="" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="0" Grid.Column="1" Text="Total" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="0" Grid.Column="2" Text="Won" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="0" Grid.Column="3" Text="Lost" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="0" Grid.Column="4" Text="%" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <!-- Games row -->
+            <Label Grid.Row="1" Grid.Column="0" Text="Games:" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="1" Grid.Column="2" Text="{Binding TotalWins}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="1" Grid.Column="3" Text="{Binding TotalLosses}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="1" Grid.Column="4" Text="{Binding TotalGamesPercentage}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <!-- Sets row -->
+            <Label Grid.Row="2" Grid.Column="0" Text="Sets:" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalSets}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="2" Grid.Column="2" Text="{Binding TotalSetsWon}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="2" Grid.Column="3" Text="{Binding TotalSetsLost}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="2" Grid.Column="4" Text="{Binding TotalSetsPercentage}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <!-- Fifth sets row -->
+            <Label Grid.Row="3" Grid.Column="0" Text="5th Sets:" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="3" Grid.Column="1" Text="{Binding FifthSetTotal}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="3" Grid.Column="2" Text="{Binding FifthSetsWon}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="3" Grid.Column="3" Text="{Binding FifthSetsLost}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+            <Label Grid.Row="3" Grid.Column="4" Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
+        </Grid>
         <!-- Row 4 -->
-        <Label Grid.Row="4" Grid.Column="1" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" Text="Date:"/>
-        <app:FormDatePicker Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="4" MinimumDate="01/01/2000" MaximumDate="01/01/2200"
-                            Date="{Binding OneTournament.Date, Mode=TwoWay}" Format="d MMM yyyy" HorizontalOptions="Center"
-                            VerticalOptions="Center" WidthRequest="100" HeightRequest="40"/>
-        <!-- Row 5 -->
-        <Grid Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="50, *">
-            <Grid RowDefinitions="*, *" ColumnDefinitions="*, *, *, *">
-                <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}">
-                    <Label Text="Games: " Style="{StaticResource ListItemLabel}"/>
-                    <Label Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}"/>
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-                    <Label Text="Wins: " Style="{StaticResource ListItemLabel}"/>
-                    <Label Text="{Binding TotalWins}" Style="{StaticResource ListItemLabel}"/>
-                    <Label Text=" Losses: " Style="{StaticResource ListItemLabel}"/>
-                    <Label Text="{Binding TotalLosses}" Style="{StaticResource ListItemLabel}"/>
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Grid.Column="3" Style="{StaticResource PrimaryHorizontal}">
-                    <Label Text="Total Sets: " Style="{StaticResource ListItemLabel}"/>
-                    <Label Text="{Binding TotalSets}" Style="{StaticResource ListItemLabel}"/>
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-                    <Label Text="5 Set games: " Style="{StaticResource ListItemLabel}"/>
-                    <Label Text="{Binding FifthSetTotal}" Style="{StaticResource ListItemLabel}"/>
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-                    <Label Text="5th Set Win %: " Style="{StaticResource ListItemLabel}"/>
-                    <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
-                </HorizontalStackLayout>
-            </Grid>
-            <ListView Grid.Row="1" ItemsSource="{Binding DisplayGames}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="model:IGame">
-                        <ViewCell>
-                            <ViewCell.ContextActions>
-                                <MenuItem Text="Delete" IsDestructive="True"
+        <ListView Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" ItemsSource="{Binding DisplayGames}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:IGame">
+                    <ViewCell>
+                        <ViewCell.ContextActions>
+                            <MenuItem Text="Delete" IsDestructive="True"
                               Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
                               CommandParameter="{Binding .}" />
-                            </ViewCell.ContextActions>
-                            <Grid ColumnDefinitions="*, Auto, 20, Auto, 5">
-                                <Label Grid.Column="0" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
-                                <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
-                                <Label Grid.Column="2" Text="→" Style="{StaticResource ListItemLabel}" />
-                                <Label Grid.Column="3" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" />
-                            </Grid>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Grid>
+                        </ViewCell.ContextActions>
+                        <Grid ColumnDefinitions="*, Auto, 20, Auto, 5">
+                            <Label Grid.Column="0" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Column="2" Text="→" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Column="3" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" />
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </ContentPage>

@@ -34,10 +34,28 @@ namespace RankingApp.ViewModels
         private int totalSets;
 
         [ObservableProperty]
+        private int totalSetsWon;
+
+        [ObservableProperty]
+        private int totalSetsLost;
+
+        [ObservableProperty]
         private double fifthSetWinPercentage;
 
         [ObservableProperty]
+        private double totalSetsPercentage;
+
+        [ObservableProperty]
+        private double totalGamesPercentage;
+
+        [ObservableProperty]
         private int fifthSetTotal;
+
+        [ObservableProperty]
+        private int fifthSetsWon;
+
+        [ObservableProperty]
+        private int fifthSetsLost;
 
         [ObservableProperty]
         private Tournament? oneTournament;
@@ -197,13 +215,19 @@ namespace RankingApp.ViewModels
             TotalGames = games.Count();
             TotalWins = games.Count(g => g.IsWin);
             TotalLosses = TotalGames - TotalWins;
-            TotalSets = games.Sum(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0));
+            TotalGamesPercentage = TotalGames > 0 ? Math.Round((double)TotalWins / TotalGames * 100, 2) : 0;
+
+            TotalSetsWon = games.Sum(g => g.MySets ?? 0);
+            TotalSetsLost = games.Sum(g => g.OpponentSets ?? 0);
+            TotalSets = TotalSetsWon + TotalSetsLost;
+            TotalSetsPercentage = TotalSets > 0 ? Math.Round((double)TotalSetsWon / TotalSets * 100, 2) : 0;
 
             var fifthSetGames = games.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
             FifthSetTotal = fifthSetGames.Count();
-            var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
+            FifthSetsWon = fifthSetGames.Count(g => g.IsWin);
+            FifthSetsLost = FifthSetTotal - FifthSetsWon;
 
-            FifthSetWinPercentage = FifthSetTotal > 0 ? Math.Round((double)fifthSetWins / FifthSetTotal * 100, 2) : 0;
+            FifthSetWinPercentage = FifthSetTotal > 0 ? Math.Round((double)FifthSetsWon / FifthSetTotal * 100, 2) : 0;
         }
 
         public async Task CreateNewGameAsync(bool isDoubles)
