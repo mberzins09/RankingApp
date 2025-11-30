@@ -234,27 +234,10 @@ namespace RankingApp.ViewModels
                 int tournamentPlayerId = OneTournament.TournamentPlayerId;
 
                 DateTime date = OneTournament.Date;
-                int year = date.Year;
-                int month = date.Month;
 
                 PlayerDB? foundPlayer = null;
 
-                if (year < 2025 || (year == 2025 && month <= 9))
-                {
-                    if (tournamentPlayerId == oldId)
-                        foundPlayer = _playersCache.FirstOrDefault(p => p.Id == oldId);
-                }
-                else if (year > 2025 || (year == 2025 && month >= 11))
-                {
-                    if (tournamentPlayerId == newId)
-                        foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId);
-                }
-                else if (year == 2025 && month == 10)
-                {
-                    foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId)
-                               ?? _playersCache.FirstOrDefault(p => p.Id == oldId);
-                }
-                else
+                if (tournamentPlayerId == oldId || tournamentPlayerId == newId)
                 {
                     foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId)
                                ?? _playersCache.FirstOrDefault(p => p.Id == oldId);
