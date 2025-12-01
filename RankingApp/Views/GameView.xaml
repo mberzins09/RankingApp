@@ -8,7 +8,7 @@
              x:Class="RankingApp.Views.GameView"
              Title="Game"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid RowDefinitions="50, 3, 30, 30, 30, 30, 30, 40, 3, *, 50" ColumnDefinitions="3, 50, 50, 50, *, 50, 50, 50, 3" Style="{StaticResource PrimaryGrid}">
+    <Grid RowDefinitions="40, 3, 25, 25, 25, 25, 25, 25, 3, *, 50" ColumnDefinitions="1, 30, 100, 30, *, 30, 100, 30, 1" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
         <ImageButton Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="50" HeightRequest="50" Source="savenoborder.png"
                      x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryImageButton}" />
@@ -46,11 +46,19 @@
         <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Age"/>
         <Label Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentAge}"/>
         <!-- Row 7 -->
-        <Picker Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" x:Name="MySetsPicker" Title="Sets"
-                Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.MySets}"/>
+        <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker x:Name="MySetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.MySets}"/>
+        </Border>
         <Label Grid.Row="7" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Score"/>
-        <Picker Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" x:Name="OpponentSetsPicker" Title="Sets" 
-                Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.OpponentSets}"/>
+        <Border Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker x:Name="OpponentSetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.OpponentSets}"/>
+        </Border>
         <!-- Row 8 -->
         <!-- Row 9 -->
         <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="40,*" Style="{StaticResource PrimaryGrid}">
@@ -74,9 +82,13 @@
                Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
         <Entry Grid.Row="10" Grid.Column="3" Grid.ColumnSpan="2" x:Name="EntryOpponentSurname" Placeholder="Surname" TextChanged="EntryOppName_OnTextChanged"
                Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
-        <Picker Grid.Row="10" Grid.Column="6" Grid.ColumnSpan="2" Style="{StaticResource PrimaryPicker}" 
-                ItemsSource="{Binding IsOpponentForeignOptions}" SelectedItem="{Binding SelectedOpponentForeignOption, Mode=TwoWay}"
-                ItemDisplayBinding="{Binding Label}" >
-        </Picker>
+        <Border Grid.Row="10" Grid.Column="6" Grid.ColumnSpan="2" MaximumHeightRequest="30" MaximumWidthRequest="80" StrokeThickness="2" HorizontalOptions="Center">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker Style="{StaticResource PrimaryPicker}" 
+                    ItemsSource="{Binding IsOpponentForeignOptions}" SelectedItem="{Binding SelectedOpponentForeignOption, Mode=TwoWay}"
+                    ItemDisplayBinding="{Binding Label}" />
+        </Border>
     </Grid>
 </ContentPage>

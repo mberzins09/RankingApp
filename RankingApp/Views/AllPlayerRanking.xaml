@@ -16,21 +16,31 @@
             <converters:PointsChangedToColorConverter x:Key="PointsChangedToColorConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 60, *, 5" ColumnDefinitions="5, 100, *, 100, 5">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 40, *, 5" ColumnDefinitions="5, 100, *, *, 120, 5">
         <!-- Row 1 -->
-        <Button Text="Refresh Rankings" Command="{Binding UpdateAllPlayersCommand}"
-                Style="{StaticResource PrimaryButton}" Grid.ColumnSpan="3"
-                Grid.Row="1" Grid.Column="1"/>
+        <Label Text="Downloaded Ranking:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="18"/>
+        <Label Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" FontSize="18" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
         <!-- Row 2 -->
-        <Picker Grid.Row="2" Grid.Column="1" WidthRequest="100" HeightRequest="60" FontSize="20"
-                Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" />
-        <Label Grid.Row="2" Grid.Column="2" FontSize="20" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
-        <rankingApp:FormDatePicker Grid.Row="2" Grid.Column="3" Date="{Binding SelectedDate, Mode=TwoWay}"
-                                   MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
-                                   WidthRequest="100" HeightRequest="60"/>
+        <Border Grid.Row="2" Grid.Column="1" StrokeThickness="3">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker FontSize="18" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" />
+        </Border>
+        <Button Text="Refresh Rankings" Command="{Binding UpdateAllPlayersCommand}" Style="{StaticResource PrimaryButton}"
+                Grid.Row="2" Grid.Column="2" WidthRequest="139" HeightRequest="20" Padding="0" MaximumHeightRequest="30"
+                Grid.ColumnSpan="2" HorizontalOptions="Center"/>
+        <Border Grid.Row="2" Grid.Column="4" StrokeThickness="3">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <rankingApp:FormDatePicker Date="{Binding SelectedDate, Mode=TwoWay}"
+                                       MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
+                                       WidthRequest="100" HeightRequest="60" Style="{StaticResource PrimaryDatePicker}"/>
+        </Border>
         <!-- Row 3 -->
-        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" RowDefinitions="40, 15, *" ColumnDefinitions="2, *, 50, 1, 55, 40, 2" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Column="1" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
+        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" RowDefinitions="40, 15, *" ColumnDefinitions="2, *, 50, 1, 55, 40, 2" Style="{StaticResource PrimaryGrid}">
+            <SearchBar Grid.ColumnSpan="5" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
             <Label Grid.Row="1" Grid.Column="1" Text="               Player" HorizontalOptions="Start" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="2" Text="Points" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="4" Text="WithBonus" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>

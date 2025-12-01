@@ -42,7 +42,7 @@ namespace RankingApp.ViewModels
             CurrentTournament.TournamentPlayerPoints = value.Points;
             CurrentTournament.TournamentPlayerId = value.Id;
 
-            _ = EditMe(value.Name, value.Surname, value.Points);
+            _ = EditMe(value.Name == "Edgars(R)" ? "Edgars" : value.Name, value.Surname, value.Points, value.Place, value.PointsWithBonus, value.Age);
         }
 
         public async Task LoadDataAsync()
@@ -80,7 +80,7 @@ namespace RankingApp.ViewModels
             Players = new ObservableCollection<PlayerDB>(filtered);
         }
 
-        public async Task EditMe(string name, string surname, int points)
+        public async Task EditMe(string name, string surname, int points, int place, int pointsWithBonus, int age)
         {
             if (CurrentTournament is null)
                 return;
@@ -92,6 +92,9 @@ namespace RankingApp.ViewModels
                 game.MyName = name == "Edgars(R)" ? "Edgars" : name;
                 game.MySurname = surname;
                 game.MyPoints = points;
+                game.MyPointsWithBonus = pointsWithBonus;
+                game.MyPlace = place;
+                game.MyAge = age;
 
                 await _database.SaveGameAsync(game);
             }

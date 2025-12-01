@@ -16,24 +16,24 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 50, *, 2" ColumnDefinitions="100, 100, *">
-        <Picker Grid.Row="1" 
-                Title="Select Game Mode" 
-                ItemsSource="{Binding GameModes}" 
-                SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" 
-                Style="{StaticResource PrimaryPicker}" 
-                WidthRequest="100"/>
-        <Picker Grid.Row="1"
-                Grid.Column="1"
-                Title="Select Year"
-                ItemsSource="{Binding Years}"
-                SelectedItem="{Binding SelectedYear}"
-                Style="{StaticResource PrimaryPicker}"
-                WidthRequest="100">
-            <Picker.ItemDisplayBinding>
-                <Binding Converter="{StaticResource YearDisplayConverter}" />
-            </Picker.ItemDisplayBinding>
-        </Picker>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 40, *, 2" ColumnDefinitions="150, *, 150">
+        <Border Grid.Row="1" MaximumWidthRequest="100" MaximumHeightRequest="30" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker Title="Select Game Mode" ItemsSource="{Binding GameModes}" 
+                    SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" Style="{StaticResource PrimaryPicker}" />
+        </Border>
+        <Border Grid.Row="1" Grid.Column="2" MaximumWidthRequest="100" MaximumHeightRequest="30" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker Title="Select Year" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Style="{StaticResource PrimaryPicker}">
+                <Picker.ItemDisplayBinding>
+                    <Binding Converter="{StaticResource YearDisplayConverter}" />
+                </Picker.ItemDisplayBinding>
+            </Picker>
+        </Border>
         <Grid Grid.Row="2" Grid.ColumnSpan="3" RowDefinitions="30, 30, 40, *" ColumnDefinitions="*, *, *, *">
             <HorizontalStackLayout Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
                 <Label Text="Games: " Style="{StaticResource ListItemLabel}"/>

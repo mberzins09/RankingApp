@@ -179,54 +179,132 @@ namespace RankingApp.Services
 
         public async Task BulkUpsertPlayersAsync(List<PlayerDB> apiPlayers)
         {
+            if (apiPlayers == null || apiPlayers.Count == 0)
+                return;
+
             var dbPlayers = await _database.Table<PlayerDB>().ToListAsync();
             var dbById = dbPlayers.ToDictionary(p => p.Id);
+
+            // Track used IDs (existing DB IDs)
+            var usedIds = new HashSet<int>(dbPlayers.Select(p => p.Id));
 
             var toInsert = new List<PlayerDB>();
             var toUpdate = new List<PlayerDB>();
 
-            foreach (var apiPlayer in apiPlayers)
+            // Group incoming players by Id to detect duplicates within apiPlayers
+            var groups = apiPlayers.GroupBy(p => p.Id);
+
+            foreach (var group in groups)
             {
-                if (!dbById.TryGetValue(apiPlayer.Id, out var existing))
+                var incomingList = group.ToList();
+
+                if (incomingList.Count == 1)
                 {
-                    toInsert.Add(apiPlayer);
+                    var apiPlayer = incomingList[0];
+
+                    // If this id already exists in DB and DB record is present, treat as update candidate
+                    if (dbById.TryGetValue(apiPlayer.Id, out var existing))
+                    {
+                        // update only if fields changed
+                        if (apiPlayer.PointsWithBonus != existing.PointsWithBonus ||
+                            apiPlayer.Points != existing.Points ||
+                            apiPlayer.Place != existing.Place ||
+                            apiPlayer.OverallPlace != existing.OverallPlace)
+                        {
+                            existing.PointsChanged = apiPlayer.PointsWithBonus - existing.PointsWithBonus;
+                            existing.PointsWithBonus = apiPlayer.PointsWithBonus;
+                            existing.Points = apiPlayer.Points;
+                            existing.Place = apiPlayer.Place;
+                            existing.OverallPlace = apiPlayer.OverallPlace;
+                            toUpdate.Add(existing);
+                        }
+                    }
+                    else
+                    {
+                        // id not in DB; ensure it doesn't collide with already allocated ids (from other groups)
+                        if (usedIds.Contains(apiPlayer.Id))
+                        {
+                            apiPlayer.Id = GetNextAvailableId(usedIds);
+                        }
+                        else
+                        {
+                            usedIds.Add(apiPlayer.Id);
+                        }
+                        toInsert.Add(apiPlayer);
+                    }
                 }
                 else
                 {
-                    if (apiPlayer.PointsWithBonus != existing.PointsWithBonus ||
-                        apiPlayer.Points != existing.Points ||
-                        apiPlayer.Place != existing.Place ||
-                        apiPlayer.OverallPlace != existing.OverallPlace)
+                    // Duplicate id found in apiPlayers
+                    // Choose one to keep the original id (highest PointsWithBonus), reassign others
+                    var ordered = incomingList
+                        .OrderByDescending(p => p.PointsWithBonus)
+                        .ThenByDescending(p => p.Points)
+                        .ToList();
+
+                    // First (best) player: try to keep original id if not used; otherwise assign new id
+                    var keeper = ordered[0];
+                    if (dbById.TryGetValue(keeper.Id, out var existingKeeper))
                     {
-                        existing.PointsChanged = apiPlayer.PointsWithBonus - existing.PointsWithBonus;
-                        existing.PointsWithBonus = apiPlayer.PointsWithBonus;
-                        existing.Points = apiPlayer.Points;
-                        existing.Place = apiPlayer.Place;
-                        existing.OverallPlace = apiPlayer.OverallPlace;
-                        toUpdate.Add(existing);
+                        // If DB already has that id -> treat keeper as update candidate (merge into DB record)
+                        if (keeper.PointsWithBonus != existingKeeper.PointsWithBonus ||
+                            keeper.Points != existingKeeper.Points ||
+                            keeper.Place != existingKeeper.Place ||
+                            keeper.OverallPlace != existingKeeper.OverallPlace)
+                        {
+                            existingKeeper.PointsChanged = keeper.PointsWithBonus - existingKeeper.PointsWithBonus;
+                            existingKeeper.PointsWithBonus = keeper.PointsWithBonus;
+                            existingKeeper.Points = keeper.Points;
+                            existingKeeper.Place = keeper.Place;
+                            existingKeeper.OverallPlace = keeper.OverallPlace;
+                            toUpdate.Add(existingKeeper);
+                        }
+
+                        // Mark the id as used
+                        usedIds.Add(existingKeeper.Id);
+                    }
+                    else
+                    {
+                        // Keeper id is not in DB. If usedIds already contains it (from earlier reassignments), we must allocate new id.
+                        if (usedIds.Contains(keeper.Id))
+                        {
+                            keeper.Id = GetNextAvailableId(usedIds);
+                        }
+                        else
+                        {
+                            usedIds.Add(keeper.Id);
+                        }
+                        toInsert.Add(keeper);
+                    }
+
+                    // Others in this duplicate group: assign new IDs
+                    for (int i = 1; i < ordered.Count; i++)
+                    {
+                        var duplicate = ordered[i];
+                        duplicate.Id = GetNextAvailableId(usedIds);
+                        toInsert.Add(duplicate);
                     }
                 }
             }
 
-            var apiIds = new HashSet<int>(apiPlayers.Select(p => p.Id));
-            var toDeactivate = dbPlayers.Where(p => !apiIds.Contains(p.Id)).ToList();
+            // Deactivate players missing from API
+            var apiIdsFinal = new HashSet<int>(apiPlayers.Select(p => p.Id));
+            var toDeactivate = dbPlayers.Where(p => !apiIdsFinal.Contains(p.Id)).ToList();
             foreach (var player in toDeactivate)
             {
                 player.Place = 6000;
                 player.OverallPlace = 6000;
             }
 
-            await Task.Run(() =>
+            // Perform DB operations inside a single transaction and await it
+            await _database.RunInTransactionAsync(conn =>
             {
-                _database.RunInTransactionAsync(conn =>
-                {
-                    if (toInsert.Count > 0)
-                        conn.InsertAll(toInsert, runInTransaction: false);
-                    if (toUpdate.Count > 0)
-                        conn.UpdateAll(toUpdate, runInTransaction: false);
-                    if (toDeactivate.Count > 0)
-                        conn.UpdateAll(toDeactivate, runInTransaction: false);
-                });
+                if (toInsert.Count > 0)
+                    conn.InsertAll(toInsert, runInTransaction: false);
+                if (toUpdate.Count > 0)
+                    conn.UpdateAll(toUpdate, runInTransaction: false);
+                if (toDeactivate.Count > 0)
+                    conn.UpdateAll(toDeactivate, runInTransaction: false);
             });
         }
 
@@ -348,6 +426,19 @@ namespace RankingApp.Services
             }
 
             await MigrateAppDataTableAsync();
+        }
+
+        // Helper: find next available id (starts at 20000 if lower ids are free)
+        private int GetNextAvailableId(HashSet<int> usedIds, int start = 20000)
+        {
+            // Prefer an id >= start, but if there are used ids above start, pick max+1
+            int candidate = Math.Max(start, usedIds.Any() ? usedIds.Max() + 1 : start);
+            while (usedIds.Contains(candidate))
+            {
+                candidate++;
+            }
+            usedIds.Add(candidate);
+            return candidate;
         }
     }
 }

@@ -88,6 +88,25 @@
                 </Setter>
             </Style>
 
+            <!-- DatePicker -->
+            <Style TargetType="local:FormDatePicker" x:Key="PrimaryDatePicker">
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray300}"
+                                         Dark="{StaticResource Gray900}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="TextColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource Gray900}"
+                                         Dark="{StaticResource Gray200}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="HorizontalOptions" Value="Center"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
             <!-- Picker -->
             <Style TargetType="Picker" x:Key="PrimaryPicker">
                 <Setter Property="BackgroundColor">
