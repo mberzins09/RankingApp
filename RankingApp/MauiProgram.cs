@@ -48,7 +48,6 @@ namespace RankingApp
             builder.Logging.AddDebug();
 #endif
 
-            // Register handler here
             builder.ConfigureMauiHandlers(handlers =>
             {
 #if ANDROID
@@ -56,6 +55,7 @@ namespace RankingApp
                 EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
                 {
                     handler.PlatformView.Background = null; // removes underline
+                    handler.PlatformView.SetPadding(0, 0, 0, 0);
                 });
 
                 PickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>

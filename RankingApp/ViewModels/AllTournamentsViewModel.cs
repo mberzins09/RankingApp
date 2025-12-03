@@ -179,7 +179,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         var tournament = new Tournament()
         {
             Coefficient = "0.5",
-            Name = "New",
+            Name = "Enter Tournament Name",
             Date = DateTime.Now,
             TournamentPlayerName = player.Name == "Edgars(R)" ? "Edgars" : player.Name,
             TournamentPlayerSurname = player.Surname,

@@ -14,26 +14,25 @@
             <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
-        <ImageButton Grid.Column="1" Source="ranksnoborder.png" Clicked="ImageButtonRankings_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
-        <ImageButton Grid.Column="3" Source="Gamesnoborder.png" Clicked="ImageButtonAllGames_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
-        <ImageButton Grid.Column="5" Source="imexpnoborder.png" Clicked="ImportExport_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
-        <ImageButton Grid.Column="7" Source="{AppThemeBinding Light=addtournamentnoborders.png, Dark=plusnoborder.png}" Clicked="ImageButtonAdd_Clicked" WidthRequest="60" HeightRequest="50"></ImageButton>
 
-        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="9" RowDefinitions="40, 40, *" ColumnDefinitions="100, *">
-            <Border StrokeThickness="3" MaximumHeightRequest="35" MaximumWidthRequest="90">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="45"/>
-                </Border.StrokeShape>
-                <Picker Title="Select Year" ItemsSource="{Binding Years, Mode=TwoWay}" SelectedItem="{Binding SelectedYear}" 
-                        Style="{StaticResource PrimaryPicker}">
-                    <Picker.ItemDisplayBinding>
-                        <Binding Converter="{StaticResource YearDisplayConverter}" />
-                    </Picker.ItemDisplayBinding>
-                </Picker>
-            </Border>
-            <SearchBar Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
-            <CollectionView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding Tournaments}" SelectionMode="Single" SelectedItem="{Binding SelectedTournament, Mode=TwoWay}" ItemsUpdatingScrollMode="KeepScrollOffset">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="40, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
+        <ImageButton Grid.Column="7" Source="{AppThemeBinding Light=dots.png, Dark=dots.png}" Clicked="MoreButton_Clicked"
+                     WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center" />
+        <Border Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="35" MaximumWidthRequest="80">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker Title="Select Year" ItemsSource="{Binding Years, Mode=TwoWay}" SelectedItem="{Binding SelectedYear}" 
+                    Style="{StaticResource PrimaryPicker}">
+                <Picker.ItemDisplayBinding>
+                    <Binding Converter="{StaticResource YearDisplayConverter}" />
+                </Picker.ItemDisplayBinding>
+            </Picker>
+        </Border>
+
+        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="9" RowDefinitions="40, *">
+            <SearchBar Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Tournaments}" SelectionMode="Single" ItemsUpdatingScrollMode="KeepScrollOffset">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Tournament">
                         <SwipeView>
@@ -56,6 +55,27 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+        </Grid>
+
+        <Grid x:Name="MoreMenuOverlay" Grid.Row="0" Grid.RowSpan="2"
+                Grid.Column="1" Grid.ColumnSpan="6" IsVisible="False" InputTransparent="False">
+            <BoxView Style="{StaticResource PrimaryBoxView}">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="MoreOverlay_Tapped" NumberOfTapsRequired="1"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="MoreMenuPanel" Padding="8" BackgroundColor="{StaticResource PrimaryBackgroundColor}"
+                    Stroke="{StaticResource PrimaryAccentColor}" StrokeThickness="1" HorizontalOptions="End" VerticalOptions="Start"
+                    Margin="0,8,10,0" WidthRequest="220" IsVisible="True" TranslationX="300">
+                <VerticalStackLayout Spacing="6" WidthRequest="200">
+                    <Button Text="Add Tournament" Clicked="MenuAdd_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Rankings" Clicked="MenuRankings_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="All Games" Clicked="MenuAllGames_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Import Database" Clicked="MenuImport_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Export Database" Clicked="MenuExport_Clicked" Style="{StaticResource PrimaryButton}"/>
+                </VerticalStackLayout>
+            </Border>
         </Grid>
     </Grid>
 </ContentPage>

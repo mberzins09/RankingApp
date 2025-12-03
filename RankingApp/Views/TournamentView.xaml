@@ -10,31 +10,20 @@
              Title="Tournament"
              Style="{StaticResource PrimaryContentPage}">
     
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 50, 30, Auto, *, 5" ColumnDefinitions="5, Auto, *, 50, 50, 50, 5">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 30, 30, Auto, *, 5" ColumnDefinitions="5, Auto, *, 50, 50, 50, 5">
         <!-- Row 0 -->
         <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Start" Spacing="5">
             <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}"/>
             <Label Text="{Binding OneTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>
         <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.PointsDifference}" FontSize="24"/>
-        <ImageButton Grid.Row="0" Grid.Column="3" HorizontalOptions="Start" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
-                     Source="gamesnoborder.png" x:Name="BtnAddGame" Clicked="BtnAddGame_OnClicked" />
-        <ImageButton Grid.Row="0" Grid.Column="4" HorizontalOptions="Start" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
-             Source="doublesnoborder.png" x:Name="BtnAddDoublesGame" Clicked="BtnAddDoublesGame_OnClicked" />
-        <ImageButton Grid.Row="0" Grid.Column="5" WidthRequest="50" HeightRequest="50" Style="{StaticResource PrimaryImageButton}"
-                     Source="savenoborder.png" x:Name="BtnSaveTournament" Clicked="BtnSave_OnClicked" />
+        <ImageButton Grid.Row="0" Grid.Column="5" Source="{AppThemeBinding Light=dots.png, Dark=dots.png}" Clicked="MoreButton_Clicked"
+             WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center" x:Name="MoreButton" />
         <!-- Row 1 -->
-        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="8"/>
-            </Border.StrokeShape>
-            <Entry Grid.Column="1" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" FontSize="16" VerticalTextAlignment="Center" VerticalOptions="Center"/>
-        </Border>
-        <!-- Row 2 -->
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="100, *, *" ColumnSpacing="10">
+        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="100, *, *" ColumnSpacing="10">
             <HorizontalStackLayout >
                 <Label Text="Coef:" Grid.Column="0" Style="{StaticResource PrimaryLabel}"/>
-                <Border StrokeThickness="2" MaximumWidthRequest="30">
+                <Border StrokeThickness="2" MaximumWidthRequest="50">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="45"/>
                     </Border.StrokeShape>
@@ -61,6 +50,8 @@
                     SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}"/>
             </Border>
         </Grid>
+        <!-- Row 2 -->
+        <Entry Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" FontSize="14" Focused="Entry_Focused" />
         <!-- Row 3 -->
         <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="15, 15, 15, 15" ColumnDefinitions="*, 60, 60, 60, 60" ColumnSpacing="10" RowSpacing="2">
             <!-- Header row -->
@@ -101,12 +92,30 @@
                         <Grid ColumnDefinitions="*, Auto, 20, Auto, 5">
                             <Label Grid.Column="0" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
                             <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Column="2" Text="→" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Column="2" Text="->" Style="{StaticResource ListItemLabel}" />
                             <Label Grid.Column="3" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" />
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+
+        <Grid x:Name="MoreMenuOverlay" Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" Grid.ColumnSpan="4" IsVisible="False" InputTransparent="False">
+            <BoxView Style="{StaticResource PrimaryBoxView}">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="MoreOverlay_Tapped" NumberOfTapsRequired="1"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="MoreMenuPanel" Padding="8" BackgroundColor="{StaticResource PrimaryBackgroundColor}"
+                    Stroke="{StaticResource PrimaryAccentColor}" StrokeThickness="1" HorizontalOptions="End" VerticalOptions="Start"
+                    Margin="0,8,10,0" WidthRequest="220" IsVisible="True" TranslationX="300">
+                <VerticalStackLayout Spacing="6" WidthRequest="200">
+                    <Button Text="Add Game" Clicked="MenuAddGame_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Add Doubles Game" Clicked="MenuAddDoubles_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Save Tournament" Clicked="MenuSave_Clicked" Style="{StaticResource PrimaryButton}"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>

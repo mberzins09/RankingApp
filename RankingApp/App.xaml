@@ -11,12 +11,7 @@
             </ResourceDictionary.MergedDictionaries>
             <!-- Label -->
             <Style TargetType="Label" x:Key="PrimaryLabel">
-                <Setter Property="TextColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="FontSize" Value="16" />
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
@@ -25,35 +20,16 @@
             <!-- Label in ListItem-->
             <Style TargetType="Label" x:Key="ListItemLabel">
                 <Setter Property="FontSize" Value="15" />
-                <Setter Property="TextColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}" Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="HorizontalOptions" Value="Center" />
             </Style>
 
             <!-- SearchBar -->
             <Style TargetType="SearchBar" x:Key="PrimarySearchBar">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                                         Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="TextColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="PlaceholderColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
+                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
+                <Setter Property="PlaceholderColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="Placeholder" Value="Search..." />
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="HorizontalOptions" Value="Center" />
@@ -63,45 +39,19 @@
 
             <!-- ListView -->
             <Style TargetType="ListView" x:Key="PrimaryListView">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                             Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
-
-                <Setter Property="SeparatorColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                             Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
+                <Setter Property="SeparatorColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
             </Style>
 
             <!-- Grid -->
             <Style TargetType="Grid" x:Key="PrimaryGrid">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                                         Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
             </Style>
 
             <!-- DatePicker -->
             <Style TargetType="local:FormDatePicker" x:Key="PrimaryDatePicker">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                                         Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="TextColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
+                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="FontSize" Value="16"/>
                 <Setter Property="HorizontalOptions" Value="Center"/>
                 <Setter Property="VerticalOptions" Value="Center"/>
@@ -109,18 +59,8 @@
 
             <!-- Picker -->
             <Style TargetType="Picker" x:Key="PrimaryPicker">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                             Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="TextColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
+                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="FontSize" Value="16"/>
                 <Setter Property="HorizontalOptions" Value="Center"/>
                 <Setter Property="VerticalOptions" Value="Center"/>
@@ -140,34 +80,14 @@
                 <Setter Property="StrokeThickness" Value="1"/>
                 <Setter Property="Padding" Value="8,4"/>
                 <Setter Property="Margin" Value="4,4,4,8"/>
-                <Setter Property="Stroke">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                             Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                             Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
             </Style>
 
             <!-- Entry -->
             <Style TargetType="Entry" x:Key="PrimaryEntry">
-                <Setter Property="TextColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="PlaceholderColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                         Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
+                <Setter Property="PlaceholderColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="FontSize" Value="16" />
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
@@ -180,40 +100,26 @@
                 <Setter Property="BackgroundColor" Value="Transparent" />
             </Style>
 
-            <!-- Button -->
+            <!-- BoxView -->
+            <Style TargetType="BoxView" x:Key="PrimaryBoxView">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
+            </Style>
+                <!-- Button -->
             <Style TargetType="Button" x:Key="PrimaryButton">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                                         Dark="{StaticResource Gray100}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="TextColor" >
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray100}"
-                                         Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
+                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
+                <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Gray500}, Light={StaticResource Gray200}}"/>
+                <Setter Property="BorderWidth" Value="2"/>
             </Style>
 
             <!-- ContentPage -->
             <Style TargetType="ContentPage" x:Key="PrimaryContentPage">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                                         Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
             </Style>
 
             <!-- HorizontalStackLayout -->
             <Style TargetType="HorizontalStackLayout" x:Key="PrimaryHorizontal">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                             Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="Spacing" Value="3" />
@@ -221,12 +127,7 @@
 
             <!-- VerticalStackLayout -->
             <Style TargetType="VerticalStackLayout" x:Key="PrimaryVertical">
-                <Setter Property="BackgroundColor">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray300}"
-                                         Dark="{StaticResource Gray900}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="Spacing" Value="3" />
@@ -235,12 +136,7 @@
 
             <!-- ActivityIndicator -->
             <Style TargetType="ActivityIndicator" x:Key="PrimaryActivity">
-                <Setter Property="Color">
-                    <Setter.Value>
-                        <AppThemeBinding Light="{StaticResource Gray900}"
-                             Dark="{StaticResource Gray200}" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="Color" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="HorizontalOptions" Value="End" />
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="WidthRequest" Value="30" />
