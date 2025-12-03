@@ -52,7 +52,6 @@ namespace RankingApp.ViewModels
             await _playerService.SaveAppDataAsync(appData);
         }
 
-        [RelayCommand]
         public async Task UpdateAllPlayersAsync()
         {
             var popup = new ProcessingPopup { Message = "Starting process..." };

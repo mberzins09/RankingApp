@@ -10,7 +10,7 @@
              Title="Tournament"
              Style="{StaticResource PrimaryContentPage}">
     
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 30, 30, Auto, *, 5" ColumnDefinitions="5, Auto, *, 50, 50, 50, 5">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 40, 40, Auto, *, 5" ColumnDefinitions="5, Auto, *, 50, 50, 50, 5">
         <!-- Row 0 -->
         <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Start" Spacing="5">
             <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}"/>
@@ -51,7 +51,7 @@
             </Border>
         </Grid>
         <!-- Row 2 -->
-        <Entry Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" FontSize="14" Focused="Entry_Focused" />
+        <Entry Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" FontSize="16" Focused="Entry_Focused" />
         <!-- Row 3 -->
         <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="15, 15, 15, 15" ColumnDefinitions="*, 60, 60, 60, 60" ColumnSpacing="10" RowSpacing="2">
             <!-- Header row -->
@@ -107,8 +107,8 @@
                 </BoxView.GestureRecognizers>
             </BoxView>
 
-            <Border x:Name="MoreMenuPanel" Padding="8" BackgroundColor="{StaticResource PrimaryBackgroundColor}"
-                    Stroke="{StaticResource PrimaryAccentColor}" StrokeThickness="1" HorizontalOptions="End" VerticalOptions="Start"
+            <Border x:Name="MoreMenuPanel" Style="{StaticResource BoxContainer}"
+                    HorizontalOptions="End" VerticalOptions="Start"
                     Margin="0,8,10,0" WidthRequest="220" IsVisible="True" TranslationX="300">
                 <VerticalStackLayout Spacing="6" WidthRequest="200">
                     <Button Text="Add Game" Clicked="MenuAddGame_Clicked" Style="{StaticResource PrimaryButton}"/>
@@ -119,3 +119,4 @@
         </Grid>
     </Grid>
 </ContentPage>
+    

@@ -65,9 +65,8 @@
                 </BoxView.GestureRecognizers>
             </BoxView>
 
-            <Border x:Name="MoreMenuPanel" Padding="8" BackgroundColor="{StaticResource PrimaryBackgroundColor}"
-                    Stroke="{StaticResource PrimaryAccentColor}" StrokeThickness="1" HorizontalOptions="End" VerticalOptions="Start"
-                    Margin="0,8,10,0" WidthRequest="220" IsVisible="True" TranslationX="300">
+            <Border x:Name="MoreMenuPanel" Style="{StaticResource BoxContainer}" HorizontalOptions="End" 
+                    VerticalOptions="Start" Margin="0,8,10,0" WidthRequest="220" IsVisible="True" TranslationX="300">
                 <VerticalStackLayout Spacing="6" WidthRequest="200">
                     <Button Text="Add Tournament" Clicked="MenuAdd_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Rankings" Clicked="MenuRankings_Clicked" Style="{StaticResource PrimaryButton}"/>

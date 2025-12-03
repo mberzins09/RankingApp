@@ -41,7 +41,6 @@ namespace RankingApp
             builder.Services.AddTransient<AllTournaments>();
             builder.Services.AddTransient<AllGames>();
             builder.Services.AddTransient<EditTournamentPlayer>();
-            builder.Services.AddTransient<ImportExport>();
             builder.Services.AddTransient<DoublesGameView>();
 
 #if DEBUG

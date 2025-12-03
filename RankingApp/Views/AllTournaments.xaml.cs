@@ -1,6 +1,4 @@
 using CommunityToolkit.Maui.Storage;
-using Microsoft.Maui.Controls;
-using RankingApp.Services;
 using RankingApp.ViewModels;
 using SQLite;
 
@@ -53,7 +51,6 @@ public partial class AllTournaments : ContentPage
     async Task CloseMenuAsync()
     {
         if (!_menuOpen) return;
-        // slide out to the right
         await MoreMenuPanel.TranslateTo(MoreMenuPanel.Width, 0, 200, Easing.CubicIn);
         MoreMenuOverlay.IsVisible = false;
         _menuOpen = false;
