@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
@@ -56,6 +57,26 @@ namespace RankingApp.ViewModels
         partial void OnSearchTextChanged(string? value) => ApplyAllFilters();
 
         partial void OnSelectedYearChanged(int value) => ApplyAllFilters();
+
+        [RelayCommand]
+        private async Task DeleteItemAsync(IGame item)
+        {
+            switch (item)
+            {
+                case Game game:
+                    await _database.DeleteAsync<Game>(game);
+                    break;
+
+                case DoublesGame doublesGame:
+                    await _database.DeleteAsync<DoublesGame>(doublesGame);
+                    break;
+
+                default:
+                    return;
+            }
+
+            await LoadDataAsync();
+        }
 
         public async Task LoadDataAsync()
         {

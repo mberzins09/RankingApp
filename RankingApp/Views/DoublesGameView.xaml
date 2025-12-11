@@ -8,10 +8,10 @@
              x:Class="RankingApp.Views.DoublesGameView"
              Title="Doubles Game"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid RowDefinitions="50, 3, 60, 30, 30, 30, 30, 40, 3, *, 3" ColumnDefinitions="3, 50, 50, 50, *, 50, 50, 50, 3" Style="{StaticResource PrimaryGrid}">
+    <Grid RowDefinitions="40, 3, 60, 25, 25, 25, 25, 25, 3, *, 3" ColumnDefinitions="3, 50, 50, 50, *, 50, 50, 50, 3" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
-        <ImageButton Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="50" HeightRequest="50" Source="savenoborder.png"
-                 x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryImageButton}" />
+        <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="60" MaximumHeightRequest="30" Text="Save"
+                x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" Padding="0" />
         <Label Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="3" x:Name ="LabelRatingDifference" 
            Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.RatingDifference}"  FontSize="24"/>
         <!-- Row 1 Empty-->
@@ -100,17 +100,30 @@
             <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent2Age}"/>
         </HorizontalStackLayout>
         <!-- Row 7 -->
-        <Picker Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" x:Name="MySetsPicker" Title="Sets"
-            Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.MySets}"/>
+        <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" x:Name="MySetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" 
+                    ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.MySets}"/>
+        </Border>
         <Label Grid.Row="7" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Score"/>
-        <Picker Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" x:Name="OpponentSetsPicker" Title="Sets" 
-            Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.OpponentSets}"/>
+        <Border Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" x:Name="OpponentSetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" 
+                    ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.OpponentSets}"/>
+        </Border>
         <!-- Row 8 Empty-->
         <!-- Row 9 -->
-        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="40, 40, *" ColumnDefinitions="100, *" Style="{StaticResource PrimaryGrid}">
-            <Picker Style="{StaticResource PrimaryPicker}" 
-                    ItemsSource="{Binding SelectionOptions}" SelectedItem="{Binding SelectionMode, Mode=TwoWay}">
-            </Picker>
+        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="30, 40, *" ColumnDefinitions="100, *" Style="{StaticResource PrimaryGrid}">
+            <Border MaximumWidthRequest="100" StrokeThickness="2">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="45"/>
+                </Border.StrokeShape>
+                <Picker Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SelectionOptions}" SelectedItem="{Binding SelectionMode, Mode=TwoWay}"/>
+            </Border>
             <SearchBar Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"
                    IsReadOnly="{Binding IsSearchDisabled}"/>
             <ListView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" Style="{StaticResource PrimaryListView}">
