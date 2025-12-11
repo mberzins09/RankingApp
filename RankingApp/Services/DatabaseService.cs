@@ -19,56 +19,29 @@ namespace RankingApp.Services
             _database.CreateTableAsync<DoublesGame>().Wait();
         }
 
-        public async Task<List<PlayerDB>> GetPlayersAsync()
+        public async Task<List<T>> GetAllRecordsAsync<T>() where T : Entity, new()
         {
-            return await _database.Table<PlayerDB>().ToListAsync();
+            return await _database.Table<T>().ToListAsync();
         }
 
-        public async Task<PlayerDB> GetPlayerAsync(int id)
+        public async Task<T?> GetByIdAsync<T>(int id) where T : Entity, new()
         {
-            var player = await _database.Table<PlayerDB>().Where(x => x.Id == id).FirstOrDefaultAsync();
-
-            return player;
+            return await _database.Table<T>().Where(x => x.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<List<Game>> GetGamesAsync()
+        public async Task<int> SaveAsync<T>(T entity) where T : Entity, new()
         {
-            return await _database.Table<Game>().ToListAsync();
+            return entity.Id == 0 ? await _database.InsertAsync(entity) : await _database.UpdateAsync(entity);
         }
 
-        public async Task<List<Tournament>> GetTournamentsAsync()
+        public async Task<int> DeleteAsync<T>(T entity) where T : Entity, new()
         {
-            return await _database.Table<Tournament>().ToListAsync();
+            return await _database.DeleteAsync(entity);
         }
 
-        public async Task<Game> GetGameAsync(int id)
+        public async Task<int> DeleteAllAsync<T>() where T : Entity, new()
         {
-            return await _database.Table<Game>().Where(i => i.Id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<Tournament> GetTournamentAsync(int id)
-        {
-            return await _database.Table<Tournament>().Where(i => i.Id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> SaveGameAsync(Game game)
-        {
-            return (game.Id != 0) ? await _database.UpdateAsync(game) : await _database.InsertAsync(game);
-        }
-
-        public async Task<int> SaveTournamentAsync(Tournament tournament)
-        {
-            return (tournament.Id != 0) ? await _database.UpdateAsync(tournament) : await _database.InsertAsync(tournament);
-        }
-
-        public async Task<int> DeleteGameAsync(Game game)
-        {
-            return await _database.DeleteAsync(game);
-        }
-
-        public async Task<int> DeleteTournamentAsync(Tournament tournament)
-        {
-            return await _database.DeleteAsync(tournament);
+            return await _database.DeleteAllAsync<T>();
         }
 
         public async Task<AppData> GetAppDataAsync()
@@ -79,83 +52,13 @@ namespace RankingApp.Services
                 data = new AppData();
                 await _database.InsertAsync(data);
             }
+
             return data;
         }
 
         public async Task SaveAppDataAsync(AppData appData)
         {
             await _database.InsertOrReplaceAsync(appData);
-        }
-
-        public async Task<List<DoublesGame>> GetDoublesGamesAsync()
-        {
-            return await _database.Table<DoublesGame>().ToListAsync();
-        }
-
-        public async Task<DoublesGame> GetDoublesGameAsync(int id)
-        {
-            return await _database.Table<DoublesGame>().Where(i => i.Id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> SaveDoublesGameAsync(DoublesGame doublesGame)
-        {
-            return (doublesGame.Id != 0) ? await _database.UpdateAsync(doublesGame) : await _database.InsertAsync(doublesGame);
-        }
-
-        public async Task<int> DeleteDoublesGameAsync(DoublesGame doublesGame)
-        {
-            return await _database.DeleteAsync(doublesGame);
-        }
-
-        public async Task UpdatePlayerAsync(PlayerDB player)
-        {
-            var existingPlayer = await _database.Table<PlayerDB>()
-                    .Where(p => p.Id == player.Id)
-                    .FirstOrDefaultAsync();
-            if (existingPlayer != null)
-            {
-                existingPlayer.Place = 6000;
-                existingPlayer.OverallPlace = 6000;
-                await _database.UpdateAsync(existingPlayer);
-            }
-        }
-
-        public async Task<int> UpdatePlayerIdAsync(int oldId, int newId)
-        {
-            var exists = await _database.Table<PlayerDB>().Where(p => p.Id == newId).FirstOrDefaultAsync();
-            if (exists != null)
-            {
-                return 0;
-            }
-
-            var rows = await _database.ExecuteAsync("UPDATE PlayerDB SET Id = ? WHERE Id = ?", newId, oldId);
-            return rows;
-        }
-
-        public async Task UpsertPlayersAsync(List<PlayerDB> players)
-        {
-            foreach (var player in players)
-            {
-                var existingPlayer = await _database.Table<PlayerDB>()
-                    .Where(p => p.Id == player.Id)
-                    .FirstOrDefaultAsync();
-
-                if (existingPlayer != null)
-                {
-                    existingPlayer.PointsChanged = player.PointsWithBonus - existingPlayer.PointsWithBonus;
-
-                    existingPlayer.PointsWithBonus = player.PointsWithBonus;
-                    existingPlayer.Points = player.Points;
-                    existingPlayer.Place = player.Place;
-                    existingPlayer.OverallPlace = player.OverallPlace;
-
-                    await _database.UpdateAsync(existingPlayer);
-                }
-                else
-                {
-                    await _database.InsertAsync(player);
-                }
-            }
         }
 
         public async Task BatchUpdatePlayerIdsAsync(IEnumerable<(int oldId, int newId)> updates)
@@ -172,11 +75,6 @@ namespace RankingApp.Services
             });
         }
 
-        public async Task<int> DeletePlayersAsync()
-        {
-            return await _database.DeleteAllAsync<PlayerDB>();
-        }
-
         public async Task BulkUpsertPlayersAsync(List<PlayerDB> apiPlayers)
         {
             if (apiPlayers == null || apiPlayers.Count == 0)
@@ -185,13 +83,11 @@ namespace RankingApp.Services
             var dbPlayers = await _database.Table<PlayerDB>().ToListAsync();
             var dbById = dbPlayers.ToDictionary(p => p.Id);
 
-            // Track used IDs (existing DB IDs)
             var usedIds = new HashSet<int>(dbPlayers.Select(p => p.Id));
 
             var toInsert = new List<PlayerDB>();
             var toUpdate = new List<PlayerDB>();
 
-            // Group incoming players by Id to detect duplicates within apiPlayers
             var groups = apiPlayers.GroupBy(p => p.Id);
 
             foreach (var group in groups)
@@ -202,10 +98,8 @@ namespace RankingApp.Services
                 {
                     var apiPlayer = incomingList[0];
 
-                    // If this id already exists in DB and DB record is present, treat as update candidate
                     if (dbById.TryGetValue(apiPlayer.Id, out var existing))
                     {
-                        // update only if fields changed
                         if (apiPlayer.PointsWithBonus != existing.PointsWithBonus ||
                             apiPlayer.Points != existing.Points ||
                             apiPlayer.Place != existing.Place ||
@@ -221,7 +115,6 @@ namespace RankingApp.Services
                     }
                     else
                     {
-                        // id not in DB; ensure it doesn't collide with already allocated ids (from other groups)
                         if (usedIds.Contains(apiPlayer.Id))
                         {
                             apiPlayer.Id = GetNextAvailableId(usedIds);
@@ -235,18 +128,14 @@ namespace RankingApp.Services
                 }
                 else
                 {
-                    // Duplicate id found in apiPlayers
-                    // Choose one to keep the original id (highest PointsWithBonus), reassign others
                     var ordered = incomingList
                         .OrderByDescending(p => p.PointsWithBonus)
                         .ThenByDescending(p => p.Points)
                         .ToList();
 
-                    // First (best) player: try to keep original id if not used; otherwise assign new id
                     var keeper = ordered[0];
                     if (dbById.TryGetValue(keeper.Id, out var existingKeeper))
                     {
-                        // If DB already has that id -> treat keeper as update candidate (merge into DB record)
                         if (keeper.PointsWithBonus != existingKeeper.PointsWithBonus ||
                             keeper.Points != existingKeeper.Points ||
                             keeper.Place != existingKeeper.Place ||
@@ -260,12 +149,10 @@ namespace RankingApp.Services
                             toUpdate.Add(existingKeeper);
                         }
 
-                        // Mark the id as used
                         usedIds.Add(existingKeeper.Id);
                     }
                     else
                     {
-                        // Keeper id is not in DB. If usedIds already contains it (from earlier reassignments), we must allocate new id.
                         if (usedIds.Contains(keeper.Id))
                         {
                             keeper.Id = GetNextAvailableId(usedIds);
@@ -277,7 +164,6 @@ namespace RankingApp.Services
                         toInsert.Add(keeper);
                     }
 
-                    // Others in this duplicate group: assign new IDs
                     for (int i = 1; i < ordered.Count; i++)
                     {
                         var duplicate = ordered[i];
@@ -287,7 +173,6 @@ namespace RankingApp.Services
                 }
             }
 
-            // Deactivate players missing from API
             var apiIdsFinal = new HashSet<int>(apiPlayers.Select(p => p.Id));
             var toDeactivate = dbPlayers.Where(p => !apiIdsFinal.Contains(p.Id)).ToList();
             foreach (var player in toDeactivate)
@@ -296,7 +181,6 @@ namespace RankingApp.Services
                 player.OverallPlace = 6000;
             }
 
-            // Perform DB operations inside a single transaction and await it
             await _database.RunInTransactionAsync(conn =>
             {
                 if (toInsert.Count > 0)
@@ -393,7 +277,6 @@ namespace RankingApp.Services
 
                 var oldDb = new SQLiteAsyncConnection(oldDbPath);
 
-                // Ensure old DB has tables
                 await oldDb.CreateTableAsync<Game>();
                 await oldDb.CreateTableAsync<Tournament>();
 
@@ -406,7 +289,6 @@ namespace RankingApp.Services
                 foreach (var tournament in oldTournaments)
                     await mainDb.InsertOrReplaceAsync(tournament);
 
-                // Optional: delete old DB
                 File.Delete(oldDbPath);
             }
         }
@@ -428,10 +310,8 @@ namespace RankingApp.Services
             await MigrateAppDataTableAsync();
         }
 
-        // Helper: find next available id (starts at 20000 if lower ids are free)
         private int GetNextAvailableId(HashSet<int> usedIds, int start = 20000)
         {
-            // Prefer an id >= start, but if there are used ids above start, pick max+1
             int candidate = Math.Max(start, usedIds.Any() ? usedIds.Max() + 1 : start);
             while (usedIds.Contains(candidate))
             {

@@ -63,11 +63,11 @@ namespace RankingApp.ViewModels
         public async Task LoadDataAsync()
         {
             IsSearchDisabled = true;
-            OneGame = await _databaseService.GetGameAsync(Data.GameId);
-            var tournament = await _databaseService.GetTournamentAsync(OneGame.TournamentId);
+            OneGame = await _databaseService.GetByIdAsync<Game>(Data.GameId);
+            var tournament = await _databaseService.GetByIdAsync<Tournament>(OneGame.TournamentId);
             OneGame.GameCoefficient = tournament.Coefficient;
             var appData = await _databaseService.GetAppDataAsync();
-            var dbPlayers = await _databaseService.GetPlayersAsync();
+            var dbPlayers = await _databaseService.GetAllRecordsAsync<PlayerDB>();
 
             _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderBy(x => x.OverallPlace).ToList();
             int tournamentYear = tournament.Date.Year;
@@ -95,13 +95,13 @@ namespace RankingApp.ViewModels
             }
 
             SelectedOpponentForeignOption = IsOpponentForeignOptions.FirstOrDefault(x => x.Value == OneGame.IsOpponentForeign);
-            await _databaseService.SaveGameAsync(OneGame);
+            await _databaseService.SaveAsync<Game>(OneGame);
             IsSearchDisabled = false;
         }
 
         public async Task SaveGameAsync()
         {
-            await _databaseService.SaveGameAsync(OneGame);
+            await _databaseService.SaveAsync<Game>(OneGame);
         }
 
         public void FilterPlayers(string? searchText)

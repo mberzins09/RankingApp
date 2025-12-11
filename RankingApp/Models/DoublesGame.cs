@@ -3,11 +3,8 @@ using SQLite;
 
 namespace RankingApp.Models
 {
-    public partial class DoublesGame : ObservableObject, IGame
+    public partial class DoublesGame : Entity, IGame
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
-
         // My team
         [ObservableProperty]
         private string myName;

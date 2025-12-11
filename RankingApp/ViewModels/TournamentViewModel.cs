@@ -131,13 +131,13 @@ namespace RankingApp.ViewModels
         {
             if (OneTournament != null)
             {
-                await _database.SaveTournamentAsync(OneTournament);
+                await _database.SaveAsync<Tournament>(OneTournament);
             }
         }
 
         public async Task LoadDataAsync()
         {
-            OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
+            OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
             await LoadGamesAsync();
 
             if (OneTournament == null)
@@ -164,17 +164,17 @@ namespace RankingApp.ViewModels
             }
             else
             {
-                _playersCache = await _database.GetPlayersAsync();
+                _playersCache = await _database.GetAllRecordsAsync<PlayerDB>();
             }
         }
 
         public async Task LoadGamesAsync()
         {
-            OneTournament = await _database.GetTournamentAsync(Data.TournamentId);
-            var allGames = await _database.GetGamesAsync();
+            OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
+            var allGames = await _database.GetAllRecordsAsync<Game>();
             _games = [.. allGames.Where(x => x.TournamentId == Data.TournamentId)];
 
-            var allDoublesGames = await _database.GetDoublesGamesAsync();
+            var allDoublesGames = await _database.GetAllRecordsAsync<DoublesGame>();
             _doubleGames = [.. allDoublesGames.Where(x => x.TournamentId == Data.TournamentId)];
 
             OneTournament.PointsDifference = allGames
@@ -190,11 +190,11 @@ namespace RankingApp.ViewModels
             switch (item)
             {
                 case Game game:
-                    await _database.DeleteGameAsync(game);
+                    await _database.DeleteAsync<Game>(game);
                     break;
 
                 case DoublesGame doublesGame:
-                    await _database.DeleteDoublesGameAsync(doublesGame);
+                    await _database.DeleteAsync<DoublesGame>(doublesGame);
                     break;
 
                 default:
@@ -249,7 +249,7 @@ namespace RankingApp.ViewModels
             {
                 if (_playersCache == null || _playersCache.Count == 0)
                 {
-                    _playersCache = await _database.GetPlayersAsync();
+                    _playersCache = await _database.GetAllRecordsAsync<PlayerDB>();
                 }
 
                 var appData = await _database.GetAppDataAsync();
@@ -297,7 +297,7 @@ namespace RankingApp.ViewModels
                     TournamentName = tournamentName
                 };
 
-                await _database.SaveDoublesGameAsync(doublesGame);
+                await _database.SaveAsync<DoublesGame>(doublesGame);
                 Data.GameId = doublesGame.Id;
             }
             else
@@ -318,7 +318,7 @@ namespace RankingApp.ViewModels
                     TournamentName = tournamentName
                 };
 
-                await _database.SaveGameAsync(game);
+                await _database.SaveAsync<Game>(game);
                 Data.GameId = game.Id;
             }
         }
@@ -328,8 +328,8 @@ namespace RankingApp.ViewModels
             if (OneTournament is null)
                 return;
 
-            var games = await _database.GetGamesAsync();
-            var doublesGames = await _database.GetDoublesGamesAsync();
+            var games = await _database.GetAllRecordsAsync<Game>();
+            var doublesGames = await _database.GetAllRecordsAsync<DoublesGame>();
 
             var dateGames = games.Where(x => x.TournamentId == OneTournament.Id).ToList();
             var dateDoublesGames = doublesGames.Where(x => x.TournamentId == OneTournament.Id).ToList();
@@ -338,17 +338,17 @@ namespace RankingApp.ViewModels
             {
                 game.TournamentDate = date;
 
-                await _database.SaveGameAsync(game);
+                await _database.SaveAsync<Game>(game);
             }
 
             foreach (var doubleGame in dateDoublesGames)
             {
                 doubleGame.TournamentDate = date;
 
-                await _database.SaveDoublesGameAsync(doubleGame);
+                await _database.SaveAsync<DoublesGame>(doubleGame);
             }
 
-            await _database.SaveTournamentAsync(OneTournament);
+            await _database.SaveAsync<Tournament>(OneTournament);
             await LoadGamesAsync();
             await FillPlayersAsync();
         }
@@ -358,8 +358,8 @@ namespace RankingApp.ViewModels
             if (OneTournament is null)
                 return;
 
-            var games = await _database.GetGamesAsync();
-            var doublesGames = await _database.GetDoublesGamesAsync();
+            var games = await _database.GetAllRecordsAsync<Game>();
+            var doublesGames = await _database.GetAllRecordsAsync<DoublesGame>();
 
             var coefGames = games.Where(x => x.TournamentId == OneTournament.Id).ToList();
             var coefDoublesGames = doublesGames.Where(x => x.TournamentId == OneTournament.Id).ToList();
@@ -368,17 +368,17 @@ namespace RankingApp.ViewModels
             {
                 game.GameCoefficient = coef;
 
-                await _database.SaveGameAsync(game);
+                await _database.SaveAsync<Game>(game);
             }
 
             foreach (var doublegame in coefDoublesGames)
             {
                 doublegame.GameCoefficient = coef;
 
-                await _database.SaveDoublesGameAsync(doublegame);
+                await _database.SaveAsync<DoublesGame>(doublegame);
             }
 
-            await _database.SaveTournamentAsync(OneTournament);
+            await _database.SaveAsync<Tournament>(OneTournament);
             await LoadGamesAsync();
         }
 
@@ -387,8 +387,8 @@ namespace RankingApp.ViewModels
             if (OneTournament is null)
                 return;
 
-            var games = await _database.GetGamesAsync();
-            var doublesGames = await _database.GetDoublesGamesAsync();
+            var games = await _database.GetAllRecordsAsync<Game>();
+            var doublesGames = await _database.GetAllRecordsAsync<DoublesGame>();
 
             var nameGames = games.Where(x => x.TournamentId == OneTournament.Id).ToList();
             var nameDoublesGames = doublesGames.Where(x => x.TournamentId == OneTournament.Id).ToList();
@@ -397,17 +397,17 @@ namespace RankingApp.ViewModels
             {
                 game.TournamentName = name;
 
-                await _database.SaveGameAsync(game);
+                await _database.SaveAsync<Game>(game);
             }
 
             foreach (var doubleGame in nameDoublesGames)
             {
                 doubleGame.TournamentName = name;
 
-                await _database.SaveDoublesGameAsync(doubleGame);
+                await _database.SaveAsync<DoublesGame>(doubleGame);
             }
 
-            await _database.SaveTournamentAsync(OneTournament);
+            await _database.SaveAsync<Tournament>(OneTournament);
             await LoadGamesAsync();
         }
     }

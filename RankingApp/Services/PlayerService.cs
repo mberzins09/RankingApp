@@ -40,12 +40,12 @@ namespace RankingApp.Services
             }
 
             progressCallback?.Invoke("Sorting players...");
-            return (await _database.GetPlayersAsync()).OrderByDescending(x => x.PointsWithBonus).ToList();
+            return (await _database.GetAllRecordsAsync<PlayerDB>()).OrderByDescending(x => x.PointsWithBonus).ToList();
         }
 
         public async Task<List<PlayerDB>> GetPlayersFromDbAsync()
         {
-            return (await _database.GetPlayersAsync()).OrderByDescending(x => x.PointsWithBonus).ToList();
+            return (await _database.GetAllRecordsAsync<PlayerDB>()).OrderByDescending(x => x.PointsWithBonus).ToList();
         }
 
         private async Task SyncWithLocalDb(List<PlayerDB> apiPlayers)
@@ -121,7 +121,7 @@ namespace RankingApp.Services
 
         public async Task DeleteAllPlayersInDatabse()
         {
-            await _database.DeletePlayersAsync();
+            await _database.DeleteAllAsync<PlayerDB>();
         }
 
         private async Task UpdateOctoberWithIdReassignmentAsync(Action<string>? statusCallback = null)
@@ -137,7 +137,7 @@ namespace RankingApp.Services
                 return;
             }
 
-            var dbPlayers = await _database.GetPlayersAsync();
+            var dbPlayers = await _database.GetAllRecordsAsync<PlayerDB>();
             int nextNewId = 20000;
 
             while (dbPlayers.Any(p => p.Id == nextNewId))
@@ -332,7 +332,7 @@ namespace RankingApp.Services
             if (foundInNewById != null)
                 matchNew = foundInNewById;
 
-            var dbPlayers = await _database.GetPlayersAsync();
+            var dbPlayers = await _database.GetAllRecordsAsync<PlayerDB>();
             var dbUser = dbPlayers.FirstOrDefault(p => p.Id == persistedId);
 
             if (dbUser != null)

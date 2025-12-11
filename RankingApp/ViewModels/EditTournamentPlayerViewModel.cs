@@ -48,8 +48,8 @@ namespace RankingApp.ViewModels
         public async Task LoadDataAsync()
         {
             IsSearchDisabled = true;
-            CurrentTournament = await _database.GetTournamentAsync(Data.TournamentId);
-            var players = await _database.GetPlayersAsync();
+            CurrentTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
+            var players = await _database.GetAllRecordsAsync<PlayerDB>();
             _allPlayers = players.OrderByDescending(x => x.PointsWithBonus).ToList();
 
             Players = new ObservableCollection<PlayerDB>(_allPlayers);
@@ -58,7 +58,7 @@ namespace RankingApp.ViewModels
 
         public async Task<List<PlayerDB>> GetPlayers()
         {
-            var players = await _database.GetPlayersAsync();
+            var players = await _database.GetAllRecordsAsync<PlayerDB>();
             var list = players.OrderByDescending(x => x.PointsWithBonus).ToList();
 
             return list;
@@ -85,7 +85,7 @@ namespace RankingApp.ViewModels
             if (CurrentTournament is null)
                 return;
 
-            var Games = await _database.GetGamesAsync();
+            var Games = await _database.GetAllRecordsAsync<Game>();
             var nameGames = Games.Where(x => x.TournamentId == CurrentTournament.Id).ToList();
             foreach (var game in nameGames)
             {
@@ -96,10 +96,10 @@ namespace RankingApp.ViewModels
                 game.MyPlace = place;
                 game.MyAge = age;
 
-                await _database.SaveGameAsync(game);
+                await _database.SaveAsync<Game>(game);
             }
 
-            await _database.SaveTournamentAsync(CurrentTournament);
+            await _database.SaveAsync<Tournament>(CurrentTournament);
         }
     }
 }

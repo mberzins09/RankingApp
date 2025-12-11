@@ -3,11 +3,8 @@ using SQLite;
 
 namespace RankingApp.Models
 {
-    public partial class Game : ObservableObject, IGame
+    public partial class Game : Entity, IGame
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
-
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
         private int myPoints;

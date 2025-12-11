@@ -59,10 +59,10 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
-            var localGames = await _database.GetGamesAsync();
+            var localGames = await _database.GetAllRecordsAsync<Game>();
             _allGames = [.. localGames.OrderByDescending(x => x.TournamentDate)];
 
-            var localDoubles = await _database.GetDoublesGamesAsync();
+            var localDoubles = await _database.GetAllRecordsAsync<DoublesGame>();
             _allDoublesGames = [.. localDoubles.OrderByDescending(x => x.TournamentDate)];
 
             var allYears = _allGames

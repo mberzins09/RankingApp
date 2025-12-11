@@ -3,11 +3,8 @@ using SQLite;
 
 namespace RankingApp.Models
 {
-    public partial class Tournament : ObservableObject
+    public partial class Tournament : Entity
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
-
         [ObservableProperty]
         private string coefficient;
 

@@ -85,11 +85,11 @@ namespace RankingApp.ViewModels
         public async Task LoadDataAsync()
         {
             IsSearchDisabled = true;
-            OneDoublesGame = await _databaseService.GetDoublesGameAsync(Data.GameId);
-            var tournament = await _databaseService.GetTournamentAsync(OneDoublesGame.TournamentId);
+            OneDoublesGame = await _databaseService.GetByIdAsync<DoublesGame>(Data.GameId);
+            var tournament = await _databaseService.GetByIdAsync<Tournament>(OneDoublesGame.TournamentId);
             OneDoublesGame.GameCoefficient = tournament.Coefficient;
             var appData = await _databaseService.GetAppDataAsync();
-            var dbPlayers = await _databaseService.GetPlayersAsync();
+            var dbPlayers = await _databaseService.GetAllRecordsAsync<PlayerDB>();
 
             _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderBy(x => x.OverallPlace).ToList();
             SelectionMode = SelectionOptions[0];
@@ -117,14 +117,14 @@ namespace RankingApp.ViewModels
                 Players = new ObservableCollection<PlayerDB>(_allPlayers);
             }
 
-            await _databaseService.SaveDoublesGameAsync(OneDoublesGame);
+            await _databaseService.SaveAsync<DoublesGame>(OneDoublesGame);
             IsSearchDisabled = false;
         }
 
         public async Task SaveDoublesGameAsync()
         {
             if (OneDoublesGame != null)
-                await _databaseService.SaveDoublesGameAsync(OneDoublesGame);
+                await _databaseService.SaveAsync<DoublesGame>(OneDoublesGame);
         }
 
         public void FilterPlayers(string? searchText)

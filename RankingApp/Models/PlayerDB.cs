@@ -3,11 +3,8 @@ using SQLite;
 
 namespace RankingApp.Models
 {
-    public partial class PlayerDB : ObservableObject
+    public partial class PlayerDB : Entity
     {
-        [PrimaryKey]
-        public int Id { get; set; }
-
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Display))]
         private int place;

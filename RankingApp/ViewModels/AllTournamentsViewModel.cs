@@ -48,13 +48,13 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         var Games = await GetGames(tournament.Id);
         foreach (var game in Games)
         {
-            await _database.DeleteGameAsync(game);
+            await _database.DeleteAsync<Game>(game);
         }
 
         var Doubles = await GetDoubles(tournament.Id);
         foreach (var doubleG in Doubles)
         {
-            await _database.DeleteDoublesGameAsync(doubleG);
+            await _database.DeleteAsync<DoublesGame>(doubleG);
         }
 
         await DeleteTournament(tournament);
@@ -75,9 +75,9 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
     public async Task LoadDataAsync()
     {
         await _playerService.EnsureAppUserOldAndNewIdsAsync();
-        var tournaments = await _database.GetTournamentsAsync();
+        var tournaments = await _database.GetAllRecordsAsync<Tournament>();
         _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
-        var allGames = await _database.GetGamesAsync();
+        var allGames = await _database.GetAllRecordsAsync<Game>();
         foreach (var tournament in _allTournaments) 
         {
             tournament.PointsDifference = allGames
@@ -121,7 +121,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
     public async Task<List<Game>> GetGames(int id)
     {
-        var Games = await _database.GetGamesAsync();
+        var Games = await _database.GetAllRecordsAsync<Game>();
         var list = Games.Where(x => x.TournamentId == id).ToList();
 
         return list;
@@ -129,7 +129,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
     public async Task<List<DoublesGame>> GetDoubles(int id)
     {
-        var Doubles = await _database.GetDoublesGamesAsync();
+        var Doubles = await _database.GetAllRecordsAsync<DoublesGame>();
         var list = Doubles.Where(x => x.TournamentId == id).ToList();
 
         return list;
@@ -137,7 +137,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
     public async Task DeleteTournament(Tournament tournament)
     {
-        await _database.DeleteTournamentAsync(tournament);
+        await _database.DeleteAsync<Tournament>(tournament);
     }
 
     public async Task CreateNewTournamentSave()
@@ -147,18 +147,18 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
         if (appData.AppUserPlayerId != 0)
         {
-            playerDB = await _database.GetPlayerAsync(appData.AppUserPlayerId);
+            playerDB = await _database.GetByIdAsync<PlayerDB>(appData.AppUserPlayerId);
 
             if (playerDB == null)
             {
                 if (appData.AppUserOldId != 0 && appData.AppUserOldId != appData.AppUserPlayerId)
                 {
-                    playerDB = await _database.GetPlayerAsync(appData.AppUserOldId);
+                    playerDB = await _database.GetByIdAsync<PlayerDB>(appData.AppUserOldId);
                 }
 
                 if (playerDB == null && appData.AppUserNewId != 0 && appData.AppUserNewId != appData.AppUserPlayerId)
                 {
-                    playerDB = await _database.GetPlayerAsync(appData.AppUserNewId);
+                    playerDB = await _database.GetByIdAsync<PlayerDB>(appData.AppUserNewId);
                 }
             }
         }
@@ -187,7 +187,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
             TournamentPlayerId = player.Id
         };
         
-        await _database.SaveTournamentAsync(tournament);
+        await _database.SaveAsync<Tournament>(tournament);
         Data.TournamentId = tournament.Id;
     }
 
