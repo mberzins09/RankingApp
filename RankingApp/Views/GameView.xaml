@@ -11,7 +11,7 @@
     <Grid RowDefinitions="40, 3, 25, 25, 25, 25, 25, 25, 3, *, 50" ColumnDefinitions="1, 30, 100, 30, *, 30, 100, 30, 1" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
         <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="60" MaximumHeightRequest="30" Text="Save"
-                     x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" Padding="0" />
+                     x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" />
         <Label Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="3" x:Name ="LabelRatingDifference" 
                Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.RatingDifference}"  FontSize="24"/>
         <!-- Row 1 -->

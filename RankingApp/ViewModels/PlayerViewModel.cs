@@ -17,6 +17,19 @@ namespace RankingApp.ViewModels
         private List<PlayerDB>? _filteredPlayers = new();
         private AppData? _cachedAppData;
         private System.Timers.Timer? _searchDebounceTimer;
+        private List<Game> _allGames = new();
+
+        [ObservableProperty]
+        private ObservableCollection<Game>? filteredGames;
+
+        [ObservableProperty]
+        private GameStatistics? stats;
+
+        [ObservableProperty]
+        private bool isGamesOverlayVisible;
+
+        [ObservableProperty]
+        private PlayerDB? selectedPlayer;
 
         [ObservableProperty]
         private DateTime minDate = new(2014, 1, 1);
@@ -50,6 +63,46 @@ namespace RankingApp.ViewModels
             var appData = await _playerService.GetAppDataAsync();
             appData.AppUserPlayerId = player.Id;
             await _playerService.SaveAppDataAsync(appData);
+        }
+
+        [RelayCommand]
+        private void PlayerSelected(PlayerDB player)
+        {
+            if (player == null)
+                return;
+
+            SelectedPlayer = player;
+
+            var games = _allGames
+        .Where(g =>
+            // NAME match
+            (
+                g.Name.Equals(player.Name, StringComparison.OrdinalIgnoreCase)
+                || (g.Name.Equals("Edgars", StringComparison.OrdinalIgnoreCase)
+                    && (player.Name.Equals("Edgars", StringComparison.OrdinalIgnoreCase)
+                        || player.Name.Equals("Edgars(R)", StringComparison.OrdinalIgnoreCase)))
+            )
+            &&
+            // SURNAME match
+            (
+                g.Surname.Equals(player.Surname, StringComparison.OrdinalIgnoreCase)
+                || (g.Surname.Equals("Grīnbergs", StringComparison.OrdinalIgnoreCase)
+                    && (player.Surname.Equals("Grinbergs", StringComparison.OrdinalIgnoreCase)
+                        || player.Surname.Equals("Grīnbergs", StringComparison.OrdinalIgnoreCase)))
+            )
+        )
+        .OrderByDescending(g => g.TournamentDate);
+
+            FilteredGames = new ObservableCollection<Game>(games);
+            Stats = GameStatisticsCalculator.Calculate(FilteredGames);
+            IsGamesOverlayVisible = true;
+        }
+
+        [RelayCommand]
+        private void CloseGamesOverlay()
+        {
+            IsGamesOverlayVisible = false;
+            FilteredGames?.Clear();
         }
 
         public async Task UpdateAllPlayersAsync()
@@ -128,6 +181,7 @@ namespace RankingApp.ViewModels
         public async Task LoadDataAsync()
         {
             _allPlayers = await _playerService.GetPlayersFromDbAsync();
+            _allGames = await _playerService.GetGamesFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
             FilterPlayers();
             await UpdateAppDataLabel();

@@ -6,7 +6,9 @@
              xmlns:rankingApp="using:RankingApp"
              xmlns:model="clr-namespace:RankingApp.Models"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:converters="clr-namespace:RankingApp.Converters"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:DataType="viewmodel:PlayerViewModel"
              x:Class="RankingApp.Views.AllPlayerRanking"
              Title="Players Ranking"
@@ -45,7 +47,12 @@
             <Label Grid.Row="1" Grid.Column="2" Text="Points" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="4" Text="WithBonus" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="5" Text="+/-" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
-            <ListView Grid.Row="2" Grid.ColumnSpan="7" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Players}">
+            <ListView Grid.Row="2" Grid.ColumnSpan="7" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}" SelectionMode="Single" ItemTapped="ListView_ItemTapped">
+                <ListView.Behaviors>
+                    <toolkit:EventToCommandBehavior
+                        EventName="ItemSelected"
+                        Command="{Binding PlayerSelectedCommand}"/>
+                </ListView.Behaviors>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>
@@ -109,6 +116,34 @@
                     <Button Text="Refresh Rankings" Clicked="RefreshButton_Clicked" Style="{StaticResource PrimaryButton}"
                             Padding="0"/>
                 </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- After Player Clicked -->
+        <Grid IsVisible="{Binding IsGamesOverlayVisible}" InputTransparent="False" Grid.RowSpan="5" Grid.ColumnSpan="7">
+            <!-- Background -->
+            <BoxView Style="{StaticResource PrimaryBoxView}">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseGamesOverlayCommand}" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <!-- Panel -->
+            <Border Style="{StaticResource BoxContainer}" HorizontalOptions="Center" VerticalOptions="Center">
+                <Grid RowDefinitions="20, 70, *" ColumnDefinitions="*, 50">
+                    <Button Grid.Column="1" FontSize="12" Text="Close" Command="{Binding CloseGamesOverlayCommand}" Style="{StaticResource PrimaryButton}"/>
+                    <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.Row="1" Grid.ColumnSpan="2"/>
+                    <CollectionView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding FilteredGames}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:Game">
+                                <Grid RowDefinitions="*, *" ColumnDefinitions="*, 50">
+                                    <Label Text="{Binding GameDisplayPlayers}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                    <Label Text="{Binding Gamescore}" FontSize="12" Grid.Column="1" Style="{StaticResource ListItemLabel}"/>
+                                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding GameDisplayDetails}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
             </Border>
         </Grid>
     </Grid>

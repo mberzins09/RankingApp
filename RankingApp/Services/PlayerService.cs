@@ -53,6 +53,11 @@ namespace RankingApp.Services
             await _database.BulkUpsertPlayersAsync(apiPlayers);
         }
 
+        public async Task<List<Game>> GetGamesFromDbAsync()
+        {
+            return await _database.GetAllRecordsAsync<Game>();
+        }
+
         public async Task FillDatabaseWithOldRankingsUntilIdChangeAsync(Action<string>? statusCallback = null)
         {
             int startYear = 2014;

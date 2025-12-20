@@ -1,3 +1,4 @@
+using RankingApp.Models;
 using RankingApp.ViewModels;
 
 namespace RankingApp.Views;
@@ -65,5 +66,15 @@ public partial class AllPlayerRanking : ContentPage
     {
         await CloseMenuAsync();
         await _viewModel.UpdateAllPlayersAsync();
+    }
+
+    private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
+    {
+        if (BindingContext is PlayerViewModel vm && e.Item is PlayerDB player)
+        {
+            vm.PlayerSelectedCommand.Execute(player);
+        }
+
+    ((ListView)sender).SelectedItem = null; // prevent stuck selection
     }
 }

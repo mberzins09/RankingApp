@@ -94,6 +94,7 @@ public partial class AllTournaments : ContentPage
     {
         await CloseMenuAsync();
         await ImportDatabaseAsync();
+        await _viewModel.LoadDataAsync();
     }
 
     private async void MenuExport_Clicked(object sender, EventArgs e)

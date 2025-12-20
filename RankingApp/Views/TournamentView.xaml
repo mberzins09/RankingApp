@@ -2,10 +2,11 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:RankingApp.Models"
-             xmlns:views="clr-namespace:RankingApp.ViewModels"
+             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:app="using:RankingApp"
-             x:DataType="views:TournamentViewModel"
+             x:DataType="viewmodel:TournamentViewModel"
              x:Class="RankingApp.Views.TournamentView"
              Title="Tournament"
              Style="{StaticResource PrimaryContentPage}">
@@ -53,32 +54,7 @@
         <!-- Row 2 -->
         <Entry Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" FontSize="16" Focused="Entry_Focused" />
         <!-- Row 3 -->
-        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="15, 15, 15, 15" ColumnDefinitions="*, 60, 60, 60, 60" ColumnSpacing="10" RowSpacing="2">
-            <!-- Header row -->
-            <Label Grid.Row="0" Grid.Column="0" Text="" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="0" Grid.Column="1" Text="Total" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="0" Grid.Column="2" Text="Won" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="0" Grid.Column="3" Text="Lost" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="0" Grid.Column="4" Text="%" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <!-- Games row -->
-            <Label Grid.Row="1" Grid.Column="0" Text="Games:" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="1" Grid.Column="2" Text="{Binding TotalWins}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="1" Grid.Column="3" Text="{Binding TotalLosses}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="1" Grid.Column="4" Text="{Binding TotalGamesPercentage}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <!-- Sets row -->
-            <Label Grid.Row="2" Grid.Column="0" Text="Sets:" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalSets}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="2" Grid.Column="2" Text="{Binding TotalSetsWon}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="2" Grid.Column="3" Text="{Binding TotalSetsLost}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="2" Grid.Column="4" Text="{Binding TotalSetsPercentage}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <!-- Fifth sets row -->
-            <Label Grid.Row="3" Grid.Column="0" Text="5th Sets:" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="3" Grid.Column="1" Text="{Binding FifthSetTotal}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="3" Grid.Column="2" Text="{Binding FifthSetsWon}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="3" Grid.Column="3" Text="{Binding FifthSetsLost}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-            <Label Grid.Row="3" Grid.Column="4" Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}" FontSize="12"/>
-        </Grid>
+        <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5"/>
         <!-- Row 4 -->
         <ListView Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" ItemsSource="{Binding DisplayGames}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             <ListView.ItemTemplate>

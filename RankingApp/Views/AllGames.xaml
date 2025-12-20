@@ -2,11 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="RankingApp.Views.AllGames"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
-             x:DataType="viewmodel:AllGamesViewModel"
              xmlns:converters="clr-namespace:RankingApp.Converters"
+             xmlns:views="clr-namespace:RankingApp.Views"
+             x:Class="RankingApp.Views.AllGames"
+             x:DataType="viewmodel:AllGamesViewModel"
              x:Name="ThisPage"
              Title="All Games"
              Style="{StaticResource PrimaryContentPage}">
@@ -34,25 +35,8 @@
                 </Picker.ItemDisplayBinding>
             </Picker>
         </Border>
-        <Grid Grid.Row="2" Grid.ColumnSpan="3" RowDefinitions="30, 30, 40, *" ColumnDefinitions="*, *, *, *">
-            <HorizontalStackLayout Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-                <Label Text="Games: " Style="{StaticResource ListItemLabel}"/>
-                <Label Text="{Binding TotalGames}" Style="{StaticResource ListItemLabel}"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-                <Label Text="Balance: " Style="{StaticResource ListItemLabel}"/>
-                <Label Text="{Binding TotalWins}" Style="{StaticResource ListItemLabel}"/>
-                <Label Text=" - " Style="{StaticResource ListItemLabel}"/>
-                <Label Text="{Binding TotalLosses}" Style="{StaticResource ListItemLabel}"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-                <Label Text="5 Set games: " Style="{StaticResource ListItemLabel}"/>
-                <Label Text="{Binding FifthSetTotal}" Style="{StaticResource ListItemLabel}"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PrimaryHorizontal}">
-                <Label Text="5 Set Win %: " Style="{StaticResource ListItemLabel}"/>
-                <Label Text="{Binding FifthSetWinPercentage}" Style="{StaticResource ListItemLabel}"/>
-            </HorizontalStackLayout>
+        <Grid Grid.Row="2" Grid.ColumnSpan="3" RowDefinitions="40, 40, 40, *" ColumnDefinitions="*, *, *, *">
+            <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.RowSpan="2" Grid.ColumnSpan="4"/>
             <SearchBar Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
             <CollectionView Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding DisplayGames}" SelectionMode="None">
                 <CollectionView.ItemTemplate>

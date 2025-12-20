@@ -110,6 +110,8 @@
                 <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
                 <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Gray500}, Light={StaticResource Gray200}}"/>
                 <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="0"/>
             </Style>
 
             <!-- ContentPage -->

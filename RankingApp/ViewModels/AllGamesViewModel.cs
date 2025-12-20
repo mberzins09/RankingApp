@@ -26,19 +26,7 @@ namespace RankingApp.ViewModels
         private ObservableCollection<IGame> displayGames = [];
 
         [ObservableProperty]
-        private int totalGames;
-
-        [ObservableProperty]
-        private int totalWins;
-
-        [ObservableProperty]
-        private int totalLosses;
-
-        [ObservableProperty]
-        private int fifthSetTotal;
-
-        [ObservableProperty]
-        private double fifthSetWinPercentage;
+        private GameStatistics? stats;
 
         [ObservableProperty]
         private int selectedYear = 0;
@@ -175,24 +163,7 @@ namespace RankingApp.ViewModels
 
             DisplayGames = new ObservableCollection<IGame>(source.OrderByDescending(g => g.TournamentDate));
 
-            UpdateStats();
-        }
-
-        private void UpdateStats()
-        {
-            IEnumerable<IGame> statsSource = DisplayGames;
-
-            TotalGames = statsSource.Count();
-            TotalWins = statsSource.Count(g => g.IsWin);
-            TotalLosses = statsSource.Count(g => !g.IsWin);
-
-            var fifthSetGames = statsSource.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
-            FifthSetTotal = fifthSetGames.Count();
-            var fifthSetWins = fifthSetGames.Count(g => g.IsWin);
-
-            FifthSetWinPercentage = FifthSetTotal > 0
-                ? Math.Round((double)fifthSetWins / FifthSetTotal * 100, 2)
-                : 0;
+            Stats = GameStatisticsCalculator.Calculate(DisplayGames);
         }
     }
 }

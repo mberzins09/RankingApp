@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:model="clr-namespace:RankingApp.Models"
+    x:Class="RankingApp.Views.GameStatisticsView"
+    x:DataType="model:GameStatistics">
+
+    <Grid RowDefinitions="15,15,15,15"
+          ColumnDefinitions="*,60,60,60,60"
+          ColumnSpacing="10"
+          RowSpacing="2">
+
+        <Label Grid.Row="0" Grid.Column="1" Text="Total" FontSize="12"/>
+        <Label Grid.Row="0" Grid.Column="2" Text="Won" FontSize="12"/>
+        <Label Grid.Row="0" Grid.Column="3" Text="Lost" FontSize="12"/>
+        <Label Grid.Row="0" Grid.Column="4" Text="%" FontSize="12"/>
+
+        <Label Grid.Row="1" Grid.Column="0" Text="Games:" FontSize="12"/>
+        <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalGames}"/>
+        <Label Grid.Row="1" Grid.Column="2" Text="{Binding TotalWins}"/>
+        <Label Grid.Row="1" Grid.Column="3" Text="{Binding TotalLosses}"/>
+        <Label Grid.Row="1" Grid.Column="4" Text="{Binding TotalGamesPercentage}"/>
+
+        <Label Grid.Row="2" Grid.Column="0" Text="Sets:" FontSize="12"/>
+        <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalSets}"/>
+        <Label Grid.Row="2" Grid.Column="2" Text="{Binding TotalSetsWon}"/>
+        <Label Grid.Row="2" Grid.Column="3" Text="{Binding TotalSetsLost}"/>
+        <Label Grid.Row="2" Grid.Column="4" Text="{Binding TotalSetsPercentage}"/>
+
+        <Label Grid.Row="3" Grid.Column="0" Text="5th Sets:" FontSize="12"/>
+        <Label Grid.Row="3" Grid.Column="1" Text="{Binding FifthSetTotal}"/>
+        <Label Grid.Row="3" Grid.Column="2" Text="{Binding FifthSetsWon}"/>
+        <Label Grid.Row="3" Grid.Column="3" Text="{Binding FifthSetsLost}"/>
+        <Label Grid.Row="3" Grid.Column="4" Text="{Binding FifthSetWinPercentage}"/>
+    </Grid>
+</ContentView>

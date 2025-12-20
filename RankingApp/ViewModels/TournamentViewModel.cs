@@ -22,40 +22,7 @@ namespace RankingApp.ViewModels
         private List<DoublesGame>? _doubleGames;
 
         [ObservableProperty]
-        private int totalGames;
-
-        [ObservableProperty]
-        private int totalWins;
-
-        [ObservableProperty]
-        private int totalLosses;
-
-        [ObservableProperty]
-        private int totalSets;
-
-        [ObservableProperty]
-        private int totalSetsWon;
-
-        [ObservableProperty]
-        private int totalSetsLost;
-
-        [ObservableProperty]
-        private double fifthSetWinPercentage;
-
-        [ObservableProperty]
-        private double totalSetsPercentage;
-
-        [ObservableProperty]
-        private double totalGamesPercentage;
-
-        [ObservableProperty]
-        private int fifthSetTotal;
-
-        [ObservableProperty]
-        private int fifthSetsWon;
-
-        [ObservableProperty]
-        private int fifthSetsLost;
+        private GameStatistics? stats;
 
         [ObservableProperty]
         private Tournament? oneTournament;
@@ -212,22 +179,7 @@ namespace RankingApp.ViewModels
 
             DisplayGames = new ObservableCollection<IGame>(games);
 
-            TotalGames = games.Count();
-            TotalWins = games.Count(g => g.IsWin);
-            TotalLosses = TotalGames - TotalWins;
-            TotalGamesPercentage = TotalGames > 0 ? Math.Round((double)TotalWins / TotalGames * 100, 2) : 0;
-
-            TotalSetsWon = games.Sum(g => g.MySets ?? 0);
-            TotalSetsLost = games.Sum(g => g.OpponentSets ?? 0);
-            TotalSets = TotalSetsWon + TotalSetsLost;
-            TotalSetsPercentage = TotalSets > 0 ? Math.Round((double)TotalSetsWon / TotalSets * 100, 2) : 0;
-
-            var fifthSetGames = games.Where(g => (g.MySets ?? 0) + (g.OpponentSets ?? 0) == 5);
-            FifthSetTotal = fifthSetGames.Count();
-            FifthSetsWon = fifthSetGames.Count(g => g.IsWin);
-            FifthSetsLost = FifthSetTotal - FifthSetsWon;
-
-            FifthSetWinPercentage = FifthSetTotal > 0 ? Math.Round((double)FifthSetsWon / FifthSetTotal * 100, 2) : 0;
+            Stats = GameStatisticsCalculator.Calculate(DisplayGames);
         }
 
         public async Task CreateNewGameAsync(bool isDoubles)
