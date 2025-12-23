@@ -1,6 +1,6 @@
 ﻿namespace RankingApp
 {
-    public class FormDatePicker : Microsoft.Maui.Controls.DatePicker, IDatePicker
+    public partial class FormDatePicker : Microsoft.Maui.Controls.DatePicker, IDatePicker
     {
         DateTime IDatePicker.Date
         {

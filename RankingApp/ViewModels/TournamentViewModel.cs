@@ -280,6 +280,12 @@ namespace RankingApp.ViewModels
             if (OneTournament is null)
                 return;
 
+            var persisted = await _database.GetByIdAsync<Tournament>(OneTournament.Id);
+            if (persisted != null && persisted.Date.Date == date.Date)
+            {
+                return;
+            }
+
             var games = await _database.GetAllRecordsAsync<Game>();
             var doublesGames = await _database.GetAllRecordsAsync<DoublesGame>();
 
