@@ -65,7 +65,7 @@ namespace RankingApp.ViewModels
             IsSearchDisabled = true;
             OneGame = await _databaseService.GetByIdAsync<Game>(Data.GameId);
             var tournament = await _databaseService.GetByIdAsync<Tournament>(OneGame.TournamentId);
-            OneGame.GameCoefficient = tournament.Coefficient;
+            OneGame.GameCoefficient = tournament == null ? OneGame.GameCoefficient : tournament.Coefficient;
             var appData = await _databaseService.GetAppDataAsync();
             var dbPlayers = await _databaseService.GetAllRecordsAsync<PlayerDB>();
 
@@ -75,10 +75,8 @@ namespace RankingApp.ViewModels
             bool sameRankingMonth = (tournamentYear == appData.CurrentYear && tournamentMonth == appData.CurrentMonth);
             if (!sameRankingMonth)
             {
-                string dateString = tournament.Date.ToString("yyyy-MM");
-                bool isOldAPIBody = tournamentYear < 2025 || (tournamentYear == 2025 && tournamentMonth <= 10);
-
-                var apiPlayers = await _playerReposotory.GetPlayersAsync(dateString, isOldAPIBody);
+                string dateString = tournament.Date.ToString("yyyy-MM-01");
+                var apiPlayers = await _playerReposotory.GetPlayersAsync(dateString, true);
 
                 _tournamentRankingPlayers = apiPlayers ?? [];
 

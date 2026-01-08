@@ -17,33 +17,33 @@
         <!-- Row 1 -->
         <!-- Row 2 -->
         <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Text="{Binding OneGame.MyName}" Style="{StaticResource PrimaryLabel}" />
-            <Label Text="{Binding OneGame.MySurname}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding OneGame.MyName}" Style="{StaticResource PrimaryLabel}" FontSize="14" />
+            <Label Text="{Binding OneGame.MySurname}" Style="{StaticResource PrimaryLabel}" FontSize="14"/>
         </HorizontalStackLayout>
         <HorizontalStackLayout Grid.Row="2" Grid.Column="4" Style="{StaticResource PrimaryHorizontal}">
             <Label Style="{StaticResource PrimaryLabel}" Text="-" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="VS" />
+            <Label Style="{StaticResource PrimaryLabel}" Text="VS" FontSize="14" />
             <Label Style="{StaticResource PrimaryLabel}" Text="-" />
         </HorizontalStackLayout>
         <HorizontalStackLayout Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Text="{Binding OneGame.Name}" Style="{StaticResource PrimaryLabel}" />
-            <Label Text="{Binding OneGame.Surname}" Style="{StaticResource PrimaryLabel}"/>
+            <Label Text="{Binding OneGame.Name}" Style="{StaticResource PrimaryLabel}" FontSize="14" />
+            <Label Text="{Binding OneGame.Surname}" Style="{StaticResource PrimaryLabel}" FontSize="14"/>
         </HorizontalStackLayout>
         <!-- Row 3 -->
         <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyPlace}"/>
-        <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Place"/>
+        <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Place" FontSize="14"/>
         <Label Grid.Row="3" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPlace}"/>
         <!-- Row 4 -->
         <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyPoints}"/>
-        <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Points"/>
+        <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Points" FontSize="14"/>
         <Label Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPoints}"/>
         <!-- Row 5 -->
         <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyPointsWithBonus}"/>
-        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="WithBonus"/>
+        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="WithBonus" FontSize="14"/>
         <Label Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPointsWithBonus}"/>
         <!-- Row 6 -->
         <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyAge}"/>
-        <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Age"/>
+        <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Age" FontSize="14"/>
         <Label Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentAge}"/>
         <!-- Row 7 -->
         <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">

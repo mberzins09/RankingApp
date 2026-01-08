@@ -80,7 +80,7 @@ namespace RankingApp.Models
 
         public string GameName => $"{TournamentName} - {DateToString}";
 
-        public string GameDisplayPlayers => $"{MyFullName} - {OpponentName}";
+        public string GameDisplayPlayers => $"{MyFullName}({MyPlace}) - {OpponentName}({OpponentPlace})";
 
         public string GameDisplayDetails => $"{GameName} : {RatingDifference}";
 
@@ -118,9 +118,11 @@ namespace RankingApp.Models
         private int opponentAge;
         
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
         private int myPlace;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
         private int opponentPlace;
     }
 }

@@ -21,10 +21,11 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>RankingApp</ApplicationTitle>
+		<ApplicationTitle>Latvia Rankings</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.rankingapp</ApplicationId>
+		<!--<ApplicationId>com.companyname.rankingapp</ApplicationId> In google play -->
+		<ApplicationId>com.mberzins.rankingapp</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>

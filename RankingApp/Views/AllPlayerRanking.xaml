@@ -20,7 +20,7 @@
     </ContentPage.Resources>
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 40, *, 5" ColumnDefinitions="5, 100, *, *, 80, 40, 5">
         <!-- Row 1 -->
-        <Label Text="Downloaded Ranking:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="18"/>
+        <Label Text="Downloaded Ranking:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="14"/>
         <Label Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" FontSize="18" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
         <ImageButton Grid.Row="1" Grid.Column="5" Source="dots.png" Clicked="Dots_Clicked"
                      WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center"/>

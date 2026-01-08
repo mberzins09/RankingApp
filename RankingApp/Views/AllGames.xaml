@@ -17,7 +17,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 40, *, 2" ColumnDefinitions="150, *, 150">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 40, *, 2" ColumnDefinitions="120, *, 120">
         <Border Grid.Row="1" MaximumWidthRequest="100" MaximumHeightRequest="30" StrokeThickness="2">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="45"/>
@@ -25,6 +25,14 @@
             <Picker Title="Select Game Mode" ItemsSource="{Binding GameModes}" 
                     SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" Style="{StaticResource PrimaryPicker}" />
         </Border>
+
+        <Border Grid.Row="1" Grid.Column="1" MaximumWidthRequest="250" MaximumHeightRequest="30" StrokeThickness="2" HorizontalOptions="Center">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="45"/>
+            </Border.StrokeShape>
+            <Picker Title="Filter" ItemsSource="{Binding RatingFilters}" SelectedItem="{Binding SelectedRatingFilter, Mode=TwoWay}" Style="{StaticResource PrimaryPicker}" />
+        </Border>
+
         <Border Grid.Row="1" Grid.Column="2" MaximumWidthRequest="100" MaximumHeightRequest="30" StrokeThickness="2">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="45"/>
@@ -35,6 +43,7 @@
                 </Picker.ItemDisplayBinding>
             </Picker>
         </Border>
+        
         <Grid Grid.Row="2" Grid.ColumnSpan="3" RowDefinitions="40, 40, 40, *" ColumnDefinitions="*, *, *, *">
             <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.RowSpan="2" Grid.ColumnSpan="4"/>
             <SearchBar Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />

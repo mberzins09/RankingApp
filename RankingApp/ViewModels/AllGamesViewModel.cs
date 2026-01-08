@@ -34,6 +34,11 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<int> years = [];
 
+        public List<string> RatingFilters { get; } = new() { "All Games", "Biggest wins", "Biggest losses" };
+
+        [ObservableProperty]
+        private string selectedRatingFilter = "All Games";
+
         public double GameFontSize => SelectedGameMode == "Singles" ? 16 : 10;
 
         partial void OnSelectedGameModeChanged(string value)
@@ -41,6 +46,8 @@ namespace RankingApp.ViewModels
             ApplyAllFilters();
             OnPropertyChanged(nameof(GameFontSize));
         }
+
+        partial void OnSelectedRatingFilterChanged(string value) => ApplyAllFilters();
 
         partial void OnSearchTextChanged(string? value) => ApplyAllFilters();
 
@@ -100,6 +107,54 @@ namespace RankingApp.ViewModels
 
             if (SelectedYear > 0)
                 source = source.Where(g => g.TournamentDate.Year == SelectedYear);
+
+            if (!string.IsNullOrWhiteSpace(SelectedRatingFilter) && SelectedRatingFilter != "All Games")
+            {
+                if (SelectedGameMode == "Doubles")
+                {
+                    source = source.OfType<DoublesGame>().Where(doubleGame =>
+                    {
+                        return SelectedRatingFilter switch
+                        {
+                            "Biggest wins" => doubleGame.GameCoefficient switch
+                            {
+                                "0.5" => doubleGame.RatingDifference >= 8,
+                                "1" => doubleGame.RatingDifference >= 16,
+                                _ => false
+                            },
+                            "Biggest losses" => doubleGame.GameCoefficient switch
+                            {
+                                "0.5" => doubleGame.RatingDifference <= -7,
+                                "1" => doubleGame.RatingDifference <= -14,
+                                _ => false
+                            },
+                            _ => true
+                        };
+                    });
+                }
+                else
+                {
+                    source = source.OfType<Game>().Where(game =>
+                    {
+                        return SelectedRatingFilter switch
+                        {
+                            "Biggest wins" => game.GameCoefficient switch
+                            {
+                                "0.5" => game.RatingDifference >= 8,
+                                "1" => game.RatingDifference >= 16,
+                                _ => false
+                            },
+                            "Biggest losses" => game.GameCoefficient switch
+                            {
+                                "0.5" => game.RatingDifference <= -7,
+                                "1" => game.RatingDifference <= -14,
+                                _ => false
+                            },
+                            _ => true
+                        };
+                    });
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
@@ -161,7 +216,20 @@ namespace RankingApp.ViewModels
                 }
             }
 
-            DisplayGames = new ObservableCollection<IGame>(source.OrderByDescending(g => g.TournamentDate));
+            IEnumerable<IGame> ordered;
+            switch (SelectedRatingFilter)
+            {
+                case "Biggest wins":
+                    ordered = source.OrderByDescending(g => g.RatingDifference).ThenByDescending(g => g.TournamentDate);
+                    break;
+                case "Biggest losses":
+                    ordered = source.OrderBy(g => g.RatingDifference).ThenByDescending(g => g.TournamentDate);
+                    break;
+                default:
+                    ordered = source.OrderByDescending(g => g.TournamentDate);
+                    break;
+            }
+            DisplayGames = new ObservableCollection<IGame>(ordered);
 
             Stats = GameStatisticsCalculator.Calculate(DisplayGames);
         }
