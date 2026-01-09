@@ -65,11 +65,10 @@
                               Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
                               CommandParameter="{Binding .}" />
                         </ViewCell.ContextActions>
-                        <Grid ColumnDefinitions="*, Auto, 20, Auto, 5">
-                            <Label Grid.Column="0" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Column="2" Text="->" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Column="3" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" />
+                        <Grid RowDefinitions="*, *" ColumnDefinitions="5, *, 20, 5">
+                            <Label Grid.Column="0" Grid.ColumnSpan="4" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Row="1" Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" />
                         </Grid>
                     </ViewCell>
                 </DataTemplate>

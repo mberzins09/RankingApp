@@ -101,6 +101,7 @@ namespace RankingApp.Models
         private string? tournamentName;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GameDate))]
         private DateTime tournamentDate;
 
         [ObservableProperty]
@@ -110,9 +111,8 @@ namespace RankingApp.Models
         public string MyTeam => $"{MyName} {MySurname} / {MyPartnerName} {MyPartnerSurname}";
         public string OpponentTeam => $"{Opponent1Name} {Opponent1Surname} / {Opponent2Name} {Opponent2Surname}";
         public string Gamescore => $"{MySets} : {OpponentSets}";
-        public string GameName => $"{TournamentName} - {TournamentDate:d MMM yyyy}";
+        public string GameDate => $"{TournamentDate:d MMM yyyy}";
         public string GameDisplayPlayers => $"{MyTeam} - {OpponentTeam}";
-        public string GameDisplayDetails => $"{GameName}";
 
         public int RatingDifference
         {

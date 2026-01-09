@@ -135,10 +135,12 @@
                     <CollectionView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding FilteredGames}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="model:Game">
-                                <Grid RowDefinitions="*, *" ColumnDefinitions="*, 50">
-                                    <Label Text="{Binding GameDisplayPlayers}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Text="{Binding Gamescore}" FontSize="12" Grid.Column="1" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding GameDisplayDetails}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                <Grid RowDefinitions="*, *, *" ColumnDefinitions="*, 50, 40">
+                                    <Label Grid.ColumnSpan="3" Text="{Binding GameDisplayPlayers}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                    <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding TournamentName}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Text="{Binding GameDate}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Gamescore}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                    <Label Grid.Row="2" Grid.Column="2" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>

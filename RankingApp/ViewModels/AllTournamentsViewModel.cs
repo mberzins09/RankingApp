@@ -26,8 +26,8 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
     partial void OnSelectedYearChanged(int value) => ApplyAllFilters();
     partial void OnSearchTextChanged(string? value) => ApplyAllFilters();
-    public async Task Migrate() => await _database.RunAllMigrationsAsync();
-    public async Task AddPlayerDBTable() => await _database.MigratePlayerTableAsync();
+    //public async Task Migrate() => await _database.RunAllMigrationsAsync();
+    //public async Task AddPlayerDBTable() => await _database.MigratePlayerTableAsync();
 
     public ObservableCollection<int> Years { get; } = [];
 
@@ -77,6 +77,14 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         await _playerService.EnsureAppUserOldAndNewIdsAsync();
         var tournaments = await _database.GetAllRecordsAsync<Tournament>();
         _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
+        if (_allTournaments.Any(t => t.TournamentPlayerName == "Edgars(R)"))
+        {
+            foreach (var t in _allTournaments.Where(t => t.TournamentPlayerName == "Edgars(R)"))
+            {
+                t.TournamentPlayerName = "Edgars";
+                await _database.SaveAsync<Tournament>(t);
+            }
+        }
         var allGames = await _database.GetAllRecordsAsync<Game>();
         foreach (var tournament in _allTournaments) 
         {

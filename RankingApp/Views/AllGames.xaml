@@ -56,12 +56,14 @@
                                     <SwipeItem Text="Delete" BackgroundColor="Red" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}" CommandParameter="{Binding .}" />
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Grid RowDefinitions="*, *" ColumnDefinitions="*, 50, 2" Padding="5">
-                                <Label Grid.ColumnSpan="3" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}"
+                            <Grid RowDefinitions="*, *, *" ColumnDefinitions="*, 50, 40, 2" Padding="5">
+                                <Label Grid.ColumnSpan="4" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}"
                                        FontSize="{Binding BindingContext.GameFontSize, Source={x:Reference ThisPage}}" FontAttributes="Bold" />
-                                <Label Grid.Column="1" Grid.Row="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}"
+                                <Label Grid.Row="1" Grid.ColumnSpan="4" Text="{Binding TournamentName}" Style="{StaticResource ListItemLabel}" FontSize="14" />
+                                <Label Grid.Row="2" Text="{Binding GameDate}" Style="{StaticResource ListItemLabel}" FontSize="14" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}"
                                        FontSize="14" FontAttributes="Bold" />
-                                <Label Grid.Row="1" Text="{Binding GameDisplayDetails}" Style="{StaticResource ListItemLabel}" FontSize="14" />
+                                <Label Grid.Row="2" Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}"/>
                             </Grid>
                         </SwipeView>
                     </DataTemplate>
