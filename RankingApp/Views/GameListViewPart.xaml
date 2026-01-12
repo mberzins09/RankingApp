@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:model="clr-namespace:RankingApp.Models"
+    xmlns:converters="clr-namespace:RankingApp.Converters"
+    xmlns:local="clr-namespace:RankingApp.Views"
+    x:Class="RankingApp.Views.GameListViewPart">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+    <CollectionView ItemsSource="{Binding ItemsSource, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}">
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="model:IGame">
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <SwipeItem
+                                Text="{Binding Swipe1Text, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}"
+                                BackgroundColor="{Binding Swipe1Color, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}"
+                                Command="{Binding RightPrimaryCommand, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}"
+                                CommandParameter="{Binding .}" />
+
+                            <SwipeItem
+                                Text="{Binding Swipe2Text, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}"
+                                BackgroundColor="{Binding Swipe2Color, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}"
+                                Command="{Binding RightSecondaryCommand, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}"
+                                CommandParameter="{Binding .}" />
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+                <Grid RowDefinitions="*, *" ColumnDefinitions="80, *, 30, 25">
+                    <Label Grid.ColumnSpan="2" Text="{Binding GameDisplayPlayers}" FontSize="12" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding TournamentName}" FontSize="12" Style="{StaticResource ListItemLabel}" HorizontalOptions="Start"/>
+                    <Label Grid.Row="1" Text="{Binding GameDate}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                    <Label Grid.Column="2" Grid.RowSpan="2" Text="{Binding Gamescore}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                    <Label Grid.Column="3" Grid.RowSpan="2" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"
+                           TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
+                </Grid>
+                </SwipeView>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+    
+</ContentView>

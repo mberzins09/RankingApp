@@ -4,16 +4,24 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
              x:DataType="viewmodel:GameViewModel"
              x:Class="RankingApp.Views.GameView"
              Title="Game"
              Style="{StaticResource PrimaryContentPage}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <Grid RowDefinitions="40, 3, 25, 25, 25, 25, 25, 25, 3, *, 50" ColumnDefinitions="1, 30, 100, 30, *, 30, 100, 30, 1" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
         <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="60" MaximumHeightRequest="30" Text="Save"
                      x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" />
         <Label Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="3" x:Name ="LabelRatingDifference" 
-               Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.RatingDifference}"  FontSize="24"/>
+               Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.RatingDifference}"  FontSize="24"
+               TextColor="{Binding OneGame.RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
         <!-- Row 1 -->
         <!-- Row 2 -->
         <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">

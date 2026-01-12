@@ -45,18 +45,8 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         if (tournament == null)
             return;
 
-        var Games = await GetGames(tournament.Id);
-        foreach (var game in Games)
-        {
-            await _database.DeleteAsync<Game>(game);
-        }
-
-        var Doubles = await GetDoubles(tournament.Id);
-        foreach (var doubleG in Doubles)
-        {
-            await _database.DeleteAsync<DoublesGame>(doubleG);
-        }
-
+        await _database.DeleteGamesForTournamentAsync(tournament.Id);
+        await _database.DeleteDoublesForTournamentAsync(tournament.Id);
         await DeleteTournament(tournament);
         await LoadDataAsync();
     }
@@ -76,7 +66,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
     {
         await _playerService.EnsureAppUserOldAndNewIdsAsync();
         var tournaments = await _database.GetAllRecordsAsync<Tournament>();
-        _allTournaments = tournaments.OrderByDescending(x => x.Date).ToList();
+        _allTournaments = [.. tournaments.OrderByDescending(x => x.Date)];
         if (_allTournaments.Any(t => t.TournamentPlayerName == "Edgars(R)"))
         {
             foreach (var t in _allTournaments.Where(t => t.TournamentPlayerName == "Edgars(R)"))
@@ -85,12 +75,11 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
                 await _database.SaveAsync<Tournament>(t);
             }
         }
-        var allGames = await _database.GetAllRecordsAsync<Game>();
-        foreach (var tournament in _allTournaments) 
+
+        var pointSums = await _database.GetGamePointSumsAsync();
+        foreach (var t in _allTournaments)
         {
-            tournament.PointsDifference = allGames
-                                          .Where(game => game.TournamentId == tournament.Id)
-                                          .Sum(game => game.RatingDifference);
+            t.PointsDifference = pointSums.TryGetValue(t.Id, out var sum) ? sum : 0;
         }
 
         var uniqueYears = _allTournaments.Select(t => t.Date.Year).Distinct().OrderByDescending(y => y).ToList();

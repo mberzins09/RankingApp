@@ -28,12 +28,11 @@ namespace RankingApp.Models
         public int TournamentPlayerPoints { get; set; }
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(TournamentDisplay))]
         private int pointsDifference;
         
         public int TournamentPlayerId { get; set; }
 
         public string TournamentDisplay =>
-            $"{TournamentPlayerName} {TournamentPlayerSurname} - {DateToString} : {PointsDifference}";
+            $"{TournamentPlayerName} {TournamentPlayerSurname} - {DateToString}";
     }
 }

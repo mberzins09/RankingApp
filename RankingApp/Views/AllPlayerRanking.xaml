@@ -15,24 +15,39 @@
              Style="{StaticResource PrimaryContentPage}">
     <ContentPage.Resources>
         <ResourceDictionary>
-            <converters:PointsChangedToColorConverter x:Key="PointsChangedToColorConverter" />
+            <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 40, *, 5" ColumnDefinitions="5, 100, *, *, 80, 40, 5">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 40, 40, *, 5" ColumnDefinitions="1, 50, 50, *, 80, 40, 1">
         <!-- Row 1 -->
-        <Label Text="Downloaded Ranking:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="14"/>
+        <Label Text="Downloaded:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="14"/>
         <Label Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" FontSize="18" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
         <ImageButton Grid.Row="1" Grid.Column="5" Source="dots.png" Clicked="Dots_Clicked"
                      WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center"/>
+        <!-- Row 2 -->
+        <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="App Player:" Style="{StaticResource PrimaryLabel}" FontSize="14"/>
+            <Label Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}">
+                <Label.Text>
+                    <MultiBinding StringFormat="{}{0}({1}). {2} {3} {4}({5})">
+                        <Binding Path="AppDefaultPlayer.Place"/>
+                        <Binding Path="AppDefaultPlayer.OverallPlace"/>
+                        <Binding Path="AppDefaultPlayer.Name"/>
+                        <Binding Path="AppDefaultPlayer.Surname"/>
+                        <Binding Path="AppDefaultPlayer.Points"/>
+                        <Binding Path="AppDefaultPlayer.PointsWithBonus"/>
+                    </MultiBinding>
+                </Label.Text>
+            </Label>
+        <!-- Row 3 -->
         <!-- Player Filter -->
-        <Border Grid.Row="2" Grid.Column="1" StrokeThickness="3" MaximumHeightRequest="30">
+        <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="30">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="45"/>
             </Border.StrokeShape>
             <Picker FontSize="18" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" />
         </Border>
         <!-- Date Selection -->
-        <Border Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="30">
+        <Border Grid.Row="3" Grid.Column="4" Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="30">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="45"/>
             </Border.StrokeShape>
@@ -40,8 +55,10 @@
                                        MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
                                        Style="{StaticResource PrimaryDatePicker}"/>
         </Border>
+
+        <!-- Row 4 -->
         <!-- Search + Player List -->
-        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="40, 15, *" ColumnDefinitions="2, *, 50, 1, 55, 40, 2" Style="{StaticResource PrimaryGrid}">
+        <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="40, 15, *" ColumnDefinitions="2, *, 50, 1, 55, 40, 2" Style="{StaticResource PrimaryGrid}">
             <SearchBar Grid.ColumnSpan="5" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
             <Label Grid.Row="1" Grid.Column="1" Text="               Player" HorizontalOptions="Start" FontSize="10" VerticalOptions="End"/>
             <Label Grid.Row="1" Grid.Column="2" Text="Points" HorizontalOptions="Center" FontSize="10" VerticalOptions="End"/>
@@ -87,7 +104,7 @@
                                 <Label Grid.Column="2" Style="{StaticResource ListItemLabel}" Text="{Binding Points}"/>
                                 <Label Grid.Column="4" Style="{StaticResource ListItemLabel}" Text="{Binding PointsWithBonus}"/>
                                 <Label Grid.Column="5" Style="{StaticResource ListItemLabel}" Text="{Binding PointsChanged}"
-                                       TextColor="{Binding PointsChanged, Converter={StaticResource PointsChangedToColorConverter}}"/>
+                                       TextColor="{Binding PointsChanged, Converter={StaticResource NumericToColorConverter}}"/>
                             </Grid>
                             <ViewCell.ContextActions>
                                 <MenuItem Text="Set as default player"
@@ -132,19 +149,32 @@
                 <Grid RowDefinitions="20, 70, *" ColumnDefinitions="*, 50">
                     <Button Grid.Column="1" FontSize="12" Text="Close" Command="{Binding CloseGamesOverlayCommand}" Style="{StaticResource PrimaryButton}"/>
                     <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.Row="1" Grid.ColumnSpan="2"/>
+                    <views:GameListViewPart ItemsSource="{Binding FilteredGames}" Grid.Row="2" Grid.ColumnSpan="2"
+                                            
+                                            RightPrimaryCommand="{Binding GoToGameCommand}"
+                                            Swipe1Text="Game"
+                                            Swipe1Color="Blue"
+                                            
+                                            RightSecondaryCommand="{Binding GoToTournamentCommand}"
+                                            Swipe2Text="Tournament"
+                                            Swipe2Color="Green"
+                                            />
+                    <!--
                     <CollectionView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding FilteredGames}">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:Game">
+                            <DataTemplate>
                                 <Grid RowDefinitions="*, *, *" ColumnDefinitions="*, 50, 40">
                                     <Label Grid.ColumnSpan="3" Text="{Binding GameDisplayPlayers}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
                                     <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding TournamentName}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
                                     <Label Grid.Row="2" Grid.Column="0" Text="{Binding GameDate}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
                                     <Label Grid.Row="2" Grid.Column="1" Text="{Binding Gamescore}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Grid.Row="2" Grid.Column="2" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                                    <Label Grid.Row="2" Grid.Column="2" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"
+                                           TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
+                    -->
                 </Grid>
             </Border>
         </Grid>

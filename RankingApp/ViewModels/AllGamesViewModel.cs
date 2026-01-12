@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using RankingApp.Models;
 using RankingApp.Services;
+using RankingApp.Views;
 using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels
@@ -54,23 +55,44 @@ namespace RankingApp.ViewModels
         partial void OnSelectedYearChanged(int value) => ApplyAllFilters();
 
         [RelayCommand]
-        private async Task DeleteItemAsync(IGame item)
+        public async Task GoToTournamentAsync(IGame game)
         {
-            switch (item)
+            if (game == null)
             {
-                case Game game:
-                    await _database.DeleteAsync<Game>(game);
-                    break;
-
-                case DoublesGame doublesGame:
-                    await _database.DeleteAsync<DoublesGame>(doublesGame);
-                    break;
-
-                default:
-                    return;
+                return;
             }
 
-            await LoadDataAsync();
+            var tournament = await _database.GetByIdAsync<Tournament>(game.TournamentId);
+            if (tournament == null)
+            {
+                return;
+            }
+
+            Data.TournamentId = game.TournamentId;
+            Data.GameId = game.Id;
+
+            await Shell.Current.GoToAsync(nameof(TournamentView));
+        }
+
+        [RelayCommand]
+        public async Task GoToGameAsync(IGame game)
+        {
+            if (game == null)
+            {
+                return;
+            }
+
+            Data.TournamentId = game.TournamentId;
+            Data.GameId = game.Id;
+
+            if (game is Game)
+            {
+                await Shell.Current.GoToAsync(nameof(GameView));
+            }
+            else if (game is DoublesGame)
+            {
+                await Shell.Current.GoToAsync(nameof(DoublesGameView));
+            }
         }
 
         public async Task LoadDataAsync()
@@ -95,7 +117,6 @@ namespace RankingApp.ViewModels
 
             SelectedYear = 0;
             OnPropertyChanged(nameof(SelectedYear));
-
             ApplyAllFilters();
         }
 

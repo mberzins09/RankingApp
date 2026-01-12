@@ -39,6 +39,35 @@ namespace RankingApp.Services
             return await _database.DeleteAsync(entity);
         }
 
+        public Task DeleteGamesForTournamentAsync(int tournamentId)
+        {
+            return _database.ExecuteAsync("DELETE FROM Game WHERE TournamentId = ?", tournamentId);
+        }
+
+        public Task DeleteDoublesForTournamentAsync(int tournamentId)
+        {
+            return _database.ExecuteAsync("DELETE FROM DoublesGame WHERE TournamentId = ?", tournamentId);
+        }
+
+        public async Task<Dictionary<int, int>> GetGamePointSumsAsync()
+        {
+            var sums = new Dictionary<int, int>();
+
+            var games = await _database.Table<Game>().ToListAsync();
+            foreach (var g in games)
+            {
+                if (g.TournamentId == 0) continue;
+
+                var diff = g.RatingDifference;
+                if (sums.ContainsKey(g.TournamentId))
+                    sums[g.TournamentId] += diff;
+                else
+                    sums[g.TournamentId] = diff;
+            }
+
+            return sums;
+        }
+
         public async Task<int> DeleteAllAsync<T>() where T : Entity, new()
         {
             return await _database.DeleteAllAsync<T>();

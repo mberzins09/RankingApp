@@ -108,11 +108,11 @@ namespace RankingApp.Models
         private string gameCoefficient;
 
         // Calculated properties
-        public string MyTeam => $"{MyName} {MySurname} / {MyPartnerName} {MyPartnerSurname}";
-        public string OpponentTeam => $"{Opponent1Name} {Opponent1Surname} / {Opponent2Name} {Opponent2Surname}";
+        public string MyTeam => $"{MyName[0]}.{MySurname}/{MyPartnerName[0]}.{MyPartnerSurname}";
+        public string OpponentTeam => $"{Opponent1Name[0]}.{Opponent1Surname}/{Opponent2Name[0]}.{Opponent2Surname}";
         public string Gamescore => $"{MySets} : {OpponentSets}";
         public string GameDate => $"{TournamentDate:d MMM yyyy}";
-        public string GameDisplayPlayers => $"{MyTeam} - {OpponentTeam}";
+        public string GameDisplayPlayers => $"{MyTeam} VS {OpponentTeam}";
 
         public int RatingDifference
         {

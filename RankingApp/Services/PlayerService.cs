@@ -8,6 +8,8 @@ namespace RankingApp.Services
     {
         private readonly DatabaseService _database = database;
         private readonly PlayerReposotoryWithDate _repositoryWithDate = repositoryWithDate;
+
+        private bool _checked;
         public async Task<List<PlayerDB>> LoadPlayersFromApiOrDbAsync(DateTime? date = null, Action<string>? progressCallback = null)
         {
             progressCallback?.Invoke("Checking current date...");
@@ -56,6 +58,11 @@ namespace RankingApp.Services
         public async Task<List<Game>> GetGamesFromDbAsync()
         {
             return await _database.GetAllRecordsAsync<Game>();
+        }
+
+        public async Task<Tournament?> GetTournamentAsync(int id)
+        {
+            return await _database.GetByIdAsync<Tournament>(id);
         }
 
         public async Task FillDatabaseWithOldRankingsUntilIdChangeAsync(Action<string>? statusCallback = null)
@@ -127,6 +134,29 @@ namespace RankingApp.Services
         public async Task DeleteAllPlayersInDatabse()
         {
             await _database.DeleteAllAsync<PlayerDB>();
+        }
+
+        public async Task<PlayerDB> GetAppDefaultPlayerAsync(AppData appData)
+        {
+            var appDefaultPlayer = await _database.GetByIdAsync<PlayerDB>(appData.AppUserPlayerId);
+            if (appDefaultPlayer == null)
+            {
+                appDefaultPlayer = await _database.GetByIdAsync<PlayerDB>(appData.AppUserNewId);
+                if (appDefaultPlayer == null)
+                {
+                    appDefaultPlayer = await _database.GetByIdAsync<PlayerDB>(appData.AppUserOldId);
+                    if (appDefaultPlayer == null)
+                    {
+                        appDefaultPlayer = new PlayerDB
+                        {
+                            Name = "Default Player",
+                            Surname = "Not Found"
+                        };
+                    }
+                }
+            }
+
+            return appDefaultPlayer;
         }
 
         private async Task UpdateOctoberWithIdReassignmentAsync(Action<string>? statusCallback = null)
@@ -285,6 +315,13 @@ namespace RankingApp.Services
 
         public async Task EnsureAppUserOldAndNewIdsAsync()
         {
+            if (_checked)
+            {
+                return;
+            }
+
+            _checked = true;
+
             var appData = await GetAppDataAsync();
             int persistedId = appData.AppUserPlayerId;
             if (persistedId == 0)

@@ -52,6 +52,9 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private string? searchText;
 
+        [ObservableProperty]
+        private PlayerDB? appDefaultPlayer;
+
         public List<string> FilterOptions { get; } = ["Men", "Women", "All", "Inactive"];
 
         [RelayCommand]
@@ -63,6 +66,48 @@ namespace RankingApp.ViewModels
             var appData = await _playerService.GetAppDataAsync();
             appData.AppUserPlayerId = player.Id;
             await _playerService.SaveAppDataAsync(appData);
+            AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(appData);
+        }
+
+        [RelayCommand]
+        public async Task GoToTournamentAsync(IGame game)
+        {
+            if ( game == null)
+            {
+                return;
+            }
+
+            var tournament = await _playerService.GetTournamentAsync(game.TournamentId);
+            if (tournament == null)
+            {
+                return;
+            }
+
+            Data.TournamentId = game.TournamentId;
+            Data.GameId = game.Id;
+
+            await Shell.Current.GoToAsync(nameof(TournamentView));
+        }
+
+        [RelayCommand]
+        public async Task GoToGameAsync(IGame game)
+        {
+            if (game == null)
+            {
+                return;
+            }
+
+            Data.TournamentId = game.TournamentId;
+            Data.GameId = game.Id;
+
+            if (game is Game)
+            {
+                await Shell.Current.GoToAsync(nameof(GameView));
+            }
+            else if (game is DoublesGame)
+            {
+                await Shell.Current.GoToAsync(nameof(DoublesGameView));
+            }
         }
 
         [RelayCommand]
@@ -183,6 +228,7 @@ namespace RankingApp.ViewModels
             _allPlayers = await _playerService.GetPlayersFromDbAsync();
             _allGames = await _playerService.GetGamesFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
+            AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(_cachedAppData);
             FilterPlayers();
             await UpdateAppDataLabel();
         }
@@ -199,6 +245,7 @@ namespace RankingApp.ViewModels
                 FilterPlayers();
                 await UpdateAppDataLabel();
                 MainThread.BeginInvokeOnMainThread(() => popup.Message = "✅ Players loaded successfully!");
+                AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(_cachedAppData);
             }
             catch (Exception ex)
             {

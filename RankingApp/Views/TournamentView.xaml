@@ -6,18 +6,25 @@
              xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:app="using:RankingApp"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
              x:DataType="viewmodel:TournamentViewModel"
              x:Class="RankingApp.Views.TournamentView"
              Title="Tournament"
              Style="{StaticResource PrimaryContentPage}">
-    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 40, 40, Auto, *, 5" ColumnDefinitions="5, Auto, *, 50, 50, 50, 5">
         <!-- Row 0 -->
         <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Start" Spacing="5">
             <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}"/>
             <Label Text="{Binding OneTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}"/>
         </HorizontalStackLayout>
-        <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.PointsDifference}" FontSize="24"/>
+        <Label Grid.Row="0" Grid.Column="2" Style="{StaticResource PrimaryLabel}" Text="{Binding OneTournament.PointsDifference}" FontSize="24"
+               TextColor="{Binding OneTournament.PointsDifference, Converter={StaticResource NumericToColorConverter}}"/>
         <ImageButton Grid.Row="0" Grid.Column="5" Source="{AppThemeBinding Light=dots.png, Dark=dots.png}" Clicked="MoreButton_Clicked"
              WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center" x:Name="MoreButton" />
         <!-- Row 1 -->
@@ -65,10 +72,11 @@
                               Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
                               CommandParameter="{Binding .}" />
                         </ViewCell.ContextActions>
-                        <Grid RowDefinitions="*, *" ColumnDefinitions="5, *, 20, 5">
-                            <Label Grid.Column="0" Grid.ColumnSpan="4" Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Row="1" Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" />
+                        <Grid RowDefinitions="*" ColumnDefinitions="*, 30, 30">
+                            <Label Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}"
+                                   TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
@@ -88,7 +96,7 @@
                 <VerticalStackLayout Spacing="6" WidthRequest="200">
                     <Button Text="Add Game" Clicked="MenuAddGame_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Add Doubles Game" Clicked="MenuAddDoubles_Clicked" Style="{StaticResource PrimaryButton}"/>
-                    <Button Text="Save Tournament" Clicked="MenuSave_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Return To All Tournaments" Clicked="MenuSave_Clicked" Style="{StaticResource PrimaryButton}"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>
