@@ -4,6 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
+             xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:converters="clr-namespace:RankingApp.Converters"
              x:Class="RankingApp.Views.AllTournaments"
              x:DataType="viewmodel:AllTournamentsViewModel"
@@ -17,6 +18,8 @@
     </ContentPage.Resources>
 
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="40, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
+        <views:GlobalOverlay Grid.RowSpan="2" Grid.ColumnSpan="9" BindingContext="{Binding Progress}" />
+        
         <ImageButton Grid.Column="7" Source="{AppThemeBinding Light=dots.png, Dark=dots.png}" Clicked="MoreButton_Clicked"
                      WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center" />
         <Border Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="35" MaximumWidthRequest="80">
@@ -74,6 +77,7 @@
                     <Button Text="All Games" Clicked="MenuAllGames_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Import Database" Clicked="MenuImport_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Export Database" Clicked="MenuExport_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Get Old Tournaments" Command="{Binding GetOldTournamentsCommand}" Style="{StaticResource PrimaryButton}"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>

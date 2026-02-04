@@ -4,7 +4,8 @@
     {
         int Id { get; }
         int TournamentId { get; }
-        string GameDisplayPlayers { get; }
+        string GameDisplayMe { get; }
+        string GameDisplayOpp { get; }
         string Gamescore { get; }
         DateTime TournamentDate { get; }
         string TournamentName { get; }

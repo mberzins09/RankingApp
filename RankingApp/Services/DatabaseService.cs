@@ -90,134 +90,78 @@ namespace RankingApp.Services
             await _database.InsertOrReplaceAsync(appData);
         }
 
-        public async Task BatchUpdatePlayerIdsAsync(IEnumerable<(int oldId, int newId)> updates)
-        {
-            if (updates == null || !updates.Any())
-                return;
-
-            await _database.RunInTransactionAsync(transaction =>
-            {
-                foreach (var (oldId, newId) in updates)
-                {
-                    transaction.Execute("UPDATE PlayerDB SET Id = ? WHERE Id = ?", newId, oldId);
-                }
-            });
-        }
-
         public async Task BulkUpsertPlayersAsync(List<PlayerDB> apiPlayers)
         {
             if (apiPlayers == null || apiPlayers.Count == 0)
                 return;
 
             var dbPlayers = await _database.Table<PlayerDB>().ToListAsync();
-            var dbById = dbPlayers.ToDictionary(p => p.Id);
+            var dbByKey = dbPlayers.ToDictionary(p => p.KeyName);
 
-            var usedIds = new HashSet<int>(dbPlayers.Select(p => p.Id));
+            var apiKeys = new HashSet<string>();
 
             var toInsert = new List<PlayerDB>();
             var toUpdate = new List<PlayerDB>();
 
-            var groups = apiPlayers.GroupBy(p => p.Id);
-
-            foreach (var group in groups)
+            foreach (var apiPlayer in apiPlayers)
             {
-                var incomingList = group.ToList();
-
-                if (incomingList.Count == 1)
+                if (string.IsNullOrEmpty(apiPlayer.KeyName))
                 {
-                    var apiPlayer = incomingList[0];
+                    continue;
+                }
 
-                    if (dbById.TryGetValue(apiPlayer.Id, out var existing))
+                apiKeys.Add(apiPlayer.KeyName);
+
+                if (dbByKey.TryGetValue(apiPlayer.KeyName, out var existing))
+                {
+                    existing.PointsChanged = apiPlayer.PointsWithBonus - existing.PointsWithBonus;
+                    existing.Points = apiPlayer.Points;
+                    existing.PointsWithBonus = apiPlayer.PointsWithBonus;
+                    existing.Place = apiPlayer.Place;
+                    existing.OverallPlace = apiPlayer.OverallPlace;
+                    existing.Gender = apiPlayer.Gender;
+                    existing.IsActive = true;
+
+                    if (existing.Id != apiPlayer.Id)
                     {
-                        if (apiPlayer.PointsWithBonus != existing.PointsWithBonus ||
-                            apiPlayer.Points != existing.Points ||
-                            apiPlayer.Place != existing.Place ||
-                            apiPlayer.OverallPlace != existing.OverallPlace)
-                        {
-                            existing.PointsChanged = apiPlayer.PointsWithBonus - existing.PointsWithBonus;
-                            existing.PointsWithBonus = apiPlayer.PointsWithBonus;
-                            existing.Points = apiPlayer.Points;
-                            existing.Place = apiPlayer.Place;
-                            existing.OverallPlace = apiPlayer.OverallPlace;
-                            toUpdate.Add(existing);
-                        }
+                        existing.NewId = apiPlayer.Id;
                     }
-                    else
-                    {
-                        if (usedIds.Contains(apiPlayer.Id))
-                        {
-                            apiPlayer.Id = GetNextAvailableId(usedIds);
-                        }
-                        else
-                        {
-                            usedIds.Add(apiPlayer.Id);
-                        }
-                        toInsert.Add(apiPlayer);
-                    }
+
+                    toUpdate.Add(existing);
                 }
                 else
                 {
-                    var ordered = incomingList
-                        .OrderByDescending(p => p.PointsWithBonus)
-                        .ThenByDescending(p => p.Points)
-                        .ToList();
+                    apiPlayer.IsActive = true;
+                    int nextId = dbPlayers.Any() ? dbPlayers.Max(p => p.Id) + 1 : apiPlayer.Id;
 
-                    var keeper = ordered[0];
-                    if (dbById.TryGetValue(keeper.Id, out var existingKeeper))
+                    if (dbPlayers.Any(p => p.Id == apiPlayer.Id))
                     {
-                        if (keeper.PointsWithBonus != existingKeeper.PointsWithBonus ||
-                            keeper.Points != existingKeeper.Points ||
-                            keeper.Place != existingKeeper.Place ||
-                            keeper.OverallPlace != existingKeeper.OverallPlace)
-                        {
-                            existingKeeper.PointsChanged = keeper.PointsWithBonus - existingKeeper.PointsWithBonus;
-                            existingKeeper.PointsWithBonus = keeper.PointsWithBonus;
-                            existingKeeper.Points = keeper.Points;
-                            existingKeeper.Place = keeper.Place;
-                            existingKeeper.OverallPlace = keeper.OverallPlace;
-                            toUpdate.Add(existingKeeper);
-                        }
-
-                        usedIds.Add(existingKeeper.Id);
-                    }
-                    else
-                    {
-                        if (usedIds.Contains(keeper.Id))
-                        {
-                            keeper.Id = GetNextAvailableId(usedIds);
-                        }
-                        else
-                        {
-                            usedIds.Add(keeper.Id);
-                        }
-                        toInsert.Add(keeper);
+                        apiPlayer.NewId = apiPlayer.Id;
+                        apiPlayer.Id = nextId;
                     }
 
-                    for (int i = 1; i < ordered.Count; i++)
-                    {
-                        var duplicate = ordered[i];
-                        duplicate.Id = GetNextAvailableId(usedIds);
-                        toInsert.Add(duplicate);
-                    }
+                    toInsert.Add(apiPlayer);
+                    dbPlayers.Add(apiPlayer);
+                    dbByKey[apiPlayer.KeyName] = apiPlayer;
                 }
             }
 
-            var apiIdsFinal = new HashSet<int>(apiPlayers.Select(p => p.Id));
-            var toDeactivate = dbPlayers.Where(p => !apiIdsFinal.Contains(p.Id)).ToList();
-            foreach (var player in toDeactivate)
+            foreach (var dbPlayer in dbPlayers)
             {
-                player.Place = 6000;
-                player.OverallPlace = 6000;
+                if (!apiKeys.Contains(dbPlayer.KeyName))
+                {
+                    dbPlayer.IsActive = false;
+                    toUpdate.Add(dbPlayer);
+                }
             }
 
             await _database.RunInTransactionAsync(conn =>
             {
                 if (toInsert.Count > 0)
-                    conn.InsertAll(toInsert, runInTransaction: false);
+                    conn.InsertAll(toInsert);
+
                 if (toUpdate.Count > 0)
-                    conn.UpdateAll(toUpdate, runInTransaction: false);
-                if (toDeactivate.Count > 0)
-                    conn.UpdateAll(toDeactivate, runInTransaction: false);
+                    conn.UpdateAll(toUpdate);
             });
         }
 
@@ -234,120 +178,101 @@ namespace RankingApp.Services
             }
         }
 
-        public async Task MigrateAppDataTableAsync()
-        {
-            await AddColumnIfNotExistsAsync("AppData", "AppUserOldId", "INTEGER", "0");
-            await AddColumnIfNotExistsAsync("AppData", "AppUserNewId", "INTEGER", "0");
-        }
-
-        public async Task MigrateGameTableAsync()
-        {
-            // Add new columns if not exist
-            await AddColumnIfNotExistsAsync("Game", "MyPointsWithBonus", "INTEGER");
-            await AddColumnIfNotExistsAsync("Game", "OpponentPointsWithBonus", "INTEGER");
-            await AddColumnIfNotExistsAsync("Game", "MyAge", "INTEGER");
-            await AddColumnIfNotExistsAsync("Game", "OpponentAge", "INTEGER");
-            await AddColumnIfNotExistsAsync("Game", "MyPlace", "INTEGER");
-            await AddColumnIfNotExistsAsync("Game", "OpponentPlace", "INTEGER");
-        }
-
         public async Task MigratePlayerTableAsync()
         {
-            await AddColumnIfNotExistsAsync("PlayerDB", "PointsChanged", "INTEGER");
+            await AddColumnIfNotExistsAsync("PlayerDB", "KeyName", "TEXT");
+            await AddColumnIfNotExistsAsync("PlayerDB", "IsActive", "INTEGER", "0");
+            await AddColumnIfNotExistsAsync("PlayerDB", "NewId", "INTEGER");
         }
 
-        public async Task UpdateGamesWithPlayerDataAsync()
+        public async Task MigrateAppDataTableAsync()
         {
-            var Games = await _database.Table<Game>().ToListAsync();
-            var players = await _database.Table<PlayerDB>().ToListAsync();
-
-            foreach (var game in Games)
-            {
-                PlayerDB? me;
-                if (game.MyName == "Edgars" && game.MySurname == "Bērziņš")
-                {
-                    me = players.FirstOrDefault(p => p.Name == "Edgars(R)" && p.Surname == game.MySurname);
-                }
-                else
-                {
-                    me = players.FirstOrDefault(p => p.Name == game.MyName && p.Surname == game.MySurname);
-                }
-                var opponent = players.FirstOrDefault(p => p.Name == game.Name && p.Surname == game.Surname);
-
-                if (me != null)
-                {
-                    game.MyPointsWithBonus = me.PointsWithBonus;
-                    game.MyAge = me.Age;
-                    game.MyPlace = me.Place;
-                }
-                if (opponent != null)
-                {
-                    game.OpponentPointsWithBonus = opponent.PointsWithBonus;
-                    game.OpponentAge = opponent.Age;
-                    game.OpponentPlace = opponent.Place;
-                }
-
-                await _database.UpdateAsync(game);
-            }
+            await AddColumnIfNotExistsAsync("AppData", "PlayersDbMigrated", "INTEGER", "0");
+            await AddColumnIfNotExistsAsync("AppData", "AppUserKeyName", "Text");
         }
 
-        public async Task MigrateOldDatabaseAsync()
-        {
-            var appDataDir = FileSystem.AppDataDirectory;
-
-            var mainDbPath = Path.Combine(appDataDir, "AllP.db3");
-            var oldDbPath = Path.Combine(appDataDir, "Data3.db3");
-
-            if (File.Exists(oldDbPath))
-            {
-                var mainDb = new SQLiteAsyncConnection(mainDbPath);
-                await mainDb.CreateTableAsync<Game>();
-                await mainDb.CreateTableAsync<Tournament>();
-
-                var oldDb = new SQLiteAsyncConnection(oldDbPath);
-
-                await oldDb.CreateTableAsync<Game>();
-                await oldDb.CreateTableAsync<Tournament>();
-
-                var oldGames = await oldDb.Table<Game>().ToListAsync();
-                var oldTournaments = await oldDb.Table<Tournament>().ToListAsync();
-
-                foreach (var game in oldGames)
-                    await mainDb.InsertOrReplaceAsync(game);
-
-                foreach (var tournament in oldTournaments)
-                    await mainDb.InsertOrReplaceAsync(tournament);
-
-                File.Delete(oldDbPath);
-            }
-        }
-
-        public async Task RunAllMigrationsAsync()
+        public async Task MigrateDatabaseAsync()
         {
             var appData = await GetAppDataAsync();
 
-            if (!appData.GamesIsUpdated)
-            {
-                await MigrateOldDatabaseAsync();
-                await MigrateGameTableAsync();
-                await UpdateGamesWithPlayerDataAsync();
+            if (appData.PlayersDbMigrated)
+            { return; }
 
-                appData.GamesIsUpdated = true;
-                await SaveAppDataAsync(appData);
+            await MigratePlayerTableAsync();
+            await MigrateAppDataTableAsync();
+
+            var refDbPath = Path.Combine(FileSystem.AppDataDirectory, "lgtf.sqlite");
+
+            if (!File.Exists(refDbPath))
+            {
+                using var stream = await FileSystem.OpenAppPackageFileAsync("lgtf.sqlite");
+                using var fs = File.Create(refDbPath);
+                await stream.CopyToAsync(fs);
             }
 
-            await MigrateAppDataTableAsync();
+            var referenceDb = new SQLiteAsyncConnection(refDbPath);
+
+            var refPlayers = await referenceDb.Table<PlayerDB>().ToListAsync();
+            refPlayers = refPlayers.OrderBy(p => p.Id).ToList();
+            await _database.ExecuteAsync("DELETE FROM PlayerDB");
+            await _database.ExecuteAsync("DELETE FROM sqlite_sequence WHERE name = 'PlayerDB'");
+
+            await _database.RunInTransactionAsync(tran =>
+            {
+                foreach (var p in refPlayers)
+                {
+                    tran.Execute(@"
+            INSERT INTO PlayerDB
+            (Id, Name, Surname, BirthDate, Gender, Place, OverallPlace,
+             Points, PointsWithBonus, IsActive, NewId, KeyName)
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        p.Id,
+                        p.Name,
+                        p.Surname,
+                        p.BirthDate,
+                        p.Gender,
+                        p.Place,
+                        p.OverallPlace,
+                        p.Points,
+                        p.PointsWithBonus,
+                        p.IsActive,
+                        p.NewId,
+                        p.KeyName
+                    );
+                }
+            });
+
+            int maxId = refPlayers.Max(p => p.Id);
+
+            await _database.ExecuteAsync(
+                "INSERT OR REPLACE INTO sqlite_sequence (name, seq) VALUES ('PlayerDB', ?)",
+                maxId
+            );
+
+            await FixAppUserPlayerIdAsync(appData);
+            
+            appData.PlayersDbMigrated = true;
+            await SaveAppDataAsync(appData);
+
+            await _database.ExecuteAsync("CREATE UNIQUE INDEX IF NOT EXISTS idx_playerdb_keyname ON PlayerDB(KeyName)");
         }
 
-        private int GetNextAvailableId(HashSet<int> usedIds, int start = 20000)
+        private async Task FixAppUserPlayerIdAsync(AppData appData)
         {
-            int candidate = Math.Max(start, usedIds.Any() ? usedIds.Max() + 1 : start);
-            while (usedIds.Contains(candidate))
+            var players = await _database.Table<PlayerDB>().ToListAsync();
+
+            var match = players.FirstOrDefault(p =>
+                p.Id == appData.AppUserPlayerId);
+
+            if (match != null)
             {
-                candidate++;
+                appData.AppUserPlayerId = match.Id;
+                appData.AppUserOldId = match.Id;
+                appData.AppUserKeyName = match.KeyName;
+                appData.AppUserNewId = match.NewId;
+                await SaveAppDataAsync(appData);
             }
-            usedIds.Add(candidate);
-            return candidate;
         }
     }
 }

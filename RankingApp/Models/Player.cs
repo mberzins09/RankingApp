@@ -40,6 +40,19 @@ namespace RankingApp.Models
         [JsonPropertyName("last_played_date")]
         public string LastPlayedDate { get; set; }
 
-        public string Display => $"{Place} {Name} {Surname}";
+        [JsonIgnore]
+        public string KeyName
+        {
+            get
+            {
+                var n = NameNormalizer.NormalizeKey(Name);
+                var s = NameNormalizer.NormalizeKey(Surname);
+
+                if (string.IsNullOrEmpty(n) || string.IsNullOrEmpty(s))
+                    return null;
+
+                return n + s;
+            }
+        }
     }
 }

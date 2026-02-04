@@ -15,5 +15,17 @@
 
             return age;
         }
+
+        public static int CalculateAge(string BirthDate, DateTime date)
+        {
+            DateTime birth = DateTime.Parse(BirthDate);
+            int age = date.Year - birth.Year;
+            if (birth.AddYears(age) > date)
+            {
+                age--;
+            }
+
+            return age;
+        }
     }
 }

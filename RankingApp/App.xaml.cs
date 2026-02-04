@@ -1,7 +1,8 @@
-﻿using RankingApp.Data_Storage;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RankingApp.Data_Storage;
 using RankingApp.Services;
 using RankingApp.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+using RankingApp.Views;
 
 namespace RankingApp
 {

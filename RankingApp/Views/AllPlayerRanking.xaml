@@ -22,8 +22,10 @@
         <!-- Row 1 -->
         <Label Text="Downloaded:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="14"/>
         <Label Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" FontSize="18" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
+        <!--
         <ImageButton Grid.Row="1" Grid.Column="5" Source="dots.png" Clicked="Dots_Clicked"
-                     WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center"/>
+                     WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center"/> 
+        -->
         <!-- Row 2 -->
         <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="App Player:" Style="{StaticResource PrimaryLabel}" FontSize="14"/>
             <Label Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}">
@@ -118,6 +120,7 @@
         </Grid>
 
         <!-- After Click 3 dots -->
+        <!--
         <Grid x:Name="MoreMenuOverlay" Grid.Row="1" Grid.RowSpan="2"
               Grid.Column="1" Grid.ColumnSpan="4" IsVisible="False" InputTransparent="False">
             <BoxView Style="{StaticResource PrimaryBoxView}">
@@ -130,11 +133,10 @@
                     HorizontalOptions="End" VerticalOptions="Start"
                     Margin="0,8,10,0" WidthRequest="220" IsVisible="True" TranslationX="300">
                 <VerticalStackLayout Spacing="6" WidthRequest="200">
-                    <Button Text="Refresh Rankings" Clicked="RefreshButton_Clicked" Style="{StaticResource PrimaryButton}"
-                            Padding="0"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>
+        -->
 
         <!-- After Player Clicked -->
         <Grid IsVisible="{Binding IsGamesOverlayVisible}" InputTransparent="False" Grid.RowSpan="5" Grid.ColumnSpan="7">
@@ -150,31 +152,8 @@
                     <Button Grid.Column="1" FontSize="12" Text="Close" Command="{Binding CloseGamesOverlayCommand}" Style="{StaticResource PrimaryButton}"/>
                     <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.Row="1" Grid.ColumnSpan="2"/>
                     <views:GameListViewPart ItemsSource="{Binding FilteredGames}" Grid.Row="2" Grid.ColumnSpan="2"
-                                            
-                                            RightPrimaryCommand="{Binding GoToGameCommand}"
-                                            Swipe1Text="Game"
-                                            Swipe1Color="Blue"
-                                            
-                                            RightSecondaryCommand="{Binding GoToTournamentCommand}"
-                                            Swipe2Text="Tournament"
-                                            Swipe2Color="Green"
-                                            />
-                    <!--
-                    <CollectionView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding FilteredGames}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid RowDefinitions="*, *, *" ColumnDefinitions="*, 50, 40">
-                                    <Label Grid.ColumnSpan="3" Text="{Binding GameDisplayPlayers}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding TournamentName}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Grid.Row="2" Grid.Column="0" Text="{Binding GameDate}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Gamescore}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Grid.Row="2" Grid.Column="2" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"
-                                           TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    -->
+                                            RightPrimaryCommand="{Binding GoToGameCommand}" Swipe1Text="Game" Swipe1Color="Blue"
+                                            RightSecondaryCommand="{Binding GoToTournamentCommand}" Swipe2Text="Tournament" Swipe2Color="Green"/>
                 </Grid>
             </Border>
         </Grid>

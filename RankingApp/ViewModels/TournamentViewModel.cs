@@ -205,21 +205,10 @@ namespace RankingApp.ViewModels
                 }
 
                 var appData = await _database.GetAppDataAsync();
-                int oldId = appData.AppUserOldId;
-                int newId = appData.AppUserNewId;
-                int tournamentPlayerId = OneTournament.TournamentPlayerId;
-
                 DateTime date = OneTournament.Date;
 
                 PlayerDB? foundPlayer = null;
-
-                if (tournamentPlayerId == oldId || tournamentPlayerId == newId)
-                {
-                    foundPlayer = _playersCache.FirstOrDefault(p => p.Id == newId)
-                               ?? _playersCache.FirstOrDefault(p => p.Id == oldId);
-                }
-
-                foundPlayer ??= _playersCache.FirstOrDefault(p => p.Id == tournamentPlayerId);
+                foundPlayer ??= _playersCache.FirstOrDefault(p => p.KeyName == appData.AppUserKeyName);
 
                 if (foundPlayer != null)
                 {
@@ -231,7 +220,7 @@ namespace RankingApp.ViewModels
             string coef = OneTournament?.Coefficient ?? "0.5";
             DateTime tDate = OneTournament?.Date ?? DateTime.Today;
             int tournamentId = OneTournament?.Id ?? Data.TournamentId;
-            string tournamentName = OneTournament?.Name ?? "New";
+            string tournamentName = OneTournament?.Name;
 
             if (isDoubles)
             {

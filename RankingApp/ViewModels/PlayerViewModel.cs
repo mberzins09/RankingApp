@@ -65,6 +65,9 @@ namespace RankingApp.ViewModels
 
             var appData = await _playerService.GetAppDataAsync();
             appData.AppUserPlayerId = player.Id;
+            appData.AppUserOldId = player.Id;
+            appData.AppUserNewId = player.NewId;
+            appData.AppUserKeyName = player.KeyName;
             await _playerService.SaveAppDataAsync(appData);
             AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(appData);
         }
@@ -119,23 +122,7 @@ namespace RankingApp.ViewModels
             SelectedPlayer = player;
 
             var games = _allGames
-        .Where(g =>
-            // NAME match
-            (
-                g.Name.Equals(player.Name, StringComparison.OrdinalIgnoreCase)
-                || (g.Name.Equals("Edgars", StringComparison.OrdinalIgnoreCase)
-                    && (player.Name.Equals("Edgars", StringComparison.OrdinalIgnoreCase)
-                        || player.Name.Equals("Edgars(R)", StringComparison.OrdinalIgnoreCase)))
-            )
-            &&
-            // SURNAME match
-            (
-                g.Surname.Equals(player.Surname, StringComparison.OrdinalIgnoreCase)
-                || (g.Surname.Equals("Grīnbergs", StringComparison.OrdinalIgnoreCase)
-                    && (player.Surname.Equals("Grinbergs", StringComparison.OrdinalIgnoreCase)
-                        || player.Surname.Equals("Grīnbergs", StringComparison.OrdinalIgnoreCase)))
-            )
-        )
+        .Where(g => GetGameKey(g) == player.KeyName)
         .OrderByDescending(g => g.TournamentDate);
 
             FilteredGames = new ObservableCollection<Game>(games);
@@ -148,45 +135,6 @@ namespace RankingApp.ViewModels
         {
             IsGamesOverlayVisible = false;
             FilteredGames?.Clear();
-        }
-
-        public async Task UpdateAllPlayersAsync()
-        {
-            var popup = new ProcessingPopup { Message = "Starting process..." };
-            _ = Application.Current.MainPage.ShowPopupAsync(popup);
-
-            try
-            {
-                await _playerService.DeleteAllPlayersInDatabse();
-                await _playerService.FillDatabaseWithIdChangeTransitionAsync(status =>
-                {
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        popup.Message = status;
-                    });
-                });
-
-                await Task.Delay(1500);
-            }
-            catch (Exception ex)
-            {
-                MainThread.BeginInvokeOnMainThread(() => popup.Message = $"Error: {ex.Message}");
-                await Task.Delay(3000);
-            }
-            finally
-            {
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    try
-                    {
-                        await popup.CloseAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Error closing popup: {ex.Message}");
-                    }
-                });
-            }
         }
 
         partial void OnSelectedFilterChanged(string value)
@@ -267,19 +215,19 @@ namespace RankingApp.ViewModels
             switch (SelectedFilter)
             {
                 case "Men":
-                    filtered = _allPlayers.Where(x => x.Gender == "male" && x.Place < 6000).OrderBy(x => x.Place);
+                    filtered = _allPlayers.Where(player => player.Gender == "male" && player.IsActive == true).OrderBy(player => player.Place);
                     break;
                 case "Women":
-                    filtered = _allPlayers.Where(x => x.Gender == "female" && x.Place < 6000).OrderBy(x => x.Place);
+                    filtered = _allPlayers.Where(player => player.Gender == "female" && player.IsActive == true).OrderBy(player => player.Place);
                     break;
                 case "Inactive":
-                    filtered = _allPlayers.Where(x => x.OverallPlace != 0 && x.OverallPlace > 5999)
-                                          .OrderByDescending(x => x.PointsWithBonus);
+                    filtered = _allPlayers.Where(player => player.IsActive == false)
+                                          .OrderByDescending(player => player.PointsWithBonus);
                     break;
                 case "All":
                 default:
-                    filtered = _allPlayers.Where(x => x.OverallPlace != 0 && x.OverallPlace < 6000)
-                                          .OrderBy(x => x.OverallPlace);
+                    filtered = _allPlayers.Where(player => player.IsActive == true)
+                                          .OrderBy(player => player.OverallPlace);
                     break;
             }
 
@@ -365,6 +313,19 @@ namespace RankingApp.ViewModels
             {
                 AppDataLabel = string.Empty;
             }
+        }
+
+        private static string GetGameKey(Game g)
+        {
+            var nameKey = NameNormalizer.NormalizeKey(g.Name);
+            var surnameKey = NameNormalizer.NormalizeKey(g.Surname);
+
+            var combined = nameKey + surnameKey;
+
+            if (combined == "edgarsberzins")
+                return "edgars(r)berzins";
+
+            return combined;
         }
     }
 }

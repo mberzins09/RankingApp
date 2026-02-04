@@ -13,5 +13,7 @@ namespace RankingApp.Models
         public int CurrentYear { get; set; }
         public bool GamesIsUpdated { get; set; }
         // Add more properties as needed in the future
+        public bool PlayersDbMigrated { get; set; }
+        public string AppUserKeyName { get; set; } = "";
     }
 }

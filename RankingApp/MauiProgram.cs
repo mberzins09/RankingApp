@@ -26,6 +26,7 @@ namespace RankingApp
             builder.Services.AddSingleton<PlayerServiceWithDate>();
             builder.Services.AddSingleton<DatabaseService>();
             builder.Services.AddSingleton<PlayerService>();
+            builder.Services.AddSingleton<TournamentImportService>();
 
             builder.Services.AddSingleton<PlayerViewModel>();
             builder.Services.AddSingleton<GameViewModel>();

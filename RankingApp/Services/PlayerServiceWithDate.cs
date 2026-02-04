@@ -5,33 +5,40 @@ namespace RankingApp.Services
 {
     public class PlayerServiceWithDate
     {
-        private readonly HttpClient _httpClient;
-
-        public PlayerServiceWithDate()
-        {
-            _httpClient = new HttpClient();
-        }
+        private static readonly HttpClient _httpClient = new();
 
         public async Task<List<Player>?> GetPlayersAsync(string gender, string date, bool isOldAPIBody)
         {
-            if (DateTime.TryParseExact(date, "yyyy-MM", null, System.Globalization.DateTimeStyles.None, out var parsed))
+            try
             {
-                date = isOldAPIBody ? parsed.ToString("yyyy-MM") : parsed.ToString("yyyy-MM-01");
-            }
+                if (DateTime.TryParseExact(date, "yyyy-MM", null,
+                    System.Globalization.DateTimeStyles.None, out var parsed))
+                {
+                    date = isOldAPIBody
+                        ? parsed.ToString("yyyy-MM")
+                        : parsed.ToString("yyyy-MM-01");
+                }
 
-            string year = date.Split('-')[0];
-            object requestBody;
-            requestBody = isOldAPIBody ? new { date, gender} : new {date, gender, year};
+                string year = date.Split('-')[0];
 
-            var response = await _httpClient.PostAsJsonAsync("https://www.lgtf.lv/api/getRanking", requestBody);
+                object requestBody = isOldAPIBody ? new { date, gender } : new { date, gender, year };
 
-            if (response.IsSuccessStatusCode)
-            {
+                var response = await _httpClient.PostAsJsonAsync("https://www.lgtf.lv/api/getRanking", requestBody);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"API failed: {date} {gender} {response.StatusCode}");
+                    return [];
+                }
+
                 var result = await response.Content.ReadFromJsonAsync<PlayersResponseDates>();
-                return result?.Players ?? new List<Player>();
-            }
 
-            return null;
+                return result?.Players ?? [];
+            }
+            catch
+            {
+                return [];
+            }
         }
     }
 

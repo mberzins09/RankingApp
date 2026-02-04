@@ -3,7 +3,6 @@ using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace RankingApp.ViewModels
 {
@@ -69,7 +68,7 @@ namespace RankingApp.ViewModels
             var appData = await _databaseService.GetAppDataAsync();
             var dbPlayers = await _databaseService.GetAllRecordsAsync<PlayerDB>();
 
-            _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderBy(x => x.OverallPlace).ToList();
+            _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderBy(x => x.PointsWithBonus).ToList();
             int tournamentYear = tournament.Date.Year;
             int tournamentMonth = tournament.Date.Month;
             bool sameRankingMonth = (tournamentYear == appData.CurrentYear && tournamentMonth == appData.CurrentMonth);
@@ -80,9 +79,9 @@ namespace RankingApp.ViewModels
 
                 _tournamentRankingPlayers = apiPlayers ?? [];
 
-                var inactivePlayers = _allPlayers.Where(x => x.Place == 6000).ToList();
+                var inactivePlayers = _allPlayers.Where(x => x.IsActive == false).ToList();
                 var combined = _tournamentRankingPlayers.Concat(inactivePlayers)
-                                                        .OrderBy(x => x.OverallPlace)
+                                                        .OrderBy(x => x.PointsWithBonus)
                                                         .ToList();
 
                 Players = new ObservableCollection<PlayerDB>(combined);

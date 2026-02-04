@@ -8,13 +8,16 @@ using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels;
 
-public partial class AllTournamentsViewModel(DatabaseService database, PlayerService playerService) : BaseViewModel
+public partial class AllTournamentsViewModel(DatabaseService database, PlayerService playerService, TournamentImportService importService) : BaseViewModel
 {
     private readonly DatabaseService _database = database;
     private readonly PlayerService _playerService = playerService;
-    
+    private readonly TournamentImportService _importService = importService;
+
     private List<Tournament> _allTournaments = [];
-    
+
+    public TournamentImportService Progress => _importService;
+
     [ObservableProperty]
     private string? searchText;
 
@@ -26,8 +29,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
     partial void OnSelectedYearChanged(int value) => ApplyAllFilters();
     partial void OnSearchTextChanged(string? value) => ApplyAllFilters();
-    //public async Task Migrate() => await _database.RunAllMigrationsAsync();
-    //public async Task AddPlayerDBTable() => await _database.MigratePlayerTableAsync();
+    public async Task Migrate() => await _database.MigrateDatabaseAsync();
 
     public ObservableCollection<int> Years { get; } = [];
 
@@ -52,6 +54,14 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
     }
 
     [RelayCommand]
+    private async Task DeleteTournamentsAsync()
+    {
+        await _database.DeleteAllAsync<Tournament>();
+        await _database.DeleteAllAsync<Game>();
+        await LoadDataAsync();
+    }
+
+    [RelayCommand]
     private async Task EditTournamentAsync(Tournament tournament)
     {
         if (tournament == null)
@@ -61,10 +71,51 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         await Shell.Current.GoToAsync(nameof(EditTournamentPlayer));
     }
 
+    [RelayCommand]
+    private async Task GetOldTournamentsAsync()
+    {
+        var popup = new ProcessingPopup { Message = "Loading old tournaments..." };
+        _ = Application.Current.MainPage.ShowPopupAsync(popup);
+
+        // Allow UI to render the popup
+        await Task.Yield();
+
+        System.ComponentModel.PropertyChangedEventHandler? handler = null;
+        handler = (sender, args) =>
+        {
+            if (args.PropertyName == nameof(TournamentImportService.Message) ||
+                args.PropertyName == nameof(TournamentImportService.IsRunning))
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    try
+                    {
+                        popup.Message = _importService.Message;
+                    }
+                    catch { /* swallow if popup already disposed */ }
+                });
+            }
+        };
+
+        _importService.PropertyChanged += handler;
+
+        try
+        {
+            await _importService.StartImport(progress => _playerService.GetOldTournamentsAsync(progress));
+        }
+        finally
+        {
+            _importService.PropertyChanged -= handler;
+            await Task.Delay(300);
+            await popup.CloseAsync();
+        }
+
+        await LoadDataAsync();
+    }
 
     public async Task LoadDataAsync()
     {
-        await _playerService.EnsureAppUserOldAndNewIdsAsync();
+        await Migrate();
         var tournaments = await _database.GetAllRecordsAsync<Tournament>();
         _allTournaments = [.. tournaments.OrderByDescending(x => x.Date)];
         if (_allTournaments.Any(t => t.TournamentPlayerName == "Edgars(R)"))
@@ -85,7 +136,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         var uniqueYears = _allTournaments.Select(t => t.Date.Year).Distinct().OrderByDescending(y => y).ToList();
         Years.Clear();
         Years.Add(0);
-        foreach (var year  in uniqueYears)
+        foreach (var year in uniqueYears)
         {
             Years.Add(year);
         }
@@ -183,7 +234,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
             TournamentPlayerPoints = player.Points,
             TournamentPlayerId = player.Id
         };
-        
+
         await _database.SaveAsync<Tournament>(tournament);
         Data.TournamentId = tournament.Id;
     }
@@ -195,14 +246,9 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         if (appData == null)
             return;
 
-        if (appData.CurrentYear < systemDate.Year ||
-            (appData.CurrentYear == systemDate.Year && appData.CurrentMonth < systemDate.Month))
+        if (appData.CurrentYear < systemDate.Year || (appData.CurrentYear == systemDate.Year && appData.CurrentMonth < systemDate.Month))
         {
-            bool confirm = await Shell.Current.DisplayAlert(
-                "Update Rankings",
-                "You haven't updated to the newest ranking. Would you like to update it?",
-                "Yes",
-                "No");
+            bool confirm = await Shell.Current.DisplayAlert("Update Rankings","You haven't updated to the newest ranking. Would you like to update it?","Yes","No");
 
             if (!confirm)
                 return;

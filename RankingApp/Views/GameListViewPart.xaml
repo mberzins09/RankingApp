@@ -31,13 +31,17 @@
                                 CommandParameter="{Binding .}" />
                         </SwipeItems>
                     </SwipeView.RightItems>
-                <Grid RowDefinitions="*, *" ColumnDefinitions="80, *, 30, 25">
-                    <Label Grid.ColumnSpan="2" Text="{Binding GameDisplayPlayers}" FontSize="12" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
-                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding TournamentName}" FontSize="12" Style="{StaticResource ListItemLabel}" HorizontalOptions="Start"/>
-                    <Label Grid.Row="1" Text="{Binding GameDate}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                    <Label Grid.Column="2" Grid.RowSpan="2" Text="{Binding Gamescore}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                    <Label Grid.Column="3" Grid.RowSpan="2" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"
+                <Grid RowDefinitions="*, *, *" ColumnDefinitions="80, *, 30, 25">
+                    <Label Grid.ColumnSpan="4" Text="{Binding GameDate}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                    <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Label Grid.ColumnSpan="2" Text="{Binding GameDisplayMe}" FontSize="12" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
+                            <Label Style="{StaticResource ListItemLabel}" Text="/"/>
+                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding GameDisplayOpp}" FontSize="12" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
+                    </HorizontalStackLayout>
+                    <Label Grid.Column="2" Grid.RowSpan="3" Text="{Binding Gamescore}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
+                    <Label Grid.Column="3" Grid.RowSpan="3" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"
                            TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
+                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding TournamentName}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
                 </Grid>
                 </SwipeView>
             </DataTemplate>

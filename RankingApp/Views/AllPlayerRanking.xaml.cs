@@ -14,7 +14,7 @@ public partial class AllPlayerRanking : ContentPage
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
-        MoreMenuPanel.SizeChanged += MoreMenuPanel_SizeChanged;
+        //MoreMenuPanel.SizeChanged += MoreMenuPanel_SizeChanged;
     }
 
     protected override async void OnAppearing()
@@ -24,49 +24,43 @@ public partial class AllPlayerRanking : ContentPage
         _viewModel.SearchText = String.Empty;
     }
 
-    private void MoreMenuPanel_SizeChanged(object? sender, EventArgs e)
-    {
-        if (!_menuOpen && MoreMenuPanel.Width > 0)
-        {
-            MoreMenuPanel.TranslationX = MoreMenuPanel.Width;
-        }
-    }
+    //private void MoreMenuPanel_SizeChanged(object? sender, EventArgs e)
+    //{
+    //    if (!_menuOpen && MoreMenuPanel.Width > 0)
+    //    {
+    //        MoreMenuPanel.TranslationX = MoreMenuPanel.Width;
+    //    }
+    //}
 
-    private async void Dots_Clicked(object sender, EventArgs e)
-    {
-        if (!_menuOpen)
-        {
-            MoreMenuOverlay.IsVisible = true;
-            if (MoreMenuPanel.Width > 0)
-                MoreMenuPanel.TranslationX = MoreMenuPanel.Width;
+    //private async void Dots_Clicked(object sender, EventArgs e)
+    //{
+    //    if (!_menuOpen)
+    //    {
+    //        MoreMenuOverlay.IsVisible = true;
+    //        if (MoreMenuPanel.Width > 0)
+    //            MoreMenuPanel.TranslationX = MoreMenuPanel.Width;
 
-            await MoreMenuPanel.TranslateTo(0, 0, 250u, Easing.CubicOut);
-            _menuOpen = true;
-        }
-        else
-        {
-            await CloseMenuAsync();
-        }
-    }
+    //        await MoreMenuPanel.TranslateTo(0, 0, 250u, Easing.CubicOut);
+    //        _menuOpen = true;
+    //    }
+    //    else
+    //    {
+    //        await CloseMenuAsync();
+    //    }
+    //}
 
-    async Task CloseMenuAsync()
-    {
-        if (!_menuOpen) return;
-        await MoreMenuPanel.TranslateTo(MoreMenuPanel.Width, 0, 200, Easing.CubicIn);
-        MoreMenuOverlay.IsVisible = false;
-        _menuOpen = false;
-    }
+    //async Task CloseMenuAsync()
+    //{
+    //    if (!_menuOpen) return;
+    //    await MoreMenuPanel.TranslateTo(MoreMenuPanel.Width, 0, 200, Easing.CubicIn);
+    //    MoreMenuOverlay.IsVisible = false;
+    //    _menuOpen = false;
+    //}
 
-    private async void MoreOverlay_Tapped(object sender, EventArgs e)
-    {
-        await CloseMenuAsync();
-    }
-
-    private async void RefreshButton_Clicked(object sender, EventArgs e)
-    {
-        await CloseMenuAsync();
-        await _viewModel.UpdateAllPlayersAsync();
-    }
+    //private async void MoreOverlay_Tapped(object sender, EventArgs e)
+    //{
+    //    await CloseMenuAsync();
+    //}
 
     private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
     {

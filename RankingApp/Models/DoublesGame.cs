@@ -112,7 +112,8 @@ namespace RankingApp.Models
         public string OpponentTeam => $"{Opponent1Name[0]}.{Opponent1Surname}/{Opponent2Name[0]}.{Opponent2Surname}";
         public string Gamescore => $"{MySets} : {OpponentSets}";
         public string GameDate => $"{TournamentDate:d MMM yyyy}";
-        public string GameDisplayPlayers => $"{MyTeam} VS {OpponentTeam}";
+        public string GameDisplayMe => $"{MyTeam}";
+        public string GameDisplayOpp => $"{OpponentTeam}";
 
         public int RatingDifference
         {

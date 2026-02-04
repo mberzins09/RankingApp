@@ -39,6 +39,13 @@ namespace RankingApp.Models
         [NotifyPropertyChangedFor(nameof(Age))]
         private string birthDate;
 
+        public bool IsActive { get; set; }
+
+        public int NewId { get; set; }
+
+        [Indexed]
+        public string KeyName { get; set; }
+
         public int Age => string.IsNullOrEmpty(BirthDate) ? 0 : AgeCalculator.Calculate(BirthDate);
 
         public string Display => $"{Place}. {Name} {Surname} {Age} g";

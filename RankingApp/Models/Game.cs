@@ -12,12 +12,12 @@ namespace RankingApp.Models
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MyFullName))]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayMe))]
         private string myName;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MyFullName))]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayMe))]
         private string mySurname;
 
         public string MyFullName => $"{MyName} {MySurname}";
@@ -29,12 +29,12 @@ namespace RankingApp.Models
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(OpponentName))]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayOpp))]
         private string? name;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(OpponentName))]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayOpp))]
         private string? surname;
 
         public string? OpponentName => $"{Name} {Surname}";
@@ -42,14 +42,14 @@ namespace RankingApp.Models
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Gamescore))]
         [NotifyPropertyChangedFor(nameof(IsWin))]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayMe))]
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
         private int? mySets;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Gamescore))]
         [NotifyPropertyChangedFor(nameof(IsWin))]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayOpp))]
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
         private int? opponentSets;
 
@@ -75,8 +75,8 @@ namespace RankingApp.Models
 
         public string GameDate => $"{TournamentDate:d MMM yyyy}";
 
-        public string GameDisplayPlayers => $"{MyFullName}({MyPlace}) - {OpponentName}({OpponentPlace})";
-
+        public string GameDisplayMe => $"{MyFullName}({MyPlace})";
+        public string GameDisplayOpp => $"{OpponentName}({OpponentPlace})";
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
@@ -111,11 +111,11 @@ namespace RankingApp.Models
         private int opponentAge;
         
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayMe))]
         private int myPlace;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(GameDisplayPlayers))]
+        [NotifyPropertyChangedFor(nameof(GameDisplayOpp))]
         private int opponentPlace;
     }
 }

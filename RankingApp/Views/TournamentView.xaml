@@ -59,7 +59,7 @@
             </Border>
         </Grid>
         <!-- Row 2 -->
-        <Entry Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" FontSize="16" Focused="Entry_Focused" />
+        <Entry Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" Placeholder="Enter Tournament Name" FontSize="16" Focused="Entry_Focused" />
         <!-- Row 3 -->
         <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5"/>
         <!-- Row 4 -->
@@ -73,7 +73,11 @@
                               CommandParameter="{Binding .}" />
                         </ViewCell.ContextActions>
                         <Grid RowDefinitions="*" ColumnDefinitions="*, 30, 30">
-                            <Label Text="{Binding GameDisplayPlayers}" Style="{StaticResource ListItemLabel}" />
+                            <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}">
+                                <Label Text="{Binding GameDisplayMe}" Style="{StaticResource ListItemLabel}"/>
+                                <Label Text="/" Style="{StaticResource ListItemLabel}"/>
+                                <Label Text="{Binding GameDisplayOpp}" Style="{StaticResource ListItemLabel}"/>
+                            </HorizontalStackLayout>
                             <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
                             <Label Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}"
                                    TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
