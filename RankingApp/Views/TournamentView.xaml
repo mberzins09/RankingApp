@@ -72,15 +72,15 @@
                               Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
                               CommandParameter="{Binding .}" />
                         </ViewCell.ContextActions>
-                        <Grid RowDefinitions="*" ColumnDefinitions="*, 30, 30">
-                            <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}">
+                        <Grid RowDefinitions="*, *" ColumnDefinitions="*, 30, 30">
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
+                            <Label Grid.Row="1" Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}"
+                                   TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
+                            <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}" Grid.ColumnSpan="3">
                                 <Label Text="{Binding GameDisplayMe}" Style="{StaticResource ListItemLabel}"/>
                                 <Label Text="/" Style="{StaticResource ListItemLabel}"/>
                                 <Label Text="{Binding GameDisplayOpp}" Style="{StaticResource ListItemLabel}"/>
                             </HorizontalStackLayout>
-                            <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}"
-                                   TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
