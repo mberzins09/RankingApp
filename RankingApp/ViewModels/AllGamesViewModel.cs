@@ -35,7 +35,7 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<int> years = [];
 
-        public List<string> RatingFilters { get; } = new() { "All Games", "Biggest wins", "Biggest losses" };
+        public List<string> RatingFilters { get; } = new() { "All Games", "Biggest wins", "Biggest losses", "Most games vs opponent", "Most wins vs opponent", "Most losses vs opponent" };
 
         [ObservableProperty]
         private string selectedRatingFilter = "All Games";
@@ -133,107 +133,106 @@ namespace RankingApp.ViewModels
             {
                 if (SelectedGameMode == "Doubles")
                 {
-                    source = source.OfType<DoublesGame>().Where(doubleGame =>
+                    source = source.OfType<DoublesGame>().Where(g =>
                     {
                         return SelectedRatingFilter switch
                         {
-                            "Biggest wins" => doubleGame.GameCoefficient switch
-                            {
-                                "0.5" => doubleGame.RatingDifference >= 8,
-                                "1" => doubleGame.RatingDifference >= 16,
-                                _ => false
-                            },
-                            "Biggest losses" => doubleGame.GameCoefficient switch
-                            {
-                                "0.5" => doubleGame.RatingDifference <= -7,
-                                "1" => doubleGame.RatingDifference <= -14,
-                                _ => false
-                            },
+                            "Biggest wins" =>
+                                ((g.OpponentPoints - g.MyTeamPoints) >= 20 && g.IsWin),
+
+                            "Biggest losses" =>
+                                ((g.MyTeamPoints - g.OpponentPoints) >= 20 && !g.IsWin),
+
                             _ => true
                         };
                     });
                 }
                 else
                 {
-                    source = source.OfType<Game>().Where(game =>
+                    var singlesSource = source.OfType<Game>();
+
+                    switch (SelectedRatingFilter)
                     {
-                        return SelectedRatingFilter switch
-                        {
-                            "Biggest wins" => game.GameCoefficient switch
+                        case "Biggest wins":
+                            source = singlesSource.Where(g =>
+                                (g.OpponentPoints - g.MyPoints) >= 20 && g.IsWin);
+                            break;
+
+                        case "Biggest losses":
+                            source = singlesSource.Where(g =>
+                                (g.MyPoints - g.OpponentPoints) >= 20 &&
+                                !g.IsWin &&
+                                !g.IsOpponentForeign);
+                            break;
+
+                        case "Most games vs opponent":
                             {
-                                "0.5" => game.RatingDifference >= 8,
-                                "1" => game.RatingDifference >= 16,
-                                _ => false
-                            },
-                            "Biggest losses" => game.GameCoefficient switch
+                                var topOpp = singlesSource
+                                    .GroupBy(g => g.OppKeyName)
+                                    .OrderByDescending(g => g.Count())
+                                    .Select(g => g.Key)
+                                    .FirstOrDefault();
+
+                                source = topOpp == null
+                                    ? []
+                                    : singlesSource.Where(g => g.OppKeyName == topOpp);
+
+                                break;
+                            }
+
+                        case "Most wins vs opponent":
                             {
-                                "0.5" => game.RatingDifference <= -7,
-                                "1" => game.RatingDifference <= -14,
-                                _ => false
-                            },
-                            _ => true
-                        };
-                    });
+                                var topOpp = singlesSource
+                                    .Where(g => g.IsWin)
+                                    .GroupBy(g => g.OppKeyName)
+                                    .OrderByDescending(g => g.Count())
+                                    .Select(g => g.Key)
+                                    .FirstOrDefault();
+
+                                source = topOpp == null
+                                    ? []
+                                    : singlesSource.Where(g => g.OppKeyName == topOpp);
+
+                                break;
+                            }
+
+                        case "Most losses vs opponent":
+                            {
+                                var topOpp = singlesSource
+                                    .Where(g => !g.IsWin)
+                                    .GroupBy(g => g.OppKeyName)
+                                    .OrderByDescending(g => g.Count())
+                                    .Select(g => g.Key)
+                                    .FirstOrDefault();
+
+                                source = topOpp == null
+                                    ? []
+                                    : singlesSource.Where(g => g.OppKeyName == topOpp);
+
+                                break;
+                            }
+                    }
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(SearchText))
+            bool ignoreSearch = SelectedGameMode == "Singles" &&
+                                (SelectedRatingFilter == "Most games vs opponent" ||
+                                SelectedRatingFilter == "Most wins vs opponent" ||
+                                SelectedRatingFilter == "Most losses vs opponent");
+
+            if (!ignoreSearch && !string.IsNullOrWhiteSpace(SearchText))
             {
-                var parts = SearchText.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                var hasTwoParts = parts.Length >= 2;
-                var firstPart = parts[0];
-                var secondPart = hasTwoParts ? parts[1] : string.Empty;
+                string normalizedSearch = NameNormalizer.NormalizeKey(SearchText);
 
                 if (SelectedGameMode == "Doubles")
                 {
                     source = source.OfType<DoublesGame>().Where(x =>
-                        (hasTwoParts &&
-                            ((!string.IsNullOrWhiteSpace(x.MyPartnerName) &&
-                              x.MyPartnerName.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
-                              !string.IsNullOrWhiteSpace(x.MyPartnerSurname) &&
-                              x.MyPartnerSurname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase)) ||
-
-                             (!string.IsNullOrWhiteSpace(x.Opponent1Name) &&
-                              x.Opponent1Name.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
-                              !string.IsNullOrWhiteSpace(x.Opponent1Surname) &&
-                              x.Opponent1Surname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase)) ||
-
-                             (!string.IsNullOrWhiteSpace(x.Opponent2Name) &&
-                              x.Opponent2Name.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
-                              !string.IsNullOrWhiteSpace(x.Opponent2Surname) &&
-                              x.Opponent2Surname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase))
-                            )
-                        ) ||
-                        (!hasTwoParts && (
-                            (!string.IsNullOrWhiteSpace(x.MyPartnerName) &&
-                             x.MyPartnerName.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.MyPartnerSurname) &&
-                             x.MyPartnerSurname.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Opponent1Name) &&
-                             x.Opponent1Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Opponent1Surname) &&
-                             x.Opponent1Surname.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Opponent2Name) &&
-                             x.Opponent2Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Opponent2Surname) &&
-                             x.Opponent2Surname.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)))
-                        )
-                    );
+                        x.FirstOppKeyName.Contains(normalizedSearch) ||
+                        x.SecondOppKeyName.Contains(normalizedSearch));
                 }
                 else
                 {
-                    source = source.OfType<Game>().Where(x =>
-                        (hasTwoParts &&
-                            (!string.IsNullOrWhiteSpace(x.Name) &&
-                             x.Name.StartsWith(firstPart, StringComparison.OrdinalIgnoreCase) &&
-                             !string.IsNullOrWhiteSpace(x.Surname) &&
-                             x.Surname.StartsWith(secondPart, StringComparison.OrdinalIgnoreCase))) ||
-                        (!hasTwoParts &&
-                            ((!string.IsNullOrWhiteSpace(x.Name) &&
-                              x.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)) ||
-                             (!string.IsNullOrWhiteSpace(x.Surname) &&
-                              x.Surname.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase))))
-                    );
+                    source = source.OfType<Game>().Where(x => x.OppKeyName.Contains(normalizedSearch));
                 }
             }
 
@@ -241,10 +240,10 @@ namespace RankingApp.ViewModels
             switch (SelectedRatingFilter)
             {
                 case "Biggest wins":
-                    ordered = source.OrderByDescending(g => g.RatingDifference).ThenByDescending(g => g.TournamentDate);
+                    ordered = source.OrderByDescending(g => g.OpponentPoints - g.MyPoints).ThenByDescending(g => g.TournamentDate).ThenByDescending(g => g.RatingDifference);
                     break;
                 case "Biggest losses":
-                    ordered = source.OrderBy(g => g.RatingDifference).ThenByDescending(g => g.TournamentDate);
+                    ordered = source.OrderByDescending(g => g.MyPoints - g.OpponentPoints).ThenByDescending(g => g.TournamentDate).ThenBy(g => g.RatingDifference);
                     break;
                 default:
                     ordered = source.OrderByDescending(g => g.TournamentDate);

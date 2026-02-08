@@ -3,7 +3,6 @@ using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
-using static Android.Renderscripts.ScriptGroup;
 
 namespace RankingApp.ViewModels
 {

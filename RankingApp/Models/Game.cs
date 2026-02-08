@@ -77,6 +77,7 @@ namespace RankingApp.Models
 
         public string GameDisplayMe => $"{MyFullName}({MyPlace})";
         public string GameDisplayOpp => $"{OpponentName}({OpponentPlace})";
+        public string OppKeyName => NameNormalizer.NormalizeKey($"{Name} {Surname}");
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(RatingDifference))]

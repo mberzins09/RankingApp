@@ -114,6 +114,10 @@ namespace RankingApp.Models
         public string GameDate => $"{TournamentDate:d MMM yyyy}";
         public string GameDisplayMe => $"{MyTeam}";
         public string GameDisplayOpp => $"{OpponentTeam}";
+        public int MyTeamPoints => MyPoints + MyPartnerPoints;
+        public int OpponentPoints => Opponent1Points + Opponent2Points;
+        public string FirstOppKeyName => NameNormalizer.NormalizeKey($"{Opponent1Name} {Opponent1Surname}");
+        public string SecondOppKeyName => NameNormalizer.NormalizeKey($"{Opponent2Name} {Opponent2Surname}");
 
         public int RatingDifference
         {

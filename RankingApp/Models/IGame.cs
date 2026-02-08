@@ -11,6 +11,8 @@
         string TournamentName { get; }
         string GameDate { get; }
         int RatingDifference { get; }
+        int MyPoints { get; }
+        int OpponentPoints { get; }
         bool IsWin { get; }
         int? MySets { get; }
         int? OpponentSets { get; }
