@@ -3,6 +3,7 @@ using RankingApp.Data_Storage;
 using RankingApp.Models;
 using RankingApp.Services;
 using System.Collections.ObjectModel;
+using static Android.Renderscripts.ScriptGroup;
 
 namespace RankingApp.ViewModels
 {
@@ -109,10 +110,9 @@ namespace RankingApp.ViewModels
                 return;
             }
 
-            var filtered = _allPlayers.Where(x => (!string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.Place.ToString()) && x.Place.ToString().StartsWith(searchText, StringComparison.OrdinalIgnoreCase)))
-                            .ToList();
+            var normalizedInput = NameNormalizer.NormalizeKey(searchText);
+
+            var filtered = _allPlayers.Where(x => x.KeyName.Contains(normalizedInput)).ToList();
 
             Players = new ObservableCollection<PlayerDB>(filtered);
         }

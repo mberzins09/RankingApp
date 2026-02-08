@@ -247,6 +247,7 @@ namespace RankingApp.ViewModels
             }
 
             var input = SearchText.Trim();
+            var normalizedInput = NameNormalizer.NormalizeKey(input);
             IEnumerable<PlayerDB> result = _filteredPlayers;
 
             int GetPlace(PlayerDB p) => SelectedFilter == "All" ? p.OverallPlace : p.Place;
@@ -290,11 +291,7 @@ namespace RankingApp.ViewModels
                     break;
 
                 default:
-                    result = result.Where(p =>
-                    (!string.IsNullOrWhiteSpace(p.Name) && p.Name.StartsWith(input, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrWhiteSpace(p.Surname) && p.Surname.StartsWith(input, StringComparison.OrdinalIgnoreCase)) ||
-                    p.Place.ToString().StartsWith(input, StringComparison.OrdinalIgnoreCase)
-                );
+                    result = result.Where(p => p.KeyName.Contains(normalizedInput));
                     break;
             }
 
