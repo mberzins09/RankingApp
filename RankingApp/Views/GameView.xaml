@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
              xmlns:model="using:RankingApp.Models"
+             xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:converters="clr-namespace:RankingApp.Converters"
              x:DataType="viewmodel:GameViewModel"
              x:Class="RankingApp.Views.GameView"
              Title="Game"
              Style="{StaticResource PrimaryContentPage}">
-    <ContentPage.Resources>
+    <views:BaseContentPage.Resources>
         <ResourceDictionary>
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
-    </ContentPage.Resources>
+    </views:BaseContentPage.Resources>
 
     <Grid RowDefinitions="40, 3, 25, 25, 25, 25, 25, 25, 3, *, 50" ColumnDefinitions="1, 30, 100, 30, *, 30, 100, 30, 1" Style="{StaticResource PrimaryGrid}">
         <!-- Row 0 -->
@@ -99,4 +100,4 @@
                     ItemDisplayBinding="{Binding Label}" />
         </Border>
     </Grid>
-</ContentPage>
+</views:BaseContentPage>

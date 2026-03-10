@@ -4,7 +4,7 @@ using RankingApp.Models;
 
 namespace RankingApp.Views;
 
-public partial class GameView : ContentPage
+public partial class GameView : BaseContentPage
 {
     private readonly GameViewModel _viewModel;
     public GameView(GameViewModel viewmodel)

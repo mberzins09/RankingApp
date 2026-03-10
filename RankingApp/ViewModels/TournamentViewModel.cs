@@ -11,7 +11,7 @@ using Game = RankingApp.Models.Game;
 
 namespace RankingApp.ViewModels
 {
-    public partial class TournamentViewModel(DatabaseService database, PlayerReposotoryWithDate playerRepository) : BaseViewModel
+    public partial class TournamentViewModel(DatabaseService database, PlayerReposotoryWithDate playerRepository) : BaseViewModel, ISaveBeforeNavigate
     {
         private readonly DatabaseService _database = database;
         private readonly PlayerReposotoryWithDate _playerRepository = playerRepository;
@@ -39,6 +39,13 @@ namespace RankingApp.ViewModels
 
         [ObservableProperty]
         private ObservableCollection<IGame>? displayGames;
+
+        public async Task<bool> SaveBeforeNavigateAsync()
+        {
+            // Persist current tournament; return true to allow navigation.
+            await SaveTournamentAsync();
+            return true;
+        }
 
         partial void OnSelectedGameModeChanged(string value)
         {

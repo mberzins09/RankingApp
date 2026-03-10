@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels
 {
-    public partial class DoublesGameViewModel(DatabaseService databaseService, PlayerReposotoryWithDate playerReposotory) : BaseViewModel
+    public partial class DoublesGameViewModel(DatabaseService databaseService, PlayerReposotoryWithDate playerReposotory) : BaseViewModel, ISaveBeforeNavigate
     {
         private readonly DatabaseService _databaseService = databaseService;
         private readonly PlayerReposotoryWithDate _playerReposotory = playerReposotory;
@@ -35,6 +35,12 @@ namespace RankingApp.ViewModels
         public ObservableCollection<int> SetsOptions { get; } = [0, 1, 2, 3, 4];
 
         public List<string> SelectionOptions { get; } = ["MyPartner", "Opponent 1", "Opponent 2"];
+
+        public async Task<bool> SaveBeforeNavigateAsync()
+        {
+            await SaveDoublesGameAsync();
+            return true;
+        }
 
         partial void OnSelectionModeChanged(string? value)
         {

@@ -2,7 +2,7 @@ using RankingApp.ViewModels;
 
 namespace RankingApp.Views;
 
-public partial class TournamentView : ContentPage
+public partial class TournamentView : BaseContentPage
 {
     private readonly TournamentViewModel _viewModel;
 

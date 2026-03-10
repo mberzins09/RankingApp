@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace RankingApp.ViewModels
 {
-    public partial class GameViewModel(DatabaseService databaseService, PlayerReposotoryWithDate playerReposotory) : BaseViewModel
+    public partial class GameViewModel(DatabaseService databaseService, PlayerReposotoryWithDate playerReposotory) : BaseViewModel, ISaveBeforeNavigate
     {
         private readonly DatabaseService _databaseService = databaseService;
         private readonly PlayerReposotoryWithDate _playerReposotory = playerReposotory;
@@ -38,6 +38,12 @@ namespace RankingApp.ViewModels
             new BoolOption { Value = false, Label = "No" }
         };
 
+        public async Task<bool> SaveBeforeNavigateAsync()
+        {
+            await SaveGameAsync();
+            return true;
+        }
+
         partial void OnSelectedOpponentForeignOptionChanged(BoolOption? value)
         {
             if (OneGame is null || value is null)
@@ -68,7 +74,7 @@ namespace RankingApp.ViewModels
             var appData = await _databaseService.GetAppDataAsync();
             var dbPlayers = await _databaseService.GetAllRecordsAsync<PlayerDB>();
 
-            _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderBy(x => x.PointsWithBonus).ToList();
+            _allPlayers = dbPlayers.Where(x => x.Id != tournament.TournamentPlayerId && x.Place != 0).OrderByDescending(x => x.PointsWithBonus).ToList();
             int tournamentYear = tournament.Date.Year;
             int tournamentMonth = tournament.Date.Month;
             bool sameRankingMonth = (tournamentYear == appData.CurrentYear && tournamentMonth == appData.CurrentMonth);
@@ -81,7 +87,7 @@ namespace RankingApp.ViewModels
 
                 var inactivePlayers = _allPlayers.Where(x => x.IsActive == false).ToList();
                 var combined = _tournamentRankingPlayers.Concat(inactivePlayers)
-                                                        .OrderBy(x => x.PointsWithBonus)
+                                                        .OrderByDescending(x => x.PointsWithBonus)
                                                         .ToList();
 
                 Players = new ObservableCollection<PlayerDB>(combined);

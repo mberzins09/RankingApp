@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:local="clr-namespace:RankingApp"
@@ -13,11 +13,11 @@
              x:Class="RankingApp.Views.AllPlayerRanking"
              Title="Players Ranking"
              Style="{StaticResource PrimaryContentPage}">
-    <ContentPage.Resources>
+    <views:BaseContentPage.Resources>
         <ResourceDictionary>
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
-    </ContentPage.Resources>
+    </views:BaseContentPage.Resources>
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 40, 40, *, 5" ColumnDefinitions="1, 50, 50, *, 80, 40, 1">
         <!-- Row 1 -->
         <Label Text="Downloaded:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="14"/>
@@ -158,4 +158,4 @@
             </Border>
         </Grid>
     </Grid>
-</ContentPage>
+</views:BaseContentPage>

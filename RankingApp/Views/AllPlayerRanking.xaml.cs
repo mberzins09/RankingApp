@@ -3,7 +3,7 @@ using RankingApp.ViewModels;
 
 namespace RankingApp.Views;
 
-public partial class AllPlayerRanking : ContentPage
+public partial class AllPlayerRanking : BaseContentPage
 {
     private readonly PlayerViewModel _viewModel;
 

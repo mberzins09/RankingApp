@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
@@ -11,12 +11,12 @@
              x:Name="ThisPage"
              Title="All Games"
              Style="{StaticResource PrimaryContentPage}">
-    <ContentPage.Resources>
+    <views:BaseContentPage.Resources>
         <ResourceDictionary>
             <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
-    </ContentPage.Resources>
+    </views:BaseContentPage.Resources>
 
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 40, *, 2" ColumnDefinitions="120, *, 120">
         <Border Grid.Row="1" MaximumWidthRequest="100" MaximumHeightRequest="30" StrokeThickness="2">
@@ -60,4 +60,4 @@
                         />
         </Grid>
     </Grid>
-</ContentPage>
+</views:BaseContentPage>

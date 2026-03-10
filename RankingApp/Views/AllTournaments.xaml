@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
@@ -10,12 +10,12 @@
              x:DataType="viewmodel:AllTournamentsViewModel"
              Title="Rankings"
              Style="{StaticResource PrimaryContentPage}">
-    <ContentPage.Resources>
+    <views:BaseContentPage.Resources>
         <ResourceDictionary>
             <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
-    </ContentPage.Resources>
+    </views:BaseContentPage.Resources>
 
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="40, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
         <views:GlobalOverlay Grid.RowSpan="2" Grid.ColumnSpan="9" BindingContext="{Binding Progress}" />
@@ -82,4 +82,4 @@
             </Border>
         </Grid>
     </Grid>
-</ContentPage>
+</views:BaseContentPage>

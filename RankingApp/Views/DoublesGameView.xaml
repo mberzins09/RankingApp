@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewmodels="clr-namespace:RankingApp.ViewModels"
+             xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:models="using:RankingApp.Models"
              x:DataType="viewmodels:DoublesGameViewModel"
              x:Class="RankingApp.Views.DoublesGameView"
@@ -140,4 +141,4 @@
             </ListView>
         </Grid>
     </Grid>
-</ContentPage>
+</views:BaseContentPage>
