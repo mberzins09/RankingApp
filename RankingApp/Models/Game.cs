@@ -118,5 +118,7 @@ namespace RankingApp.Models
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(GameDisplayOpp))]
         private int opponentPlace;
+
+        public int ExternalGameId { get; set; }
     }
 }

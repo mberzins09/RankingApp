@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:RankingApp.Views"
+             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:model="clr-namespace:RankingApp.Models"                       
+             x:Class="RankingApp.Views.ImportTournament"
+             x:DataType="viewmodel:ImportTournamentViewModel"          
+             Title="ImportTournament">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="3, 60, 30, *, 3" ColumnDefinitions="3, *, 3">
+        <Label Grid.Row="1" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource PrimaryLabel}"/>
+        <Button Grid.Row="2" Grid.Column="1" Text="Import Selected Tournaments" Command="{Binding ImportSelectedTournamentsCommand}"
+    Style="{StaticResource PrimaryButton}" MaximumWidthRequest="100" />
+        <CollectionView Grid.Row="3" Grid.Column="1" ItemsSource="{Binding Tournaments}" SelectionMode="Multiple" SelectedItems="{Binding SelectedTournaments}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:APITournament">
+                    <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Padding="5">
+                        <Label Grid.ColumnSpan="2" Text="{Binding Competition}" Style="{StaticResource ListItemLabel}" FontSize="12" HorizontalTextAlignment="Start"/>
+                        <Label Grid.Row="1" Text="{Binding EventName}" Style="{StaticResource ListItemLabel}" FontSize="10" HorizontalTextAlignment="Start"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Date}" Style="{StaticResource ListItemLabel}" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="End"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</views:BaseContentPage>

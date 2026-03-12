@@ -191,6 +191,12 @@ namespace RankingApp.Services
             await AddColumnIfNotExistsAsync("AppData", "AppUserKeyName", "Text");
         }
 
+        public async Task MigrateExternalIdsAsync()
+        {
+            await AddColumnIfNotExistsAsync("Tournament", "ExternalTournamentId", "INTEGER", "0");
+            await AddColumnIfNotExistsAsync("Game", "ExternalGameId", "INTEGER", "0");
+        }
+
         public async Task MigrateDatabaseAsync()
         {
             var appData = await GetAppDataAsync();

@@ -76,6 +76,12 @@ public partial class TournamentView : BaseContentPage
         await Shell.Current.GoToAsync(nameof(DoublesGameView));
     }
 
+    private async void FixGames_Clicked(object? sender, EventArgs e)
+    {
+        await CloseMenuAsync();
+        await _viewModel.FixGamesAsync();
+    }
+
     private async void MenuSave_Clicked(object? sender, EventArgs e)
     {
         await CloseMenuAsync();

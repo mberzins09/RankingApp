@@ -32,6 +32,8 @@ namespace RankingApp.Models
         
         public int TournamentPlayerId { get; set; }
 
+        public int ExternalTournamentId { get; set; }
+
         public string TournamentDisplay =>
             $"{TournamentPlayerName} {TournamentPlayerSurname} - {DateToString}";
     }

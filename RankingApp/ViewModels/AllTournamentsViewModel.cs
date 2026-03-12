@@ -30,6 +30,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
     partial void OnSelectedYearChanged(int value) => ApplyAllFilters();
     partial void OnSearchTextChanged(string? value) => ApplyAllFilters();
     public async Task Migrate() => await _database.MigrateDatabaseAsync();
+    public async Task MigrateId() => await _database.MigrateExternalIdsAsync();
 
     public ObservableCollection<int> Years { get; } = [];
 
@@ -115,6 +116,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
     public async Task LoadDataAsync()
     {
+        await MigrateId();
         await Migrate();
         var tournaments = await _database.GetAllRecordsAsync<Tournament>();
         _allTournaments = [.. tournaments.OrderByDescending(x => x.Date)];
@@ -281,7 +283,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
             }
             finally
             {
-                await Task.Delay(1000);
+                await Task.Delay(400);
                 await popup.CloseAsync();
             }
         }

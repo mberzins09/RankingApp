@@ -11,7 +11,7 @@ namespace RankingApp.Views
         private readonly ToolbarItem _rankingsToolbar;
         private readonly ToolbarItem _gamesToolbar;
         private readonly ToolbarItem _addToolbar;
-
+        private readonly ToolbarItem _importToolbar;
         public BaseContentPage()
         {
             _homeToolbar = new ToolbarItem
@@ -50,10 +50,20 @@ namespace RankingApp.Views
             };
             _addToolbar.Command = new Command(async () => await AddActionAsync());
 
+            _importToolbar = new ToolbarItem
+            {
+                Text = "Import",
+                IconImageSource = "importfromapi.png",
+                Order = ToolbarItemOrder.Primary,
+                Priority = 4
+            };
+            _importToolbar.Command = new Command(async () => await ImportActionAsync());
+
             ToolbarItems.Add(_homeToolbar);
             ToolbarItems.Add(_rankingsToolbar);
             ToolbarItems.Add(_gamesToolbar);
             ToolbarItems.Add(_addToolbar);
+            ToolbarItems.Add(_importToolbar);
 
             if (Shell.Current != null)
                 Shell.Current.Navigated += Shell_Navigated;
@@ -81,6 +91,7 @@ namespace RankingApp.Views
                 _rankingsToolbar.IsEnabled = currentType != typeof(AllPlayerRanking);
                 _gamesToolbar.IsEnabled = currentType != typeof(TournamentView);
                 _addToolbar.IsEnabled = currentType == typeof(AllTournaments) || currentType == typeof(TournamentView);
+                _importToolbar.IsEnabled = currentType != typeof(ImportTournament);
             }
             catch
             {
@@ -146,6 +157,8 @@ namespace RankingApp.Views
 
         private async Task AddActionAsync()
         {
+            await SaveInterfaceAsync();
+
             var current = Shell.Current?.CurrentPage;
             var vm = current?.BindingContext;
 
@@ -155,17 +168,9 @@ namespace RankingApp.Views
             {
                 if (current.GetType() == typeof(AllTournaments))
                 {
-                    if (vm != null)
+                    if (vm is AllTournamentsViewModel allTournamentsvm)
                     {
-                        var method = vm.GetType().GetMethod("CreateNewTournamentSave", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        if (method != null)
-                        {
-                            if (typeof(Task).IsAssignableFrom(method.ReturnType))
-                            {
-                                var task = (Task?)method.Invoke(vm, null);
-                                if (task != null) await task;
-                            }
-                        }
+                        await allTournamentsvm.CreateNewTournamentSave();
                     }
 
                     await Shell.Current.GoToAsync(nameof(TournamentView));
@@ -174,14 +179,9 @@ namespace RankingApp.Views
 
                 if (current.GetType() == typeof(TournamentView))
                 {
-                    if (vm != null)
+                    if (vm is TournamentViewModel tournamentvm)
                     {
-                        var method = vm.GetType().GetMethod("CreateNewGameAsync", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[] { typeof(bool) }, null);
-                        if (method != null)
-                        {
-                            var ret = method.Invoke(vm, new object[] { false });
-                            if (ret is Task t) await t;
-                        }
+                        await tournamentvm.CreateNewGameAsync(false);
                     }
 
                     await Shell.Current.GoToAsync(nameof(GameView));
@@ -191,6 +191,19 @@ namespace RankingApp.Views
             catch
             {
             }
+        }
+
+        private async Task ImportActionAsync()
+        {
+            var current = Shell.Current?.CurrentPage;
+
+            if (current?.BindingContext is TournamentViewModel vm)
+            {
+                await vm.ImportGamesForTournamentAsync();
+                return;
+            }
+
+            await SaveAndNavigateAsync(nameof(ImportTournament), typeof(ImportTournament));
         }
     }
 }

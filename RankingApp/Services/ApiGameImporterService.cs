@@ -1,0 +1,80 @@
+﻿using RankingApp.Models;
+using RankingApp.Data_Storage;
+
+namespace RankingApp.Services;
+
+public class ApiGameImporterService(DatabaseService database)
+{
+    private readonly DatabaseService _database = database;
+
+    public async Task InsertGamesAsync(List<APIGame> apiGames, Tournament tournament, List<PlayerDB> players, List<PlayerDB> databasePlayers, PlayerDB me)
+    {
+        var allGames = await _database.GetAllRecordsAsync<Game>();
+
+        foreach (var apiGame in apiGames)
+        {
+            if (allGames.Any(g => g.ExternalGameId == apiGame.Id))
+                continue;
+
+            await InsertSingleGame(apiGame, tournament, players, databasePlayers, me);
+        }
+    }
+
+
+    private async Task InsertSingleGame(APIGame apiGame, Tournament tournament, List<PlayerDB> players, List<PlayerDB> databasePlayers, PlayerDB me)
+    {
+        if (apiGame == null)
+            return;
+
+        if (apiGame.Player1 == null || apiGame.Player2 == null)
+            return;
+
+        string p1Key = NameNormalizer.NormalizeKey($"{apiGame.Player1.Name}{apiGame.Player1.Surname}");
+        string p2Key = NameNormalizer.NormalizeKey($"{apiGame.Player2.Name}{apiGame.Player2.Surname}");
+
+        bool isMePlayer1 = p1Key == me.KeyName;
+        string oppKey = isMePlayer1 ? p2Key : p1Key;
+
+        var opp = players.FirstOrDefault(p => p.KeyName == oppKey);
+        opp ??= databasePlayers.FirstOrDefault(p => p.KeyName == oppKey);
+        opp ??= new PlayerDB
+        {
+            Name = isMePlayer1 ? apiGame.Player2.Name : apiGame.Player1.Name,
+            Surname = isMePlayer1 ? apiGame.Player2.Surname : apiGame.Player1.Surname,
+            Points = 0,
+            PointsWithBonus = 0,
+            BirthDate = ""
+        };
+
+        int mySets = int.Parse(isMePlayer1 ? apiGame.Player1Score ?? "0" : apiGame.Player2Score ?? "0");
+        int oppSets = int.Parse(isMePlayer1 ? apiGame.Player2Score ?? "0" : apiGame.Player1Score ?? "0");
+
+        var game = new Game
+        {
+            ExternalGameId = apiGame.Id,
+
+            MyName = me.Name,
+            MySurname = me.Surname,
+            MyPoints = me.Points,
+            MyAge = AgeCalculator.CalculateAge(me.BirthDate, tournament.Date),
+            MySets = mySets,
+            MyPlace = me.Place,
+            MyPointsWithBonus = me.PointsWithBonus,
+
+            Name = opp.Name,
+            Surname = opp.Surname,
+            OpponentPoints = opp.Points,
+            OpponentPointsWithBonus = opp.PointsWithBonus,
+            OpponentAge = AgeCalculator.CalculateAge(opp.BirthDate, tournament.Date),
+            OpponentPlace = opp.Place,
+            OpponentSets = oppSets,
+
+            TournamentId = tournament.Id,
+            TournamentName = tournament.Name,
+            TournamentDate = tournament.Date,
+            GameCoefficient = tournament.Coefficient
+        };
+
+        await _database.SaveAsync(game);
+    }
+}

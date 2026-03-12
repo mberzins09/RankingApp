@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RankingApp.Data_Storage;
 using RankingApp.Models;
@@ -11,13 +10,17 @@ using Game = RankingApp.Models.Game;
 
 namespace RankingApp.ViewModels
 {
-    public partial class TournamentViewModel(DatabaseService database, PlayerReposotoryWithDate playerRepository) : BaseViewModel, ISaveBeforeNavigate
+    public partial class TournamentViewModel(DatabaseService database, PlayerReposotoryWithDate playerRepository, ApiGameImporterService importer, TournamentService tournamentService) : BaseViewModel, ISaveBeforeNavigate
     {
         private readonly DatabaseService _database = database;
         private readonly PlayerReposotoryWithDate _playerRepository = playerRepository;
+        private readonly ApiGameImporterService _importer = importer;
+        private readonly TournamentService _tournamentService = tournamentService;
 
-        private List<PlayerDB> _playersCache = new();
+        private List<PlayerDB> _playersCache = [];
+        private List<PlayerDB> _databasePlayers = [];
         private List<Game>? _games;
+        private AppData _appData;
 
         private List<DoublesGame>? _doubleGames;
 
@@ -42,7 +45,6 @@ namespace RankingApp.ViewModels
 
         public async Task<bool> SaveBeforeNavigateAsync()
         {
-            // Persist current tournament; return true to allow navigation.
             await SaveTournamentAsync();
             return true;
         }
@@ -111,6 +113,12 @@ namespace RankingApp.ViewModels
 
         public async Task LoadDataAsync()
         {
+            _appData = await _database.GetAppDataAsync();
+
+            if (_databasePlayers.Count == 0)
+            {
+                _databasePlayers = await _database.GetAllRecordsAsync<PlayerDB>();
+            }
             OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
             await LoadGamesAsync();
 
@@ -125,20 +133,19 @@ namespace RankingApp.ViewModels
             if (OneTournament == null)
                 return;
 
-            var appData = await _database.GetAppDataAsync();
             int tournamentYear = OneTournament.Date.Year;
             int tournamentMonth = OneTournament.Date.Month;
 
             bool isOldAPIBody = tournamentYear is >= 2014 and <= 2025 && tournamentMonth is >= 1 and <= 10;
 
-            if (appData.CurrentYear != tournamentYear || appData.CurrentMonth != tournamentMonth)
+            if (_appData.CurrentYear != tournamentYear || _appData.CurrentMonth != tournamentMonth)
             {
                 var dateString = OneTournament.Date.ToString("yyyy-MM");
                 _playersCache = await _playerRepository.GetPlayersAsync(dateString, isOldAPIBody);
             }
             else
             {
-                _playersCache = await _database.GetAllRecordsAsync<PlayerDB>();
+                _playersCache = _databasePlayers;
             }
         }
 
@@ -151,9 +158,7 @@ namespace RankingApp.ViewModels
             var allDoublesGames = await _database.GetAllRecordsAsync<DoublesGame>();
             _doubleGames = [.. allDoublesGames.Where(x => x.TournamentId == Data.TournamentId)];
 
-            OneTournament.PointsDifference = allGames
-                                          .Where(x => x.TournamentId == Data.TournamentId)
-                                          .Sum(x => x.RatingDifference);
+            OneTournament.PointsDifference = allGames.Where(x => x.TournamentId == Data.TournamentId).Sum(x => x.RatingDifference);
 
             RefreshDisplayGames();
         }
@@ -180,9 +185,7 @@ namespace RankingApp.ViewModels
 
         private void RefreshDisplayGames()
         {
-            IEnumerable<IGame> games = SelectedGameMode == "Doubles"
-        ? _doubleGames ?? Enumerable.Empty<IGame>()
-        : _games ?? Enumerable.Empty<IGame>();
+            IEnumerable<IGame> games = SelectedGameMode == "Doubles" ? _doubleGames ?? Enumerable.Empty<IGame>() : _games ?? Enumerable.Empty<IGame>();
 
             DisplayGames = new ObservableCollection<IGame>(games);
 
@@ -211,11 +214,10 @@ namespace RankingApp.ViewModels
                     _playersCache = await _database.GetAllRecordsAsync<PlayerDB>();
                 }
 
-                var appData = await _database.GetAppDataAsync();
                 DateTime date = OneTournament.Date;
 
                 PlayerDB? foundPlayer = null;
-                foundPlayer ??= _playersCache.FirstOrDefault(p => p.KeyName == appData.AppUserKeyName);
+                foundPlayer ??= _playersCache.FirstOrDefault(p => p.KeyName == _appData.AppUserKeyName);
 
                 if (foundPlayer != null)
                 {
@@ -362,6 +364,76 @@ namespace RankingApp.ViewModels
             }
 
             await _database.SaveAsync<Tournament>(OneTournament);
+            await LoadGamesAsync();
+        }
+
+        public async Task ImportGamesForTournamentAsync()
+        {
+            if (OneTournament == null)
+                return;
+
+            if (OneTournament.ExternalTournamentId == 0)
+                return;
+
+            var apiGames = await _tournamentService.GetTournamentGames(_appData.AppUserNewId, OneTournament.ExternalTournamentId, OneTournament.Date.ToString("yyyy-MM-dd"), true);
+
+            if (apiGames.Count == 0)
+            {
+                apiGames = await _tournamentService.GetTournamentGames(_appData.AppUserNewId, OneTournament.ExternalTournamentId, OneTournament.Date.ToString("yyyy-MM-dd"), false);
+            }
+
+            var me =_playersCache.FirstOrDefault(p => p.KeyName == _appData.AppUserKeyName);
+
+            me ??= _databasePlayers.FirstOrDefault(p => p.KeyName == _appData.AppUserKeyName);
+
+            if (me == null)
+                return;
+
+            await _importer.InsertGamesAsync(apiGames, OneTournament, _playersCache, _databasePlayers, me);
+
+            await LoadGamesAsync();
+        }
+
+        public async Task FixGamesAsync()
+        {
+            if (OneTournament == null)
+                return;
+
+            if (_games == null || _games.Count == 0)
+                return;
+
+            var me = _playersCache.FirstOrDefault(p => p.KeyName == _appData.AppUserKeyName);
+
+            me ??= _databasePlayers.FirstOrDefault(p => p.KeyName == _appData.AppUserKeyName);
+
+            if (me == null)
+                return;
+
+            foreach (var g in _games)
+            {
+                string oppKey = NameNormalizer.NormalizeKey($"{g.Name}{g.Surname}");
+
+                var opp = _playersCache.FirstOrDefault(p => p.KeyName == oppKey);
+
+                opp ??= _databasePlayers.FirstOrDefault(p => p.KeyName == oppKey);
+
+                if (opp == null)
+                    continue;
+
+                g.OpponentPoints = opp.Points;
+                g.OpponentPointsWithBonus = opp.PointsWithBonus;
+                g.OpponentPlace = opp.Place;
+
+                g.MyPoints = me.Points;
+                g.MyPointsWithBonus = me.PointsWithBonus;
+                g.MyPlace = me.Place;
+
+                g.MyAge = AgeCalculator.CalculateAge(me.BirthDate, OneTournament.Date);
+                g.OpponentAge = AgeCalculator.CalculateAge(opp.BirthDate, OneTournament.Date);
+
+                await _database.SaveAsync<Game>(g);
+            }
+
             await LoadGamesAsync();
         }
     }
