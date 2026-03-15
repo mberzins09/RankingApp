@@ -91,7 +91,7 @@ public partial class TournamentView : BaseContentPage
 
     private void Entry_Focused(object sender, FocusEventArgs e)
     {
-        if (sender is Entry entry)
+        if (sender is Editor entry)
         {
             if (entry.Text == "Enter Tournament Name")
             {

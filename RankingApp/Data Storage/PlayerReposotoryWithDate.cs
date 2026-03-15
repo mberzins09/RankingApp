@@ -20,7 +20,7 @@ namespace RankingApp.Data_Storage
             var malesDb = males?.Select(player => new PlayerDB()
             {
                 Gender = "male",
-                Id = player.Id,
+                NewId = player.Id,
                 Name = player.Name,
                 Surname = player.Surname,
                 Place = player.Place,
@@ -34,7 +34,7 @@ namespace RankingApp.Data_Storage
             var femalesDb = females?.Select(player => new PlayerDB()
             {
                 Gender = "female",
-                Id = player.Id,
+                NewId = player.Id,
                 Name = player.Name,
                 Surname = player.Surname,
                 Place = player.Place,
@@ -58,7 +58,6 @@ namespace RankingApp.Data_Storage
             var player = new PlayerDB()
             {
                 Gender = "Unknown",
-                Id = 100000,
                 Name = "Unranked",
                 Surname = "Player",
                 Place = 10000,

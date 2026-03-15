@@ -4,21 +4,15 @@
     {
         public static DateTime now = DateTime.Now;
 
-        public static int Calculate(string BirthDate)
-        {
-            DateTime birth = DateTime.Parse(BirthDate);
-            int age = now.Year - birth.Year;
-            if(birth.AddYears(age) > now)
-            {
-                age--;
-            }
-
-            return age;
-        }
-
         public static int CalculateAge(string BirthDate, DateTime date)
         {
-            DateTime birth = DateTime.Parse(BirthDate);
+            DateTime birth;
+
+            if (!DateTime.TryParse(BirthDate, out birth))
+            {
+                return 0;
+            }
+
             int age = date.Year - birth.Year;
             if (birth.AddYears(age) > date)
             {
@@ -26,6 +20,11 @@
             }
 
             return age;
+        }
+
+        public static int Calculate(string BirthDate)
+        {
+            return CalculateAge(BirthDate, now);
         }
     }
 }

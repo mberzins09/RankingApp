@@ -121,25 +121,13 @@ namespace RankingApp.Services
                     existing.OverallPlace = apiPlayer.OverallPlace;
                     existing.Gender = apiPlayer.Gender;
                     existing.IsActive = true;
-
-                    if (existing.Id != apiPlayer.Id)
-                    {
-                        existing.NewId = apiPlayer.Id;
-                    }
+                    existing.NewId = apiPlayer.NewId;
 
                     toUpdate.Add(existing);
                 }
                 else
                 {
                     apiPlayer.IsActive = true;
-                    int nextId = dbPlayers.Any() ? dbPlayers.Max(p => p.Id) + 1 : apiPlayer.Id;
-
-                    if (dbPlayers.Any(p => p.Id == apiPlayer.Id))
-                    {
-                        apiPlayer.NewId = apiPlayer.Id;
-                        apiPlayer.Id = nextId;
-                    }
-
                     toInsert.Add(apiPlayer);
                     dbPlayers.Add(apiPlayer);
                     dbByKey[apiPlayer.KeyName] = apiPlayer;

@@ -128,14 +128,21 @@ namespace RankingApp.Views
 
         private async Task EnsureTournamentIdAndNavigateAsync(string routeName, Type destinationType)
         {
+            var db = new DatabaseService();
+            var tournaments = await db.GetAllRecordsAsync<Tournament>();
+
+            var deletedTournament = await db.GetByIdAsync<Tournament>(Data.TournamentId);
+            if (deletedTournament == null)
+            {
+                Data.TournamentId = 0;
+            }
+
             if (Data.TournamentId == 0)
             {
                 try
                 {
-                    var db = new DatabaseService();
                     if (db != null)
                     {
-                        var tournaments = await db.GetAllRecordsAsync<Tournament>();
                         var last = tournaments.OrderByDescending(t => t.Date).ThenByDescending(t => t.Id).FirstOrDefault();
                         if (last != null)
                             Data.TournamentId = last.Id;

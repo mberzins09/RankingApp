@@ -16,8 +16,6 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
 
     private List<Tournament> _allTournaments = [];
 
-    public TournamentImportService Progress => _importService;
-
     [ObservableProperty]
     private string? searchText;
 
@@ -78,7 +76,6 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         var popup = new ProcessingPopup { Message = "Loading old tournaments..." };
         _ = Application.Current.MainPage.ShowPopupAsync(popup);
 
-        // Allow UI to render the popup
         await Task.Yield();
 
         System.ComponentModel.PropertyChangedEventHandler? handler = null;
@@ -93,7 +90,7 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
                     {
                         popup.Message = _importService.Message;
                     }
-                    catch { /* swallow if popup already disposed */ }
+                    catch {}
                 });
             }
         };

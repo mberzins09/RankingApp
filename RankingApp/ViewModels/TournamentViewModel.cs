@@ -120,10 +120,18 @@ namespace RankingApp.ViewModels
                 _databasePlayers = await _database.GetAllRecordsAsync<PlayerDB>();
             }
             OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
-            await LoadGamesAsync();
-
+            
             if (OneTournament == null)
-                return;
+            {
+                var tournaments = await _database.GetAllRecordsAsync<Tournament>();
+                var last = tournaments.OrderByDescending(t => t.Date).ThenByDescending(t => t.Id).FirstOrDefault();
+                if (last != null)
+                    Data.TournamentId = last.Id;
+
+                OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
+            }
+
+            await LoadGamesAsync();
 
             await FillPlayersAsync();
         }

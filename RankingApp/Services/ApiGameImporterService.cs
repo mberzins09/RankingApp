@@ -37,14 +37,19 @@ public class ApiGameImporterService(DatabaseService database)
 
         var opp = players.FirstOrDefault(p => p.KeyName == oppKey);
         opp ??= databasePlayers.FirstOrDefault(p => p.KeyName == oppKey);
+        string oppName = isMePlayer1 ? apiGame.Player2.Name : apiGame.Player1.Name;
+        string oppSurname = isMePlayer1 ? apiGame.Player2.Surname : apiGame.Player1.Surname;
         opp ??= new PlayerDB
         {
-            Name = isMePlayer1 ? apiGame.Player2.Name : apiGame.Player1.Name,
-            Surname = isMePlayer1 ? apiGame.Player2.Surname : apiGame.Player1.Surname,
+            Name = oppName,
+            Surname = oppSurname,
             Points = 0,
             PointsWithBonus = 0,
-            BirthDate = ""
+            BirthDate = "",
+            KeyName = NameNormalizer.NormalizeKey($"{oppName}{oppSurname}"),
+            IsActive = false
         };
+        await _database.SaveAsync(opp);
 
         int mySets = int.Parse(isMePlayer1 ? apiGame.Player1Score ?? "0" : apiGame.Player2Score ?? "0");
         int oppSets = int.Parse(isMePlayer1 ? apiGame.Player2Score ?? "0" : apiGame.Player1Score ?? "0");
