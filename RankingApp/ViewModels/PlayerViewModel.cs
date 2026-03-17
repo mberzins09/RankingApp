@@ -15,7 +15,7 @@ namespace RankingApp.ViewModels
         private readonly PlayerService _playerService = playerService;
         private List<PlayerDB>? _allPlayers = [];
         private List<PlayerDB>? _filteredPlayers = [];
-        private List<PlayerDB>? _searchedPlayers = [];
+        private List<PlayerListItem>? _sortedPlayers = [];
         private AppData? _cachedAppData;
         private System.Timers.Timer? _searchDebounceTimer;
         private List<Game> _allGames = [];
@@ -176,7 +176,7 @@ namespace RankingApp.ViewModels
 
         partial void OnSelectedSortChanged(string value)
         {
-            ApplySortingAndPlace();
+            SortPlayers();
         }
 
         public async Task LoadDataAsync()
@@ -242,55 +242,53 @@ namespace RankingApp.ViewModels
 
             _filteredPlayers = filtered.ToList();
 
-            ApplySearch();
+            SortPlayers();
         }
 
-        private void ApplySortingAndPlace()
+        private void SortPlayers()
         {
-            if (_searchedPlayers == null)
+            if (_filteredPlayers == null)
                 return;
 
             IEnumerable<PlayerDB> sorted = SelectedSort switch
             {
-                "Points" => _searchedPlayers.OrderByDescending(p => p.Points),
-                "PointsChanged" => _searchedPlayers.OrderByDescending(p => p.PointsChanged),
-                "Age" => _searchedPlayers.OrderByDescending(p => p.Age),
-                _ => _searchedPlayers.OrderByDescending(p => p.PointsWithBonus),
+                "Points" => _filteredPlayers.OrderByDescending(p => p.Points),
+                "PointsChanged" => _filteredPlayers.OrderByDescending(p => p.PointsChanged),
+                "Age" => _filteredPlayers.OrderByDescending(p => p.Age),
+                _ => _filteredPlayers.OrderByDescending(p => p.PointsWithBonus),
             };
 
             var list = sorted.ToList();
 
-            var result = new List<PlayerListItem>();
+            _sortedPlayers = new List<PlayerListItem>();
 
             for (int i = 0; i < list.Count; i++)
             {
-                result.Add(new PlayerListItem
+                _sortedPlayers.Add(new PlayerListItem
                 {
                     Player = list[i],
                     Place = i + 1
                 });
             }
 
-            Players = new ObservableCollection<PlayerListItem>(result);
+            ApplySearch();
         }
 
         private void ApplySearch()
         {
-            if (_filteredPlayers == null)
+            if (_sortedPlayers == null)
                 return;
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                _searchedPlayers = _filteredPlayers.ToList();
-                ApplySortingAndPlace();
+                Players = new ObservableCollection<PlayerListItem>(_sortedPlayers);
                 return;
             }
 
             var input = SearchText.Trim();
             var normalizedInput = NameNormalizer.NormalizeKey(input);
-            IEnumerable<PlayerDB> result = _filteredPlayers;
 
-            int GetPlace(PlayerDB p) => SelectedFilter == "All" ? p.OverallPlace : p.Place;
+            IEnumerable<PlayerListItem> result = _sortedPlayers;
 
             var rangePattern = @"^\s*(\d+)\s*[-.]{1,2}\s*(\d+)\s*$";
             var greaterThanPattern = @"^>\s*(\d+)$";
@@ -302,42 +300,39 @@ namespace RankingApp.ViewModels
             {
                 case var s when Regex.IsMatch(s, rangePattern):
                     var match = Regex.Match(s, rangePattern);
+
                     int start = int.Parse(match.Groups[1].Value);
                     int end = int.Parse(match.Groups[2].Value);
-                    result = result.Where(p => {
-                        var val = GetPlace(p);
-                        return val >= start && val <= end;
-                    });
+
+                    result = result.Where(p => p.Place >= start && p.Place <= end);
                     break;
 
                 case var s when Regex.IsMatch(s, greaterOrEqualPattern):
                     int val = int.Parse(Regex.Match(s, greaterOrEqualPattern).Groups[1].Value);
-                    result = result.Where(p => GetPlace(p) >= val);
+                    result = result.Where(p => p.Place >= val);
                     break;
 
                 case var s when Regex.IsMatch(s, greaterThanPattern):
                     val = int.Parse(Regex.Match(s, greaterThanPattern).Groups[1].Value);
-                    result = result.Where(p => GetPlace(p) > val);
+                    result = result.Where(p => p.Place > val);
                     break;
 
                 case var s when Regex.IsMatch(s, lessOrEqualPattern):
                     val = int.Parse(Regex.Match(s, lessOrEqualPattern).Groups[1].Value);
-                    result = result.Where(p => GetPlace(p) <= val);
+                    result = result.Where(p => p.Place <= val);
                     break;
 
                 case var s when Regex.IsMatch(s, lessThanPattern):
                     val = int.Parse(Regex.Match(s, lessThanPattern).Groups[1].Value);
-                    result = result.Where(p => GetPlace(p) < val);
+                    result = result.Where(p => p.Place < val);
                     break;
 
                 default:
-                    result = result.Where(p => p.KeyName.Contains(normalizedInput));
+                    result = result.Where(p =>p.Player.KeyName.Contains(normalizedInput));
                     break;
             }
 
-            _searchedPlayers = result.ToList();
-
-            ApplySortingAndPlace();
+            Players = new ObservableCollection<PlayerListItem>(result);
         }
 
         private async Task UpdateAppDataLabel()
