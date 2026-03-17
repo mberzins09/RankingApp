@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using Maui.Android.InAppUpdates;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
 using RankingApp.Data_Storage;
@@ -16,6 +17,7 @@ namespace RankingApp
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
+                .UseAndroidInAppUpdates()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

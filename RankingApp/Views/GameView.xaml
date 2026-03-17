@@ -70,16 +70,21 @@
         </Border>
         <!-- Row 8 -->
         <!-- Row 9 -->
-        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="40,*" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"
+        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="40, 10, *" ColumnDefinitions="*, 50, 50" Style="{StaticResource PrimaryGrid}">
+            <SearchBar Grid.Row="0" Grid.ColumnSpan="3" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"
                        IsReadOnly="{Binding IsSearchDisabled}"/>
-            <ListView Grid.Row="1" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedOpponent}" Style="{StaticResource PrimaryListView}">
+            <Label Grid.Row="1" Text="Player" FontSize="8" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="1" Grid.Column="1" Text="Points" FontSize="8" HorizontalTextAlignment="Center"/>
+            <Label Grid.Row="1" Grid.Column="2" Text="WithBonus" FontSize="8" HorizontalTextAlignment="Center"/>
+            <ListView Grid.Row="2" Grid.ColumnSpan="3" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedOpponent}" 
+                      Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>
-                            <Grid ColumnDefinitions="*, 50">
+                            <Grid ColumnDefinitions="*, 50, 50">
                                 <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1"/>
-                                <Label Grid.Column="1" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}"/>
+                                <Label Grid.Column="1" Text="{Binding Points}" Style="{StaticResource ListItemLabel}"/>
+                                <Label Grid.Column="2" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}"/>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>

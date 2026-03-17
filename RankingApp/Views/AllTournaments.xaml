@@ -18,8 +18,6 @@
     </views:BaseContentPage.Resources>
 
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="40, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
-        <views:GlobalOverlay Grid.RowSpan="2" Grid.ColumnSpan="9" BindingContext="{Binding Progress}" />
-        
         <ImageButton Grid.Column="7" Source="{AppThemeBinding Light=dots.png, Dark=dots.png}" Clicked="MoreButton_Clicked"
                      WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center" />
         <Border Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="35" MaximumWidthRequest="80">

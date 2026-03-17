@@ -20,19 +20,16 @@ namespace RankingApp.Models
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Display))]
-        [NotifyPropertyChangedFor(nameof(AllDisplay))]
         private string name;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Display))]
-        [NotifyPropertyChangedFor(nameof(AllDisplay))]
         private string surname;
 
         [ObservableProperty]
         private string gender;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(AllDisplay))]
         private int overallPlace;
 
         [ObservableProperty]
@@ -48,7 +45,6 @@ namespace RankingApp.Models
 
         public int Age => string.IsNullOrEmpty(BirthDate) ? 0 : AgeCalculator.Calculate(BirthDate);
 
-        public string Display => $"{Place}. {Name} {Surname} {Age} g";
-        public string AllDisplay => $"{OverallPlace}. {Name} {Surname} {Age} g";
+        public string Display => $"{Name} {Surname} {Age} g";
     }
 }

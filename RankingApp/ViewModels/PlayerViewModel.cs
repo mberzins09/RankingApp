@@ -13,11 +13,12 @@ namespace RankingApp.ViewModels
     public partial class PlayerViewModel(PlayerService playerService) : BaseViewModel
     {
         private readonly PlayerService _playerService = playerService;
-        private List<PlayerDB>? _allPlayers = new();
-        private List<PlayerDB>? _filteredPlayers = new();
+        private List<PlayerDB>? _allPlayers = [];
+        private List<PlayerDB>? _filteredPlayers = [];
+        private List<PlayerDB>? _searchedPlayers = [];
         private AppData? _cachedAppData;
         private System.Timers.Timer? _searchDebounceTimer;
-        private List<Game> _allGames = new();
+        private List<Game> _allGames = [];
 
         [ObservableProperty]
         private ObservableCollection<Game>? filteredGames;
@@ -38,10 +39,10 @@ namespace RankingApp.ViewModels
         private DateTime maxDate = DateTime.Today.AddDays(10);
 
         [ObservableProperty]
-        private ObservableCollection<PlayerDB>? players;
+        private ObservableCollection<PlayerListItem>? players;
 
         [ObservableProperty]
-        private string selectedFilter = "All";
+        private string selectedFilter = "Men";
 
         [ObservableProperty]
         private DateTime selectedDate = DateTime.UtcNow;
@@ -55,7 +56,11 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private PlayerDB? appDefaultPlayer;
 
-        public List<string> FilterOptions { get; } = ["Men", "Women", "All", "Inactive"];
+        [ObservableProperty]
+        private string selectedSort = "PointsWithBonus";
+
+        public List<string> FilterOptions { get; } = ["Men", "Women", "AllActive", "Inactive", "All"];
+        public List<string> SortOptions { get; } = ["PointsWithBonus", "Points", "PointsChanged", "Age"];
 
         [RelayCommand]
         public async Task SetAsDefaultPlayerAsync(PlayerDB player)
@@ -121,9 +126,7 @@ namespace RankingApp.ViewModels
 
             SelectedPlayer = player;
 
-            var games = _allGames
-        .Where(g => GetGameKey(g) == player.KeyName)
-        .OrderByDescending(g => g.TournamentDate);
+            var games = _allGames.Where(g => GetGameKey(g) == player.KeyName).OrderByDescending(g => g.TournamentDate);
 
             FilteredGames = new ObservableCollection<Game>(games);
             Stats = GameStatisticsCalculator.Calculate(FilteredGames);
@@ -162,13 +165,18 @@ namespace RankingApp.ViewModels
         partial void OnSearchTextChanged(string? value)
         {
             _searchDebounceTimer?.Stop();
-            _searchDebounceTimer = new System.Timers.Timer(750); // 750ms debounce
+            _searchDebounceTimer = new System.Timers.Timer(400);
             _searchDebounceTimer.Elapsed += (s, e) =>
             {
                 _searchDebounceTimer?.Stop();
                 MainThread.BeginInvokeOnMainThread(ApplySearch);
             };
             _searchDebounceTimer.Start();
+        }
+
+        partial void OnSelectedSortChanged(string value)
+        {
+            ApplySortingAndPlace();
         }
 
         public async Task LoadDataAsync()
@@ -204,7 +212,7 @@ namespace RankingApp.ViewModels
             }
             finally
             {
-                await Task.Delay(1000); // short pause to show final message
+                await Task.Delay(1000);
                 await MainThread.InvokeOnMainThreadAsync(async () => await popup.CloseAsync());
             }
         }
@@ -215,24 +223,55 @@ namespace RankingApp.ViewModels
             switch (SelectedFilter)
             {
                 case "Men":
-                    filtered = _allPlayers.Where(player => player.Gender == "male" && player.IsActive == true).OrderBy(player => player.Place);
+                    filtered = _allPlayers.Where(player => player.Gender == "male" && player.IsActive);
                     break;
                 case "Women":
-                    filtered = _allPlayers.Where(player => player.Gender == "female" && player.IsActive == true).OrderBy(player => player.Place);
+                    filtered = _allPlayers.Where(player => player.Gender == "female" && player.IsActive);
                     break;
                 case "Inactive":
-                    filtered = _allPlayers.Where(player => player.IsActive == false)
-                                          .OrderByDescending(player => player.PointsWithBonus);
+                    filtered = _allPlayers.Where(player => !player.IsActive);
                     break;
                 case "All":
+                    filtered = _allPlayers;
+                    break;
+                case "AllActive":
                 default:
-                    filtered = _allPlayers.Where(player => player.IsActive == true)
-                                          .OrderBy(player => player.OverallPlace);
+                    filtered = _allPlayers.Where(player => player.IsActive);
                     break;
             }
 
             _filteredPlayers = filtered.ToList();
+
             ApplySearch();
+        }
+
+        private void ApplySortingAndPlace()
+        {
+            if (_searchedPlayers == null)
+                return;
+
+            IEnumerable<PlayerDB> sorted = SelectedSort switch
+            {
+                "Points" => _searchedPlayers.OrderByDescending(p => p.Points),
+                "PointsChanged" => _searchedPlayers.OrderByDescending(p => p.PointsChanged),
+                "Age" => _searchedPlayers.OrderByDescending(p => p.Age),
+                _ => _searchedPlayers.OrderByDescending(p => p.PointsWithBonus),
+            };
+
+            var list = sorted.ToList();
+
+            var result = new List<PlayerListItem>();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                result.Add(new PlayerListItem
+                {
+                    Player = list[i],
+                    Place = i + 1
+                });
+            }
+
+            Players = new ObservableCollection<PlayerListItem>(result);
         }
 
         private void ApplySearch()
@@ -242,7 +281,8 @@ namespace RankingApp.ViewModels
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                Players = new ObservableCollection<PlayerDB>(_filteredPlayers);
+                _searchedPlayers = _filteredPlayers.ToList();
+                ApplySortingAndPlace();
                 return;
             }
 
@@ -295,7 +335,9 @@ namespace RankingApp.ViewModels
                     break;
             }
 
-            Players = new ObservableCollection<PlayerDB>(result);
+            _searchedPlayers = result.ToList();
+
+            ApplySortingAndPlace();
         }
 
         private async Task UpdateAppDataLabel()

@@ -91,11 +91,11 @@ public partial class TournamentView : BaseContentPage
 
     private void Entry_Focused(object sender, FocusEventArgs e)
     {
-        if (sender is Editor entry)
+        if (sender is Editor editor)
         {
-            if (entry.Text == "Enter Tournament Name")
+            if (editor.Text == "Enter Tournament Name")
             {
-                entry.Text = string.Empty;
+                editor.Text = string.Empty;
             }
         }
     }
