@@ -9,7 +9,6 @@ namespace RankingApp.Models
         [NotifyPropertyChangedFor(nameof(RatingDifference))]
         private int myPoints;
 
-
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MyFullName))]
         [NotifyPropertyChangedFor(nameof(GameDisplayMe))]

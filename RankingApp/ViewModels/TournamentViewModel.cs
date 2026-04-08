@@ -6,6 +6,8 @@ using RankingApp.Services;
 using RankingApp.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
+using System.Text;
 using Game = RankingApp.Models.Game;
 
 namespace RankingApp.ViewModels
@@ -189,6 +191,41 @@ namespace RankingApp.ViewModels
             }
 
             await LoadGamesAsync();
+        }
+
+        [RelayCommand]
+        private async Task ShareTournamentAsync()
+        {
+            if (OneTournament == null)
+                return;
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"🏓 {OneTournament.Name}");
+            sb.AppendLine($"📅 {OneTournament.Date:dd MMM yyyy}");
+            sb.AppendLine($"📊 Points diff: {OneTournament.PointsDifference}");
+            sb.AppendLine($"Wins: {Stats?.TotalWins}");
+            sb.AppendLine($"Losses: {Stats?.TotalLosses}");
+            sb.AppendLine();
+
+            if (_games != null && _games.Count > 0)
+            {
+                sb.AppendLine("Games:");
+
+                foreach (var g in _games.Take(10)) // limit so it's not too long
+                {
+                    sb.AppendLine($"{g.Name} {g.Surname} {g.MySets}-{g.OpponentSets} / {g.RatingDifference}");
+                }
+
+                if (_games.Count > 10)
+                    sb.AppendLine("...");
+            }
+
+            await Share.Default.RequestAsync(new ShareTextRequest
+            {
+                Title = "Share Tournament",
+                Text = sb.ToString()
+            });
         }
 
         private void RefreshDisplayGames()

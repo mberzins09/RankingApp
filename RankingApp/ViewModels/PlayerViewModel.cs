@@ -59,6 +59,9 @@ namespace RankingApp.ViewModels
         [ObservableProperty]
         private string selectedSort = "PointsWithBonus";
 
+        [ObservableProperty]
+        private bool remindRankingUpdate;
+
         public List<string> FilterOptions { get; } = ["Men", "Women", "AllActive", "Inactive", "All"];
         public List<string> SortOptions { get; } = ["PointsWithBonus", "Points", "PointsChanged", "Age"];
 
@@ -140,6 +143,16 @@ namespace RankingApp.ViewModels
             FilteredGames?.Clear();
         }
 
+        partial void OnRemindRankingUpdateChanged(bool value)
+        {
+            if (_cachedAppData == null)
+                return;
+
+            _cachedAppData.RemindRankingUpdate = value;
+
+            _ = _playerService.SaveAppDataAsync(_cachedAppData);
+        }
+
         partial void OnSelectedFilterChanged(string value)
         {
             FilterPlayers();
@@ -184,6 +197,7 @@ namespace RankingApp.ViewModels
             _allPlayers = await _playerService.GetPlayersFromDbAsync();
             _allGames = await _playerService.GetGamesFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
+            RemindRankingUpdate = _cachedAppData.RemindRankingUpdate;
             AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(_cachedAppData);
             FilterPlayers();
             await UpdateAppDataLabel();

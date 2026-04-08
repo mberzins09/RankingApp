@@ -245,6 +245,9 @@ public partial class AllTournamentsViewModel(DatabaseService database, PlayerSer
         if (appData == null)
             return;
 
+        if (!appData.RemindRankingUpdate)
+            return;
+
         if (appData.CurrentYear < systemDate.Year || (appData.CurrentYear == systemDate.Year && appData.CurrentMonth < systemDate.Month))
         {
             bool confirm = await Shell.Current.DisplayAlert("Update Rankings","You haven't updated to the newest ranking. Would you like to update it?","Yes","No");

@@ -18,7 +18,7 @@
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
     </views:BaseContentPage.Resources>
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 40, 40, *, 5" ColumnDefinitions="1, 50, 50, *, 80, 40, 1">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="5, 40, 40, 40, *, 30, 5" ColumnDefinitions="1, 50, 50, *, 80, 40, 1">
         <!-- Row 1 -->
         <Label Text="Downloaded:" Style="{StaticResource PrimaryLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" FontSize="14"/>
         <Label Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" FontSize="18" Style="{StaticResource PrimaryLabel}" Text="{Binding AppDataLabel}"/>
@@ -96,6 +96,11 @@
                 </ListView.ItemTemplate>
             </ListView>
         </Grid>
+
+        <HorizontalStackLayout Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="5" Spacing="30" VerticalOptions="Center">
+            <Label Text="Remind Ranking Update" Style="{StaticResource PrimaryLabel}"/>
+            <Switch IsToggled="{Binding RemindRankingUpdate, Mode=TwoWay}" />
+        </HorizontalStackLayout>
 
         <!-- After Player Clicked -->
         <Grid IsVisible="{Binding IsGamesOverlayVisible}" InputTransparent="False" Grid.RowSpan="5" Grid.ColumnSpan="7">

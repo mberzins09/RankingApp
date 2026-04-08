@@ -101,6 +101,7 @@
                     <Button Text="Add Game" Clicked="MenuAddGame_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Add Doubles Game" Clicked="MenuAddDoubles_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Fix Games To Correct Month" Clicked="FixGames_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Share" Command="{Binding ShareTournamentCommand}" Style="{StaticResource PrimaryButton}" />
                     <Button Text="Return To All Tournaments" Clicked="MenuSave_Clicked" Style="{StaticResource PrimaryButton}"/>
                 </VerticalStackLayout>
             </Border>

@@ -39,6 +39,11 @@ namespace RankingApp.Services
             return await _database.DeleteAsync(entity);
         }
 
+        public Task<PlayerDB?> GetPlayerByKeyAsync(string key)
+        {
+            return _database.Table<PlayerDB?>().FirstOrDefaultAsync(p => p.KeyName == key);
+        }
+
         public Task DeleteGamesForTournamentAsync(int tournamentId)
         {
             return _database.ExecuteAsync("DELETE FROM Game WHERE TournamentId = ?", tournamentId);
@@ -177,6 +182,7 @@ namespace RankingApp.Services
         {
             await AddColumnIfNotExistsAsync("AppData", "PlayersDbMigrated", "INTEGER", "0");
             await AddColumnIfNotExistsAsync("AppData", "AppUserKeyName", "Text");
+            await AddColumnIfNotExistsAsync("AppData", "RemindRankingUpdate", "INTEGER", "0");
         }
 
         public async Task MigrateExternalIdsAsync()

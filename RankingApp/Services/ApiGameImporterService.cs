@@ -1,5 +1,6 @@
 ﻿using RankingApp.Models;
 using RankingApp.Data_Storage;
+using SQLite;
 
 namespace RankingApp.Services;
 
@@ -20,7 +21,6 @@ public class ApiGameImporterService(DatabaseService database)
         }
     }
 
-
     private async Task InsertSingleGame(APIGame apiGame, Tournament tournament, List<PlayerDB> players, List<PlayerDB> databasePlayers, PlayerDB me)
     {
         if (apiGame == null)
@@ -34,6 +34,14 @@ public class ApiGameImporterService(DatabaseService database)
 
         bool isMePlayer1 = p1Key == me.KeyName;
         string oppKey = isMePlayer1 ? p2Key : p1Key;
+
+        string? myScoreRaw = isMePlayer1 ? apiGame.Player1Score : apiGame.Player2Score;
+        string? oppScoreRaw = isMePlayer1 ? apiGame.Player2Score : apiGame.Player1Score;
+
+        if (!int.TryParse(myScoreRaw, out int mySets) || !int.TryParse(oppScoreRaw, out int oppSets))
+        {
+            return;
+        }
 
         var opp = players.FirstOrDefault(p => p.KeyName == oppKey);
         opp ??= databasePlayers.FirstOrDefault(p => p.KeyName == oppKey);
@@ -49,10 +57,13 @@ public class ApiGameImporterService(DatabaseService database)
             KeyName = NameNormalizer.NormalizeKey($"{oppName}{oppSurname}"),
             IsActive = false
         };
-        await _database.SaveAsync(opp);
 
-        int mySets = int.Parse(isMePlayer1 ? apiGame.Player1Score ?? "0" : apiGame.Player2Score ?? "0");
-        int oppSets = int.Parse(isMePlayer1 ? apiGame.Player2Score ?? "0" : apiGame.Player1Score ?? "0");
+        var existingPlayer = await _database.GetPlayerByKeyAsync(opp.KeyName);
+
+        if (existingPlayer == null)
+        {
+            await _database.SaveAsync(opp);
+        }
 
         var game = new Game
         {
