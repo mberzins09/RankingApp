@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:model="clr-namespace:RankingApp.Models"
-             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:model="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"
+             xmlns:viewmodel="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
              xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:app="using:RankingApp"

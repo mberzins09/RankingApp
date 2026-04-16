@@ -1,4 +1,4 @@
-﻿using RankingApp.Models;
+﻿using RankingApp.Core.Models;
 
 namespace RankingApp.Converters
 {

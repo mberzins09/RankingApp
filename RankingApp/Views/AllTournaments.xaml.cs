@@ -1,5 +1,5 @@
 using CommunityToolkit.Maui.Storage;
-using RankingApp.ViewModels;
+using RankingApp.Core.ViewModels;
 using SQLite;
 
 namespace RankingApp.Views;

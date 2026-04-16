@@ -1,4 +1,4 @@
-using RankingApp.Models;
+using RankingApp.Core.Models;
 using System.Windows.Input;
 
 namespace RankingApp.Views;

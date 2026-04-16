@@ -2,9 +2,11 @@
 using Maui.Android.InAppUpdates;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
-using RankingApp.Data_Storage;
+using RankingApp.Core.Interfaces;
+using RankingApp.Core.Services;
+using RankingApp.Core.Services.Interfaces;
+using RankingApp.Core.ViewModels;
 using RankingApp.Services;
-using RankingApp.ViewModels;
 using RankingApp.Views;
 
 namespace RankingApp
@@ -24,10 +26,13 @@ namespace RankingApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<PlayerReposotoryWithDate>();
+            builder.Services.AddSingleton<IPlayerRepositoryWithDate, PlayerReposotoryWithDate>();
+            builder.Services.AddSingleton<IProgressDialogService, ProgressDialogService>();
+            builder.Services.AddSingleton<INavigationService, NavigationService>();
             builder.Services.AddSingleton<PlayerServiceWithDate>();
-            builder.Services.AddSingleton<DatabaseService>();
-            builder.Services.AddSingleton<PlayerService>();
+            builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+            builder.Services.AddSingleton<IPlayerService, PlayerService>();
+            builder.Services.AddSingleton<IMonthPlayersService, MonthPlayersService>();
             builder.Services.AddSingleton<TournamentImportService>();
             builder.Services.AddSingleton<TournamentService>();
             builder.Services.AddSingleton<ApiGameImporterService>();

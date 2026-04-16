@@ -1,4 +1,4 @@
-using RankingApp.Services;
+using RankingApp.Core.Services;
 
 namespace RankingApp.Views
 {

@@ -1,5 +1,5 @@
-using RankingApp.Models;
-using RankingApp.ViewModels;
+using RankingApp.Core.Models;
+using RankingApp.Core.ViewModels;
 
 namespace RankingApp.Views;
 

@@ -1,7 +1,6 @@
-using System.Reflection;
-using RankingApp.ViewModels;
-using RankingApp.Models;
-using RankingApp.Services;
+using RankingApp.Core.ViewModels;
+using RankingApp.Core.Models;
+using RankingApp.Core.Services;
 
 namespace RankingApp.Views
 {
