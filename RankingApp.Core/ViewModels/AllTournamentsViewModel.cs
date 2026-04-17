@@ -58,8 +58,8 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
     [RelayCommand]
     private async Task DeleteTournamentsAsync()
     {
-        await _database.DeleteAllAsync<Tournament>();
         await _database.DeleteAllAsync<Game>();
+        await _database.DeleteAllAsync<Tournament>();
         await LoadDataAsync();
     }
 

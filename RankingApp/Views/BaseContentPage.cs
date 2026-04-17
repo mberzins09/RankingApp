@@ -130,6 +130,8 @@ namespace RankingApp.Views
             var db = new DatabaseService();
             var tournaments = await db.GetAllRecordsAsync<Tournament>();
 
+            if (tournaments.Count == 0) return;
+
             var deletedTournament = await db.GetByIdAsync<Tournament>(Data.TournamentId);
             if (deletedTournament == null)
             {
