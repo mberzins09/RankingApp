@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
-             xmlns:model="using:RankingApp.Models"
+             xmlns:viewmodel="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
+             xmlns:model="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"
              xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:converters="clr-namespace:RankingApp.Converters"
              x:Class="RankingApp.Views.AllTournaments"
              x:DataType="viewmodel:AllTournamentsViewModel"
              Title="Rankings"
              Style="{StaticResource PrimaryContentPage}">
-    <ContentPage.Resources>
+    <views:BaseContentPage.Resources>
         <ResourceDictionary>
             <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
-    </ContentPage.Resources>
+    </views:BaseContentPage.Resources>
 
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="40, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
-        <views:GlobalOverlay Grid.RowSpan="2" Grid.ColumnSpan="9" BindingContext="{Binding Progress}" />
-        
         <ImageButton Grid.Column="7" Source="{AppThemeBinding Light=dots.png, Dark=dots.png}" Clicked="MoreButton_Clicked"
                      WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center" />
         <Border Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="35" MaximumWidthRequest="80">
@@ -78,8 +76,9 @@
                     <Button Text="Import Database" Clicked="MenuImport_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Export Database" Clicked="MenuExport_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Get Old Tournaments" Command="{Binding GetOldTournamentsCommand}" Style="{StaticResource PrimaryButton}"/>
+                    <!--<Button Text="Delete All Tournaments" Command="{Binding DeleteTournamentsCommand}" Style="{StaticResource PrimaryButton}"/>-->
                 </VerticalStackLayout>
             </Border>
         </Grid>
     </Grid>
-</ContentPage>
+</views:BaseContentPage>

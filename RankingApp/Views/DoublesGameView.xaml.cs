@@ -1,9 +1,8 @@
-using RankingApp.Models;
-using RankingApp.ViewModels;
+using RankingApp.Core.ViewModels;
 
 namespace RankingApp.Views;
 
-public partial class DoublesGameView : ContentPage
+public partial class DoublesGameView : BaseContentPage
 {
     private readonly DoublesGameViewModel _viewModel;
 

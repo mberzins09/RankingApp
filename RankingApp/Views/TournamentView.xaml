@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:model="clr-namespace:RankingApp.Models"
-             xmlns:viewmodel="clr-namespace:RankingApp.ViewModels"
+             xmlns:model="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"
+             xmlns:viewmodel="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
              xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:app="using:RankingApp"
@@ -11,13 +11,13 @@
              x:Class="RankingApp.Views.TournamentView"
              Title="Tournament"
              Style="{StaticResource PrimaryContentPage}">
-    <ContentPage.Resources>
+    <views:BaseContentPage.Resources>
         <ResourceDictionary>
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
-    </ContentPage.Resources>
+    </views:BaseContentPage.Resources>
 
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 40, 40, Auto, *, 5" ColumnDefinitions="5, Auto, *, 50, 50, 50, 5">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="50, 30, Auto, Auto, Auto, 5" ColumnDefinitions="5, Auto, *, 50, 50, 50, 5">
         <!-- Row 0 -->
         <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Start" Spacing="5">
             <Label Text="{Binding OneTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}"/>
@@ -59,7 +59,7 @@
             </Border>
         </Grid>
         <!-- Row 2 -->
-        <Entry Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource PrimaryEntry}" Text="{Binding OneTournament.Name}" Placeholder="Enter Tournament Name" FontSize="16" Focused="Entry_Focused" />
+        <Editor Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding OneTournament.Name}" Placeholder="Enter Tournament Name" FontSize="12" Focused="Entry_Focused" />
         <!-- Row 3 -->
         <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5"/>
         <!-- Row 4 -->
@@ -100,10 +100,12 @@
                 <VerticalStackLayout Spacing="6" WidthRequest="200">
                     <Button Text="Add Game" Clicked="MenuAddGame_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Add Doubles Game" Clicked="MenuAddDoubles_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Fix Games To Correct Month" Clicked="FixGames_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="Share" Command="{Binding ShareTournamentCommand}" Style="{StaticResource PrimaryButton}" />
                     <Button Text="Return To All Tournaments" Clicked="MenuSave_Clicked" Style="{StaticResource PrimaryButton}"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>
     </Grid>
-</ContentPage>
+</views:BaseContentPage>
     

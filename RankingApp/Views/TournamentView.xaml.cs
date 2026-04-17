@@ -1,8 +1,8 @@
-using RankingApp.ViewModels;
+using RankingApp.Core.ViewModels;
 
 namespace RankingApp.Views;
 
-public partial class TournamentView : ContentPage
+public partial class TournamentView : BaseContentPage
 {
     private readonly TournamentViewModel _viewModel;
 
@@ -76,6 +76,12 @@ public partial class TournamentView : ContentPage
         await Shell.Current.GoToAsync(nameof(DoublesGameView));
     }
 
+    private async void FixGames_Clicked(object? sender, EventArgs e)
+    {
+        await CloseMenuAsync();
+        await _viewModel.FixGamesAsync();
+    }
+
     private async void MenuSave_Clicked(object? sender, EventArgs e)
     {
         await CloseMenuAsync();
@@ -85,11 +91,11 @@ public partial class TournamentView : ContentPage
 
     private void Entry_Focused(object sender, FocusEventArgs e)
     {
-        if (sender is Entry entry)
+        if (sender is Editor editor)
         {
-            if (entry.Text == "Enter Tournament Name")
+            if (editor.Text == "Enter Tournament Name")
             {
-                entry.Text = string.Empty;
+                editor.Text = string.Empty;
             }
         }
     }

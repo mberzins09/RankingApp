@@ -1,8 +1,8 @@
-using RankingApp.ViewModels;
+using RankingApp.Core.ViewModels;
 
 namespace RankingApp.Views;
 
-public partial class AllGames : ContentPage
+public partial class AllGames : BaseContentPage
 {
     private readonly AllGamesViewModel _viewModel;
     public AllGames(AllGamesViewModel viewModel)
