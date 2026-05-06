@@ -76,6 +76,7 @@
                     <Button Text="Import Database" Clicked="MenuImport_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Export Database" Clicked="MenuExport_Clicked" Style="{StaticResource PrimaryButton}"/>
                     <Button Text="Get Old Tournaments" Command="{Binding GetOldTournamentsCommand}" Style="{StaticResource PrimaryButton}"/>
+
                     <!--<Button Text="Delete All Tournaments" Command="{Binding DeleteTournamentsCommand}" Style="{StaticResource PrimaryButton}"/>-->
                 </VerticalStackLayout>
             </Border>
