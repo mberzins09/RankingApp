@@ -35,7 +35,7 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private IGame? selectedItem;
 
-        public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "4"];
+        public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "3", "4"];
 
         public List<string> GameModes { get; } = ["Singles", "Doubles"];
 

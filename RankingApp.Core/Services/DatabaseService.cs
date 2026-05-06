@@ -196,12 +196,6 @@ namespace RankingApp.Core.Services
         {
             var appData = await GetAppDataAsync();
 
-            if (appData.PlayersDbMigrated)
-            { return; }
-
-            await MigratePlayerTableAsync();
-            await MigrateAppDataTableAsync();
-
             var refDbPath = Path.Combine(FileSystem.AppDataDirectory, "lgtf.sqlite");
 
             if (!File.Exists(refDbPath))
@@ -210,6 +204,17 @@ namespace RankingApp.Core.Services
                 using var fs = File.Create(refDbPath);
                 await stream.CopyToAsync(fs);
             }
+            else
+            {
+                // Upgrade stale copy if DbFixer columns are missing
+                await EnsureLgtfDbIsUpdatedAsync(refDbPath);
+            }
+
+            if (appData.PlayersDbMigrated)
+            { return; }
+
+            await MigratePlayerTableAsync();
+            await MigrateAppDataTableAsync();
 
             var referenceDb = new SQLiteAsyncConnection(refDbPath);
 
@@ -274,6 +279,38 @@ namespace RankingApp.Core.Services
                 appData.AppUserNewId = match.NewId;
                 await SaveAppDataAsync(appData);
             }
+        }
+
+        private async Task EnsureLgtfDbIsUpdatedAsync(string lgtfPath)
+        {
+            bool needsUpdate = false;
+            var checkDb = new SQLiteAsyncConnection(lgtfPath);
+
+            try
+            {
+                await checkDb.ExecuteScalarAsync<int>(
+                    "SELECT ranking_data_filled FROM games LIMIT 1");
+            }
+            catch
+            {
+                // Column missing → stale copy
+                needsUpdate = true;
+            }
+            finally
+            {
+                // MUST close before File.Delete — Android locks open files
+                await checkDb.CloseAsync();
+            }
+
+            if (!needsUpdate)
+                return;
+
+            if (File.Exists(lgtfPath))
+                File.Delete(lgtfPath);
+
+            using var stream = await FileSystem.OpenAppPackageFileAsync("lgtf.sqlite");
+            using var fs = File.Create(lgtfPath);
+            await stream.CopyToAsync(fs);
         }
     }
 }
