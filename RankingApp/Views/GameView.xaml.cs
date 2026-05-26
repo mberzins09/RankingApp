@@ -1,3 +1,4 @@
+using RankingApp.Core.Models;
 using RankingApp.Core.ViewModels;
 
 namespace RankingApp.Views;
@@ -28,9 +29,17 @@ public partial class GameView : BaseContentPage
 
     private async void EntryOppName_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        _viewModel.OneGame.Name = EntryOpponentName.Text;
-        _viewModel.OneGame.Surname = EntryOpponentSurname.Text;
-        _viewModel.OneGame.OpponentPoints = 0;
+        var player = new PlayerDB
+        {
+            Name = EntryOpponentName.Text,
+            Surname = EntryOpponentSurname.Text,
+            Points = 0,
+            PointsWithBonus = 0,
+            Place = 0,
+            BirthDate = ""
+        };
+
+        _viewModel.AssignOpponentProperties(player);
 
         await _viewModel.SaveGameAsync();
     }

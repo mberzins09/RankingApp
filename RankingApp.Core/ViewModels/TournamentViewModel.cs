@@ -217,7 +217,11 @@ namespace RankingApp.Core.ViewModels
 
                 foreach (var g in games)
                 {
-                    sb.AppendLine($"{g.Name[0]}.{g.Surname} ({g.OpponentPlace}) {g.MySets}:{g.OpponentSets} | {g.RatingDifference}");
+                    string oppName = g.Name == null ? "" : $"{g.Name[0]}.";
+                    string oppSurname = g.Surname ?? "";
+                    int mySets = (int)(g.MySets == null ? 0 : g.MySets);
+                    int oppSets = (int)(g.OpponentSets == null ? 0 : g.OpponentSets);
+                    sb.AppendLine($"{oppName}{oppSurname} ({g.OpponentPlace}) {mySets}:{oppSets} | {g.RatingDifference}");
                 }
             }
 
