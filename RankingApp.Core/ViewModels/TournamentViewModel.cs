@@ -217,7 +217,12 @@ namespace RankingApp.Core.ViewModels
 
                 foreach (var g in games)
                 {
-                    string oppName = g.Name == null ? "" : $"{g.Name[0]}.";
+                    string oppName;
+                    if (String.IsNullOrWhiteSpace(g.Name))
+                        oppName = ".";
+                    else
+                        oppName = $"{g.Name[0]}.";
+
                     string oppSurname = g.Surname ?? "";
                     int mySets = (int)(g.MySets == null ? 0 : g.MySets);
                     int oppSets = (int)(g.OpponentSets == null ? 0 : g.OpponentSets);
