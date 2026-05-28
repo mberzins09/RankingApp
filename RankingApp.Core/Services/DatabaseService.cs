@@ -196,12 +196,6 @@ namespace RankingApp.Core.Services
         {
             var appData = await GetAppDataAsync();
 
-            if (appData.PlayersDbMigrated)
-            { return; }
-
-            await MigratePlayerTableAsync();
-            await MigrateAppDataTableAsync();
-
             var refDbPath = Path.Combine(FileSystem.AppDataDirectory, "lgtf.sqlite");
 
             if (!File.Exists(refDbPath))
@@ -210,6 +204,12 @@ namespace RankingApp.Core.Services
                 using var fs = File.Create(refDbPath);
                 await stream.CopyToAsync(fs);
             }
+
+            if (appData.PlayersDbMigrated)
+            { return; }
+
+            await MigratePlayerTableAsync();
+            await MigrateAppDataTableAsync();
 
             var referenceDb = new SQLiteAsyncConnection(refDbPath);
 

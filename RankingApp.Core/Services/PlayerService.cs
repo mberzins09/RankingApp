@@ -1,4 +1,4 @@
-﻿using RankingApp.Core.Models;
+using RankingApp.Core.Models;
 using RankingApp.Core.Services.Interfaces;
 using SQLite;
 using System.Globalization;
@@ -62,21 +62,48 @@ namespace RankingApp.Core.Services
 
             progress.Report("Loading local data...");
 
+            // ── App DB: existing tournaments & player list ────────────────────
             var tournaments = await _database.GetAllRecordsAsync<Tournament>();
-            var existingTournamentDates = new HashSet<DateOnly>(tournaments.Select(t => DateOnly.FromDateTime(t.Date)));
+            var existingTournamentDates = new HashSet<DateOnly>(
+                tournaments.Select(t => DateOnly.FromDateTime(t.Date)));
 
             var databasePlayers = await _database.GetAllRecordsAsync<PlayerDB>();
-            List<PlayerDB> currentMonthPlayers = [];
+
+            // KeyName → PlayerDB for fast foreign-status lookup
+            var databasePlayersByKey = databasePlayers
+                .Where(p => !string.IsNullOrEmpty(p.KeyName))
+                .ToDictionary(p => p.KeyName, p => p);
 
             var playerMe = await _database.GetByIdAsync<PlayerDB>(appData.AppUserPlayerId);
 
-            var lgtfGames = await lgtfDb.QueryAsync<LgtfGame>("SELECT * FROM games WHERE player1_id = ? OR player2_id = ?",playerMe.Id,playerMe.Id);
-            var competitionIds = lgtfGames.Select(g => g.competition_id).Distinct().ToList();
-            var lgtfCompetitions = await lgtfDb.QueryAsync<LgtfCompetition>($"SELECT * FROM competitions WHERE id IN ({string.Join(",", competitionIds)})");
-            var uniqueGames = lgtfGames.GroupBy(g => new{g.competition_id,g.player1_id,g.player2_id,g.player1_sets,g.player2_sets}).Select(g => g.First()).ToList();
-            var competitionsSorted = lgtfCompetitions.OrderBy(c => DateTime.Parse(c.start_date)).ToList();
+            // ── lgtf.sqlite: players table for opponent name lookups ──────────
+            var lgtfPlayers = await lgtfDb.QueryAsync<LgtfPlayer>("SELECT id, name, surname FROM players");
+            var lgtfPlayersById = lgtfPlayers.ToDictionary(p => p.id, p => p);
 
-            var competitionsToInsert = competitionsSorted.Where(c => !existingTournamentDates.Contains(DateOnly.FromDateTime(DateTime.Parse(c.start_date)))).ToList();
+            // ── lgtf.sqlite: games and competitions for this player ───────────
+            var lgtfGames = await lgtfDb.QueryAsync<LgtfGame>(
+                "SELECT * FROM games WHERE player1_id = ? OR player2_id = ?",
+                playerMe.Id, playerMe.Id);
+
+            var competitionIds = lgtfGames.Select(g => g.competition_id).Distinct().ToList();
+
+            var lgtfCompetitions = await lgtfDb.QueryAsync<LgtfCompetition>(
+                $"SELECT * FROM competitions WHERE id IN ({string.Join(",", competitionIds)})");
+
+            // Deduplicate games (same logic as before)
+            var uniqueGames = lgtfGames
+                .GroupBy(g => new { g.competition_id, g.player1_id, g.player2_id, g.player1_sets, g.player2_sets })
+                .Select(g => g.First())
+                .ToList();
+
+            var competitionsSorted = lgtfCompetitions
+                .OrderBy(c => DateTime.Parse(c.start_date))
+                .ToList();
+
+            var competitionsToInsert = competitionsSorted
+                .Where(c => !existingTournamentDates.Contains(
+                    DateOnly.FromDateTime(DateTime.Parse(c.start_date))))
+                .ToList();
 
             if (competitionsToInsert.Count == 0)
             {
@@ -85,77 +112,86 @@ namespace RankingApp.Core.Services
                 return;
             }
 
-            var loadedDates = new HashSet<string>();
-
-            var firstCompetitionDate = competitionsToInsert.Select(c => DateTime.Parse(c.start_date)).Min();
-
-            progress.Report($"Collecting player data before first played tournament...");
-
-            for (int year = 2014; year <= firstCompetitionDate.Year; year++)
-            {
-                await LoadAndMergeApiPlayersAsync(year,1,currentMonthPlayers);
-            }
-
+            // ── Import each competition ───────────────────────────────────────
             foreach (var competition in competitionsToInsert)
             {
                 var tournamentDate = DateTime.Parse(competition.start_date);
-                var yearMonthKey = $"{tournamentDate:yyyy-MM}";
 
                 progress.Report($"Importing {competition.name}...");
-                if (!loadedDates.Contains(yearMonthKey))
+
+                var tournamentName = "";
+                if (competition.places == "" || competition.places == null)
                 {
-                    await LoadAndMergeApiPlayersAsync(tournamentDate.Year, tournamentDate.Month, currentMonthPlayers);
-
-                    loadedDates.Add(yearMonthKey);
+                    tournamentName = competition.name;
                 }
-
-                bool isFirstCompetition = (tournamentDate.Year == firstCompetitionDate.Year) && (tournamentDate.Month == firstCompetitionDate.Month);
+                else
+                {
+                    tournamentName = $"{competition.name} ({competition.places})";
+                }
 
                 var tournament = new Tournament
                 {
-                    Name = $"{competition.name} ({competition.places})",
-                    Coefficient = competition.coef.ToString(CultureInfo.InvariantCulture),
-                    Date = tournamentDate,
-                    TournamentPlayerId = playerMe.Id,
-                    TournamentPlayerName = playerMe.Name,
+                    Name                    = tournamentName,
+                    Coefficient             = competition.coef.ToString(CultureInfo.InvariantCulture),
+                    Date                    = tournamentDate,
+                    TournamentPlayerId      = playerMe.Id,
+                    TournamentPlayerName    = playerMe.Name,
                     TournamentPlayerSurname = playerMe.Surname
                 };
 
                 await _database.SaveAsync(tournament);
 
-                var competitionGames = uniqueGames.Where(g => g.competition_id == competition.id).ToList();
+                var competitionGames = uniqueGames
+                    .Where(g => g.competition_id == competition.id)
+                    .ToList();
 
                 foreach (var lgtfGame in competitionGames)
                 {
                     bool isMePlayer1 = lgtfGame.player1_id == playerMe.Id;
+                    int  opponentId  = isMePlayer1 ? lgtfGame.player2_id : lgtfGame.player1_id;
 
-                    var opponentId = isMePlayer1 ? lgtfGame.player2_id : lgtfGame.player1_id;
+                    // ── Points and age — read straight from the pre-filled DB columns ──
+                    int myPoints           = isMePlayer1 ? lgtfGame.player1_points          : lgtfGame.player2_points;
+                    int myPointsWithBonus  = isMePlayer1 ? lgtfGame.player1_PointsWithBonus : lgtfGame.player2_PointsWithBonus;
+                    int myAge              = isMePlayer1 ? lgtfGame.player1_age             : lgtfGame.player2_age;
+                    int myPlace            = isMePlayer1 ? lgtfGame.player1_place           : lgtfGame.player2_place;
 
-                    bool isForeign;
-                    var me = ResolvePlayer(playerMe.Id, currentMonthPlayers, databasePlayers, isFirstCompetition, isMe: true, out _);
-                    var opponent = ResolvePlayer(opponentId, currentMonthPlayers, databasePlayers, isFirstCompetition, isMe: false, out isForeign);
+                    int oppPoints          = isMePlayer1 ? lgtfGame.player2_points          : lgtfGame.player1_points;
+                    int oppPointsWithBonus = isMePlayer1 ? lgtfGame.player2_PointsWithBonus : lgtfGame.player1_PointsWithBonus;
+                    int oppAge             = isMePlayer1 ? lgtfGame.player2_age             : lgtfGame.player1_age;
+                    int oppPlace           = isMePlayer1 ? lgtfGame.player2_place           : lgtfGame.player1_place;
+
+                    // ── Foreign status — opponent is foreign if not in app PlayerDB ──
+                    string oppKeyName = isMePlayer1 ? lgtfGame.player2_keyName : lgtfGame.player1_keyName;
+                    bool   isForeign  = string.IsNullOrEmpty(oppKeyName) ||
+                                        !databasePlayersByKey.ContainsKey(oppKeyName);
+
+                    // ── Opponent name — from lgtf.sqlite players table ────────────
+                    lgtfPlayersById.TryGetValue(opponentId, out var lgtfOpponent);
+                    string oppName    = lgtfOpponent?.name    ?? "";
+                    string oppSurname = lgtfOpponent?.surname ?? "";
 
                     var gameEntity = new Game
                     {
-                        MyPoints = me.Points,
-                        MyName = me.Name,
-                        MySurname = me.Surname,
-                        OpponentPoints = opponent.Points,
-                        Name = opponent.Name,
-                        Surname = opponent.Surname,
-                        MySets = isMePlayer1 ? lgtfGame.player1_sets : lgtfGame.player2_sets,
-                        OpponentSets = isMePlayer1 ? lgtfGame.player2_sets : lgtfGame.player1_sets,
-                        TournamentId = tournament.Id,
-                        TournamentName = tournament.Name,
-                        TournamentDate = tournament.Date,
-                        GameCoefficient = tournament.Coefficient,
-                        IsOpponentForeign = isForeign,
-                        MyPointsWithBonus = me.PointsWithBonus,
-                        OpponentPointsWithBonus = opponent.PointsWithBonus,
-                        MyPlace = me.Place,
-                        OpponentPlace = opponent.Place,
-                        MyAge = AgeCalculator.CalculateAge(me.BirthDate, tournament.Date),
-                        OpponentAge = AgeCalculator.CalculateAge(opponent.BirthDate, tournament.Date)
+                        MyPoints                = myPoints,
+                        MyName                  = playerMe.Name,
+                        MySurname               = playerMe.Surname,
+                        OpponentPoints          = oppPoints,
+                        Name                    = oppName,
+                        Surname                 = oppSurname,
+                        MySets                  = isMePlayer1 ? lgtfGame.player1_sets : lgtfGame.player2_sets,
+                        OpponentSets            = isMePlayer1 ? lgtfGame.player2_sets : lgtfGame.player1_sets,
+                        TournamentId            = tournament.Id,
+                        TournamentName          = tournament.Name,
+                        TournamentDate          = tournament.Date,
+                        GameCoefficient         = tournament.Coefficient,
+                        IsOpponentForeign       = isForeign,
+                        MyPointsWithBonus       = myPointsWithBonus,
+                        OpponentPointsWithBonus = oppPointsWithBonus,
+                        MyPlace                 = myPlace,
+                        OpponentPlace           = oppPlace,
+                        MyAge                   = myAge,
+                        OpponentAge             = oppAge
                     };
 
                     await _database.SaveAsync(gameEntity);
@@ -166,77 +202,9 @@ namespace RankingApp.Core.Services
             await Task.Delay(2000);
         }
 
-        private async Task LoadAndMergeApiPlayersAsync(int year,int month,List<PlayerDB> currentMonthPlayers)
-        {
-            string date = $"{year:D4}-{month:D2}";
-            var apiPlayers = await _repositoryWithDate.GetPlayersAsync(date, false);
-
-            if (apiPlayers == null || apiPlayers.Count == 0)
-                return;
-
-            foreach (var apiPlayer in apiPlayers)
-            {
-                var existing = currentMonthPlayers.FirstOrDefault(p => p.KeyName == apiPlayer.KeyName);
-
-                if (existing != null)
-                {
-                    existing.Place = apiPlayer.Place;
-                    existing.OverallPlace = apiPlayer.OverallPlace;
-                    existing.Points = apiPlayer.Points;
-                    existing.PointsWithBonus = apiPlayer.PointsWithBonus;
-                }
-                else
-                {
-                    currentMonthPlayers.Add(apiPlayer);
-                }
-            }
-        }
-
-        private static PlayerDB ResolvePlayer(int lgtfPlayerId,List<PlayerDB> currentMonthPlayers,List<PlayerDB> databasePlayers,bool isFirstMonth,bool isMe,out bool isForeign)
-        {
-            isForeign = false;
-            var playerDB = databasePlayers.FirstOrDefault(p => p.Id == lgtfPlayerId);
-
-            if (playerDB == null)
-            {
-                isForeign = true;
-                return new PlayerDB{Id = lgtfPlayerId,Place = 0,Points = 0,PointsWithBonus = 0};
-            }
-
-            string playerKeyName = playerDB.KeyName;
-            var player = currentMonthPlayers.FirstOrDefault(p => p.KeyName == playerKeyName);
-
-            if (player != null)
-                return player;
-
-            if (isMe && isFirstMonth)
-            {
-                return new PlayerDB
-                {
-                    Id = playerDB.Id,
-                    Name = playerDB.Name,
-                    Surname = playerDB.Surname,
-                    BirthDate = playerDB.BirthDate,
-                    Gender = playerDB.Gender,
-                    KeyName = playerDB.KeyName,
-
-                    Points = 0,
-                    PointsWithBonus = 0
-                };
-            }
-
-            isForeign = true;
-            return playerDB;
-        }
-
         public async Task<List<PlayerDB>> GetPlayersFromDbAsync()
         {
             return (await _database.GetAllRecordsAsync<PlayerDB>()).OrderByDescending(x => x.PointsWithBonus).ToList();
-        }
-
-        private async Task SyncWithLocalDb(List<PlayerDB> apiPlayers)
-        {
-            await _database.BulkUpsertPlayersAsync(apiPlayers);
         }
 
         public async Task<List<Game>> GetGamesFromDbAsync()
@@ -247,17 +215,6 @@ namespace RankingApp.Core.Services
         public async Task<Tournament?> GetTournamentAsync(int id)
         {
             return await _database.GetByIdAsync<Tournament>(id);
-        }
-
-        private async Task UpdateAppDataWithDate(string dateString)
-        {
-            var appData = await _database.GetAppDataAsync();
-            if (DateTime.TryParseExact(dateString, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
-            {
-                appData.CurrentYear = dt.Year;
-                appData.CurrentMonth = dt.Month;
-                await _database.SaveAppDataAsync(appData);
-            }
         }
 
         public async Task<AppData> GetAppDataAsync()
@@ -272,9 +229,26 @@ namespace RankingApp.Core.Services
 
         public async Task<PlayerDB?> GetAppDefaultPlayerAsync(AppData appData)
         {
-            var appDefaultPlayer = await _database.GetByIdAsync<PlayerDB>(appData.AppUserPlayerId);
+            return await _database.GetByIdAsync<PlayerDB>(appData.AppUserPlayerId);
+        }
 
-            return appDefaultPlayer;
+        // ── Private helpers ───────────────────────────────────────────────────
+
+        private async Task SyncWithLocalDb(List<PlayerDB> apiPlayers)
+        {
+            await _database.BulkUpsertPlayersAsync(apiPlayers);
+        }
+
+        private async Task UpdateAppDataWithDate(string dateString)
+        {
+            var appData = await _database.GetAppDataAsync();
+            if (DateTime.TryParseExact(dateString, "yyyy-MM", CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out var dt))
+            {
+                appData.CurrentYear  = dt.Year;
+                appData.CurrentMonth = dt.Month;
+                await _database.SaveAppDataAsync(appData);
+            }
         }
     }
 }
