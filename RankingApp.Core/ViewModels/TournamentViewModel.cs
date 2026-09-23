@@ -35,7 +35,7 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private IGame? selectedItem;
 
-        public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "4"];
+        public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "3", "4"];
 
         public List<string> GameModes { get; } = ["Singles", "Doubles"];
 
@@ -210,47 +210,23 @@ namespace RankingApp.Core.ViewModels
 
             if (_games != null && _games.Count > 0)
             {
-                var games = _games.Take(15).ToList();
+                var games = _games.Take(12).ToList();
                 var first = games.First();
 
-                var rows = new List<(string? Name, string? Surname, string Place, string Score, string Diff)>();
-                rows.Add((first.MyName,first.MySurname,first.MyPlace.ToString(),"",""));
+                sb.AppendLine($"Tournament Player {first.MyName} {first.MySurname} vieta-{first.MyPlace}");
 
                 foreach (var g in games)
                 {
-                    rows.Add((g.Name,g.Surname,g.OpponentPlace.ToString(),$"{g.MySets}-{g.OpponentSets}",g.RatingDifference.ToString()));
-                }
+                    string oppName;
+                    if (String.IsNullOrWhiteSpace(g.Name))
+                        oppName = ".";
+                    else
+                        oppName = $"{g.Name[0]}.";
 
-                int nameW = Math.Max("Name".Length, rows.Max(r => r.Name.Length)) + 2;
-                int surnameW = Math.Max("Surname".Length, rows.Max(r => r.Surname.Length)) + 2;
-                int placeW = Math.Max("Place".Length, rows.Max(r => r.Place.Length)) + 2;
-                int scoreW = Math.Max("Score".Length, rows.Max(r => r.Score.Length)) + 2;
-                int diffW = Math.Max("+/-".Length, rows.Max(r => r.Diff.Length)) + 2;
-
-                string Separator()
-                {
-                    int total = nameW + surnameW + placeW + scoreW + diffW + 6; // 6 pipes
-                    return new string('-', total);
-                }
-
-                string FormatRow(string name, string surname, string place, string score, string diff)
-                {
-                    return $"|{name.PadRight(nameW)}" +
-                           $"|{surname.PadRight(surnameW)}" +
-                           $"|{place.PadRight(placeW)}" +
-                           $"|{score.PadRight(scoreW)}" +
-                           $"|{diff.PadRight(diffW)}|";
-                }
-
-                sb.AppendLine(Separator());
-                sb.AppendLine(FormatRow("Name", "Surname", "Place", "Score", "+/-"));
-                sb.AppendLine(Separator());
-                sb.AppendLine(FormatRow(rows[0].Name, rows[0].Surname, rows[0].Place, "", ""));
-                sb.AppendLine(Separator());
-                foreach (var r in rows.Skip(1))
-                {
-                    sb.AppendLine(FormatRow(r.Name, r.Surname, r.Place, r.Score, r.Diff));
-                    sb.AppendLine(Separator());
+                    string oppSurname = g.Surname ?? "";
+                    int mySets = (int)(g.MySets == null ? 0 : g.MySets);
+                    int oppSets = (int)(g.OpponentSets == null ? 0 : g.OpponentSets);
+                    sb.AppendLine($"{oppName}{oppSurname} ({g.OpponentPlace}) {mySets}:{oppSets} | {g.RatingDifference}");
                 }
             }
 

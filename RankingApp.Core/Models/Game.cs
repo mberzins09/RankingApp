@@ -86,8 +86,7 @@ namespace RankingApp.Core.Models
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Surname) ||
-                    MySets is null || OpponentSets is null)
+                if (MySets is null || OpponentSets is null)
                 {
                     return 0;
                 }

@@ -113,7 +113,7 @@ namespace RankingApp.Core.ViewModels
             Players = new ObservableCollection<PlayerDB>(filtered);
         }
 
-        private void AssignOpponentProperties(PlayerDB opponent)
+        public void AssignOpponentProperties(PlayerDB opponent)
         {
             if (OneGame is null)
                 return;

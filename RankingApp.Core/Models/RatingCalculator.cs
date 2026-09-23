@@ -6,35 +6,11 @@
         {
             int rD = 0;
             int pD = MyPoints - OppPoints;
-            float coef;
-            switch (c)
+            if (!float.TryParse(c, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float coef))
             {
-                case "0":
-                    coef = (float)0;
-                    break;
-                case "0.25":
-                    coef = 0.25f;
-                    break;
-                case "0.5":
-                    coef = 0.5f;
-                    break;
-                case "1":
-                    coef = (float)1;
-                    break;
-                case "1.5":
-                    coef = 1.5f;
-                    break;
-                case "2":
-                    coef = (float)2;
-                    break;
-                case "4":
-                    coef = (float)4;
-                    break;
-                default:
-                    coef = (float)0;
-                    break;
+                coef = 0.5f;
             }
-            
+
             if (isWin)
             {
                 if (pD > 0)

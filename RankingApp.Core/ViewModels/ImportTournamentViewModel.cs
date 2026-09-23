@@ -128,6 +128,24 @@ namespace RankingApp.Core.ViewModels
             if (me == null)
                 return;
 
+            string tournamentName = "";
+
+            if(apiTournament.EventName == null || apiTournament.EventName == "" || apiTournament.EventName == apiTournament.Competition)
+            {
+                if (apiTournament.EventName == null)
+                {
+                    tournamentName = "Bez EventName";
+                }
+                else
+                {
+                    tournamentName = apiTournament.EventName;
+                }
+            }
+            else
+            {
+                tournamentName = $"{apiTournament.Competition} - {apiTournament.EventName}";
+            }
+
             var tournament = new Tournament
             {
                 ExternalTournamentId = apiTournament.Id,
@@ -135,8 +153,8 @@ namespace RankingApp.Core.ViewModels
                 TournamentPlayerName = me.Name,
                 TournamentPlayerSurname = me.Surname,
                 Date = parsedDate,
-                Name = $"{apiTournament.Competition} - {apiTournament.EventName}",
-                Coefficient = CoefficientNormalizer.Normalize(apiTournament.Coefficient)
+                Name = tournamentName,
+                Coefficient = apiTournament.Coefficient
             };
 
             await _databaseService.SaveAsync(tournament);
