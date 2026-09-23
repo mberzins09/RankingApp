@@ -94,6 +94,9 @@ namespace RankingApp.Core.Models
         // Tournament info
         public int TournamentId { get; set; }
 
+        /// <summary>Game id in turniri.lgtf.lv API (0 for games entered by hand).</summary>
+        public int ExternalGameId { get; set; }
+
         public bool IsWin => (MySets ?? 0) > (OpponentSets ?? 0);
 
         [ObservableProperty]

@@ -27,5 +27,18 @@ namespace RankingApp.Core.Models
 
         [JsonPropertyName("is_season")]
         public bool IsSeason { get; set; }
+
+        // ── Filled only for teams events (not part of the singles API response) ──
+
+        [JsonIgnore]
+        public bool IsTeamsEvent { get; set; }
+
+        [JsonIgnore]
+        public string EndDate { get; set; } = "";
+
+        /// <summary>"start" or "start – end" when a (season) event spans more than one day.</summary>
+        [JsonIgnore]
+        public string DateDisplay =>
+            string.IsNullOrWhiteSpace(EndDate) || EndDate == Date ? Date : $"{Date} – {EndDate}";
     }
 }

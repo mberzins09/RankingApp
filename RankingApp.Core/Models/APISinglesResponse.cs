@@ -27,6 +27,16 @@ namespace RankingApp.Core.Models
 
         [JsonPropertyName("player2_score")]
         public string? Player2Score { get; set; }
+
+        /// <summary>Null for a group game that was only copied from an earlier group stage.</summary>
+        [JsonPropertyName("started_at")]
+        public string? StartedAt { get; set; }
+
+        [JsonPropertyName("ended_at")]
+        public string? EndedAt { get; set; }
+
+        [JsonPropertyName("group_id")]
+        public int? GroupId { get; set; }
     }
 
     public class APIGamePlayer

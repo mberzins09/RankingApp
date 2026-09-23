@@ -76,9 +76,9 @@ namespace RankingApp.Core.Services
 
             var playerMe = await _database.GetByIdAsync<PlayerDB>(appData.AppUserPlayerId);
 
-            // ── lgtf.sqlite: players table for opponent name lookups ──────────
-            var lgtfPlayers = await lgtfDb.QueryAsync<LgtfPlayer>("SELECT id, name, surname FROM players");
-            var lgtfPlayersById = lgtfPlayers.ToDictionary(p => p.id, p => p);
+            // ── lgtf.sqlite: PlayerDB table for opponent name lookups ─────────
+            var lgtfPlayers = await lgtfDb.QueryAsync<PlayerDB>("SELECT Id, Name, Surname FROM PlayerDB");
+            var lgtfPlayersById = lgtfPlayers.ToDictionary(p => p.Id, p => p);
 
             // ── lgtf.sqlite: games and competitions for this player ───────────
             var lgtfGames = await lgtfDb.QueryAsync<LgtfGame>(
@@ -166,10 +166,10 @@ namespace RankingApp.Core.Services
                     bool   isForeign  = string.IsNullOrEmpty(oppKeyName) ||
                                         !databasePlayersByKey.ContainsKey(oppKeyName);
 
-                    // ── Opponent name — from lgtf.sqlite players table ────────────
+                    // ── Opponent name — from lgtf.sqlite PlayerDB table ───────────
                     lgtfPlayersById.TryGetValue(opponentId, out var lgtfOpponent);
-                    string oppName    = lgtfOpponent?.name    ?? "";
-                    string oppSurname = lgtfOpponent?.surname ?? "";
+                    string oppName    = lgtfOpponent?.Name    ?? "";
+                    string oppSurname = lgtfOpponent?.Surname ?? "";
 
                     var gameEntity = new Game
                     {
@@ -237,6 +237,18 @@ namespace RankingApp.Core.Services
         private async Task SyncWithLocalDb(List<PlayerDB> apiPlayers)
         {
             await _database.BulkUpsertPlayersAsync(apiPlayers);
+
+            // Default player may have been chosen before his NewId (API id) was known
+            var appData = await _database.GetAppDataAsync();
+            if (appData.AppUserPlayerId == 0)
+                return;
+
+            var me = await _database.GetByIdAsync<PlayerDB>(appData.AppUserPlayerId);
+            if (me != null && me.NewId > 0 && me.NewId != appData.AppUserNewId)
+            {
+                appData.AppUserNewId = me.NewId;
+                await _database.SaveAppDataAsync(appData);
+            }
         }
 
         private async Task UpdateAppDataWithDate(string dateString)
