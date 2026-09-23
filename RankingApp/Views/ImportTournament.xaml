@@ -6,26 +6,57 @@
              xmlns:model="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"                       
              x:Class="RankingApp.Views.ImportTournament"
              x:DataType="viewmodel:ImportTournamentViewModel"          
-             Title="ImportTournament">
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="3, 60, 40, 30, *, 3" ColumnDefinitions="3, *, 3">
-        <Label Grid.Row="1" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource PrimaryLabel}"/>
+             Title="Import tournaments"
+             Style="{StaticResource PrimaryContentPage}">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="6, Auto, 52, 48, *, 6" ColumnDefinitions="10, *, 10" RowSpacing="6">
+        <!-- Row 1: status -->
+        <Label Grid.Row="1" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource PrimaryLabel}" FontSize="14"
+               HorizontalTextAlignment="Center" MinimumHeightRequest="20"/>
 
-        <!-- Singles (default) / Teams events toggle -->
-        <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="20" HorizontalOptions="Center" VerticalOptions="Center">
-            <Label Text="Show teams events" Style="{StaticResource PrimaryLabel}"/>
-            <Switch IsToggled="{Binding ShowTeamsEvents, Mode=TwoWay}" />
-            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HeightRequest="20" WidthRequest="20"/>
-        </HorizontalStackLayout>
+        <!-- Row 2: singles / teams toggle -->
+        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource GlassField}" Padding="14,0" HeightRequest="44">
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
+                <Label Text="👥  Show teams events" Style="{StaticResource PrimaryLabel}" FontSize="14" HorizontalOptions="Start"/>
+                <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HeightRequest="20" WidthRequest="20"/>
+                <Switch Grid.Column="2" IsToggled="{Binding ShowTeamsEvents, Mode=TwoWay}" VerticalOptions="Center"/>
+            </Grid>
+        </Border>
 
-        <Button Grid.Row="3" Grid.Column="1" Text="Import Selected Tournaments" Command="{Binding ImportSelectedTournamentsCommand}"
-    Style="{StaticResource PrimaryButton}" MaximumWidthRequest="100" />
-        <CollectionView Grid.Row="4" Grid.Column="1" ItemsSource="{Binding Tournaments}" SelectionMode="Multiple" SelectedItems="{Binding SelectedTournaments}">
+        <!-- Row 3: import -->
+        <Button Grid.Row="3" Grid.Column="1" Text="📥  Import selected" Command="{Binding ImportSelectedTournamentsCommand}"
+                Style="{StaticResource PrimaryButton}" HeightRequest="40" />
+
+        <!-- Row 4: events (tap to select several) -->
+        <CollectionView Grid.Row="4" Grid.Column="1" Margin="-6,0" ItemsSource="{Binding Tournaments}" SelectionMode="Multiple" SelectedItems="{Binding SelectedTournaments}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="model:APITournament">
-                    <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Padding="5">
-                        <Label Grid.ColumnSpan="2" Text="{Binding Competition}" Style="{StaticResource ListItemLabel}" FontSize="12" HorizontalTextAlignment="Start"/>
-                        <Label Grid.Row="1" Text="{Binding EventName}" Style="{StaticResource ListItemLabel}" FontSize="10" HorizontalTextAlignment="Start"/>
-                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding DateDisplay}" Style="{StaticResource ListItemLabel}" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="End"/>
+                    <Grid Padding="6,3">
+                        <Border x:Name="EventCard" Style="{StaticResource Card}" Margin="0">
+                            <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" ColumnSpacing="8" RowSpacing="2">
+                                <Label Grid.ColumnSpan="2" Text="{Binding Competition}" Style="{StaticResource ListItemLabel}" FontSize="13"
+                                       FontFamily="OpenSansSemibold" HorizontalOptions="Start" HorizontalTextAlignment="Start"/>
+                                <Label Grid.Row="1" Text="{Binding EventName}" Style="{StaticResource ListItemSubLabel}" FontSize="12"
+                                       HorizontalOptions="Start" HorizontalTextAlignment="Start"/>
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding DateDisplay}" Style="{StaticResource ListItemLabel}" FontSize="12"
+                                       FontFamily="OpenSansSemibold" HorizontalOptions="End"/>
+                            </Grid>
+                        </Border>
+                        <!-- Selected: orange outline + warmer glass -->
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroupList>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter TargetName="EventCard" Property="Border.Stroke" Value="{StaticResource Accent}" />
+                                            <Setter TargetName="EventCard" Property="Border.StrokeThickness" Value="2" />
+                                            <Setter TargetName="EventCard" Property="Border.BackgroundColor" Value="#33FF9F43" />
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateGroupList>
+                        </VisualStateManager.VisualStateGroups>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

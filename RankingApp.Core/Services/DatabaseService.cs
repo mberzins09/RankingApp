@@ -129,6 +129,14 @@ namespace RankingApp.Core.Services
                     existing.IsActive = true;
                     existing.NewId = apiPlayer.NewId;
 
+                    // Many players came from lgtf.sqlite without a birth date (age 0) - fill it in
+                    // when the ranking has one and the stored value is missing or unusable.
+                    if (!AgeCalculator.HasValidBirthDate(existing.BirthDate) &&
+                        AgeCalculator.HasValidBirthDate(apiPlayer.BirthDate))
+                    {
+                        existing.BirthDate = apiPlayer.BirthDate;
+                    }
+
                     toUpdate.Add(existing);
                 }
                 else

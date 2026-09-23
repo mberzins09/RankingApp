@@ -8,10 +8,10 @@ namespace RankingApp.Converters
         {
             if (value is int pointsChanged)
             {
-                if (pointsChanged > 0) return Colors.Green;
-                if (pointsChanged < 0) return Colors.Red;
+                if (pointsChanged > 0) return Color.FromArgb("#6EE7B7");
+                if (pointsChanged < 0) return Color.FromArgb("#FF7A8A");
             }
-            return Colors.DimGrey;
+            return Color.FromArgb("#A992D6");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

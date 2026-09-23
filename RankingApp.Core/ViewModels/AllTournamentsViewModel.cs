@@ -254,11 +254,10 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
 
             try
             {
+                // LoadPlayersFromApiOrDbAsync stores the month it really downloaded (the previous one
+                // if this month is not published yet) and may fix AppUserNewId - so do not save the
+                // AppData copy read above over it.
                 await _playerService.LoadPlayersFromApiOrDbAsync(systemDate, status => _progressDialog.Update(status));
-
-                appData.CurrentYear = systemDate.Year;
-                appData.CurrentMonth = systemDate.Month;
-                await _database.SaveAppDataAsync(appData);
 
                 _progressDialog.Update("✅ Rankings updated successfully!");
             }

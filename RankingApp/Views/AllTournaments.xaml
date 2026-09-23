@@ -8,7 +8,7 @@
              xmlns:converters="clr-namespace:RankingApp.Converters"
              x:Class="RankingApp.Views.AllTournaments"
              x:DataType="viewmodel:AllTournamentsViewModel"
-             Title="Rankings"
+             Title="Tournaments"
              Style="{StaticResource PrimaryContentPage}">
     <views:BaseContentPage.Resources>
         <ResourceDictionary>
@@ -17,69 +17,66 @@
         </ResourceDictionary>
     </views:BaseContentPage.Resources>
 
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="40, *" ColumnDefinitions="10, 70, *, 70, *, 70, *, 70, 10">
-        <ImageButton Grid.Column="7" Source="{AppThemeBinding Light=dots.png, Dark=dots.png}" Clicked="MoreButton_Clicked"
-                     WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Center" />
-        <Border Grid.ColumnSpan="2" StrokeThickness="3" MaximumHeightRequest="35" MaximumWidthRequest="80">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker Title="Select Year" ItemsSource="{Binding Years, Mode=TwoWay}" SelectedItem="{Binding SelectedYear}" 
-                    Style="{StaticResource PrimaryPicker}">
-                <Picker.ItemDisplayBinding>
-                    <Binding Converter="{StaticResource YearDisplayConverter}" />
-                </Picker.ItemDisplayBinding>
-            </Picker>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="56, *" ColumnDefinitions="10, 90, *, 50, 10">
+        <!-- Row 0: year -->
+        <Border Grid.Column="1" Style="{StaticResource PickerChip}" WidthRequest="90">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker Title="Year" ItemsSource="{Binding Years, Mode=TwoWay}" SelectedItem="{Binding SelectedYear}"
+                        Style="{StaticResource ChipPicker}">
+                    <Picker.ItemDisplayBinding>
+                        <Binding Converter="{StaticResource YearDisplayConverter}" />
+                    </Picker.ItemDisplayBinding>
+                </Picker>
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
 
-        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="2" Grid.ColumnSpan="9" RowDefinitions="40, *">
-            <SearchBar Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"/>
-            <CollectionView Grid.Row="1" ItemsSource="{Binding Tournaments}" SelectionMode="Single" ItemsUpdatingScrollMode="KeepScrollOffset">
+        <!-- Row 1: search + tournaments -->
+        <Grid Style="{StaticResource PrimaryGrid}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" RowDefinitions="48, *">
+            <Border Style="{StaticResource GlassField}">
+                <SearchBar Style="{StaticResource PrimarySearchBar}" Placeholder="Search tournaments" Text="{Binding SearchText, Mode=TwoWay}"/>
+            </Border>
+            <CollectionView Grid.Row="1" Margin="-6,4,-6,0" ItemsSource="{Binding Tournaments}" SelectionMode="Single" ItemsUpdatingScrollMode="KeepScrollOffset">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Tournament">
-                        <SwipeView>
+                        <SwipeView BackgroundColor="Transparent">
+                            <!-- No grey "selected" flash: tapping opens the tournament -->
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
                             <SwipeView.RightItems>
                                 <SwipeItems Mode="Reveal">
-                                    <SwipeItem Text="Edit Player" BackgroundColor="LightBlue" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditTournamentCommand}" CommandParameter="{Binding .}" />
-                                    <SwipeItem Text="Delete" BackgroundColor="Red" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTournamentCommand}" CommandParameter="{Binding .}" />
+                                    <SwipeItem Text="Edit player" BackgroundColor="{StaticResource SwipeEdit}" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditTournamentCommand}" CommandParameter="{Binding .}" />
+                                    <SwipeItem Text="Delete" BackgroundColor="{StaticResource SwipeDelete}" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTournamentCommand}" CommandParameter="{Binding .}" />
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Grid Padding="8" RowDefinitions="*, *" ColumnDefinitions="*, 40">
-                                    <Label Grid.ColumnSpan="2" Text="{Binding Name}" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
-                                    <Label Grid.Row="1" Text="{Binding TournamentDisplay}" Style="{StaticResource ListItemLabel}"/>
-                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding PointsDifference}" Style="{StaticResource ListItemLabel}"
+                            <Border Style="{StaticResource Card}">
+                                <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, 48" RowSpacing="2">
+                                    <Label Text="{Binding Name}" Style="{StaticResource ListItemLabel}" FontFamily="OpenSansSemibold"
+                                           HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="2"/>
+                                    <Label Grid.Row="1" Text="{Binding TournamentDisplay}" Style="{StaticResource ListItemSubLabel}" HorizontalOptions="Start"/>
+                                    <Label Grid.RowSpan="2" Grid.Column="1" Text="{Binding PointsDifference}" Style="{StaticResource ListItemLabel}"
+                                           FontFamily="OpenSansSemibold" FontSize="17" HorizontalOptions="End"
                                            TextColor="{Binding PointsDifference, Converter={StaticResource NumericToColorConverter}}"/>
-                                <Grid.GestureRecognizers>
+                                </Grid>
+                                <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.TournamentSelectedCommand}" CommandParameter="{Binding .}" />
-                                </Grid.GestureRecognizers>
-                            </Grid>
+                                </Border.GestureRecognizers>
+                            </Border>
                         </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Grid>
 
-        <Grid x:Name="MoreMenuOverlay" Grid.Row="0" Grid.RowSpan="2"
-                Grid.Column="1" Grid.ColumnSpan="6" IsVisible="False" InputTransparent="False">
-            <BoxView Style="{StaticResource PrimaryBoxView}">
-                <BoxView.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="MoreOverlay_Tapped" NumberOfTapsRequired="1"/>
-                </BoxView.GestureRecognizers>
-            </BoxView>
-
-            <Border x:Name="MoreMenuPanel" Style="{StaticResource BoxContainer}" HorizontalOptions="End" 
-                    VerticalOptions="Start" Margin="0,8,10,0" WidthRequest="220" IsVisible="True" TranslationX="300">
-                <VerticalStackLayout Spacing="6" WidthRequest="200">
-                    <Button Text="Add Tournament" Clicked="MenuAdd_Clicked" Style="{StaticResource PrimaryButton}"/>
-                    <Button Text="Rankings" Clicked="MenuRankings_Clicked" Style="{StaticResource PrimaryButton}"/>
-                    <Button Text="All Games" Clicked="MenuAllGames_Clicked" Style="{StaticResource PrimaryButton}"/>
-                    <Button Text="Import Database" Clicked="MenuImport_Clicked" Style="{StaticResource PrimaryButton}"/>
-                    <Button Text="Export Database" Clicked="MenuExport_Clicked" Style="{StaticResource PrimaryButton}"/>
-                    <Button Text="Get Old Tournaments" Command="{Binding GetOldTournamentsCommand}" Style="{StaticResource PrimaryButton}"/>
-
-                    <!--<Button Text="Delete All Tournaments" Command="{Binding DeleteTournamentsCommand}" Style="{StaticResource PrimaryButton}"/>-->
-                </VerticalStackLayout>
-            </Border>
-        </Grid>
     </Grid>
 </views:BaseContentPage>

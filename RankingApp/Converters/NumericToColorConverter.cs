@@ -4,9 +4,10 @@ namespace RankingApp.Converters
 {
     public class NumericToColorConverter : IValueConverter
     {
-        public Color PositiveColor { get; set; } = Colors.Green;
-        public Color NegativeColor { get; set; } = Colors.Red;
-        public Color NeutralColor { get; set; } = Colors.White;
+        // Mint / coral / white - readable on the purple gradient (same as Positive/Negative in Colors.xaml)
+        public Color PositiveColor { get; set; } = Color.FromArgb("#6EE7B7");
+        public Color NegativeColor { get; set; } = Color.FromArgb("#FF7A8A");
+        public Color NeutralColor { get; set; } = Color.FromArgb("#FBF7FF");
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

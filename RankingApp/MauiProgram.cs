@@ -45,6 +45,7 @@ namespace RankingApp
             builder.Services.AddSingleton<EditTournamentPlayerViewModel>();
             builder.Services.AddSingleton<DoublesGameViewModel>();
             builder.Services.AddSingleton<ImportTournamentViewModel>();
+            builder.Services.AddSingleton<HomeViewModel>();
 
             builder.Services.AddTransient<AllPlayerRanking>();
             builder.Services.AddTransient<TournamentView>();
@@ -54,6 +55,7 @@ namespace RankingApp
             builder.Services.AddTransient<EditTournamentPlayer>();
             builder.Services.AddTransient<DoublesGameView>();
             builder.Services.AddTransient<ImportTournament>();
+            builder.Services.AddTransient<HomePage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -79,6 +81,26 @@ namespace RankingApp
                 {
                     handler.PlatformView.Background = null;
                     handler.PlatformView.SetPadding(0, 0, 0, 0);
+                });
+
+                EditorHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                {
+                    handler.PlatformView.Background = null;
+                });
+
+                // SearchView draws its own underline ("search_plate") - hide it, the glass border replaces it
+                SearchBarHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                {
+                    var context = handler.PlatformView.Context;
+                    if (context?.Resources == null)
+                        return;
+
+                    int plateId = context.Resources.GetIdentifier("search_plate", "id", context.PackageName);
+                    if (plateId == 0)
+                        plateId = context.Resources.GetIdentifier("android:id/search_plate", null, null);
+
+                    var plate = plateId != 0 ? handler.PlatformView.FindViewById(plateId) : null;
+                    plate?.SetBackgroundColor(Android.Graphics.Color.Transparent);
                 });
 #endif
             });

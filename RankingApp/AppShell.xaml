@@ -7,9 +7,11 @@
     Shell.FlyoutBehavior="Disabled"
     Title="RankingApp">
 
+        <!-- Start page. The tournament list (AllTournaments) is a pushed route registered in AppShell.xaml.cs -->
         <ShellContent
             Title="RankingApp"
-            ContentTemplate="{DataTemplate views:AllTournaments}" />
+            Route="HomePage"
+            ContentTemplate="{DataTemplate views:HomePage}" />
 
 </Shell>
 

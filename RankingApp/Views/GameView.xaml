@@ -16,93 +16,101 @@
         </ResourceDictionary>
     </views:BaseContentPage.Resources>
 
-    <Grid RowDefinitions="40, 3, 25, 25, 25, 25, 25, 25, 3, *, 50" ColumnDefinitions="1, 30, 100, 30, *, 30, 100, 30, 1" Style="{StaticResource PrimaryGrid}">
-        <!-- Row 0 -->
-        <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="60" MaximumHeightRequest="30" Text="Save"
-                     x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" />
+    <Grid RowDefinitions="52, 4, 32, 24, 24, 24, 24, 48, 6, *, 56" ColumnDefinitions="10, 30, 100, 30, *, 30, 100, 30, 10" Style="{StaticResource PrimaryGrid}">
+        <!-- Row 0: save + rating change -->
+        <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="96" Text="💾  Save"
+                x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" HorizontalOptions="Start" />
         <Label Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="3" x:Name ="LabelRatingDifference" 
-               Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.RatingDifference}"  FontSize="24"
+               Style="{StaticResource ScoreLabel}" Text="{Binding OneGame.RatingDifference}"
                TextColor="{Binding OneGame.RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
-        <!-- Row 1 -->
-        <!-- Row 2 -->
+
+        <!-- Stats panel behind rows 2-7 -->
+        <Border Grid.Row="2" Grid.RowSpan="6" Grid.Column="1" Grid.ColumnSpan="7" Style="{StaticResource Card}" Margin="0" Padding="0" />
+
+        <!-- Row 2: players -->
         <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Text="{Binding OneGame.MyName}" Style="{StaticResource PrimaryLabel}" FontSize="14" />
-            <Label Text="{Binding OneGame.MySurname}" Style="{StaticResource PrimaryLabel}" FontSize="14"/>
+            <Label Text="{Binding OneGame.MyName}" Style="{StaticResource PrimaryLabel}" FontSize="14" FontFamily="OpenSansSemibold"/>
+            <Label Text="{Binding OneGame.MySurname}" Style="{StaticResource PrimaryLabel}" FontSize="14" FontFamily="OpenSansSemibold"/>
         </HorizontalStackLayout>
-        <HorizontalStackLayout Grid.Row="2" Grid.Column="4" Style="{StaticResource PrimaryHorizontal}">
-            <Label Style="{StaticResource PrimaryLabel}" Text="-" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="VS" FontSize="14" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="-" />
-        </HorizontalStackLayout>
+        <Label Grid.Row="2" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="vs" FontSize="13" TextColor="{StaticResource Accent}" FontFamily="OpenSansSemibold"/>
         <HorizontalStackLayout Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Text="{Binding OneGame.Name}" Style="{StaticResource PrimaryLabel}" FontSize="14" />
-            <Label Text="{Binding OneGame.Surname}" Style="{StaticResource PrimaryLabel}" FontSize="14"/>
+            <Label Text="{Binding OneGame.Name}" Style="{StaticResource PrimaryLabel}" FontSize="14" FontFamily="OpenSansSemibold"/>
+            <Label Text="{Binding OneGame.Surname}" Style="{StaticResource PrimaryLabel}" FontSize="14" FontFamily="OpenSansSemibold"/>
         </HorizontalStackLayout>
         <!-- Row 3 -->
-        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyPlace}"/>
-        <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Place" FontSize="14"/>
-        <Label Grid.Row="3" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPlace}"/>
+        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyPlace}"/>
+        <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Place"/>
+        <Label Grid.Row="3" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentPlace}"/>
         <!-- Row 4 -->
-        <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyPoints}"/>
-        <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Points" FontSize="14"/>
-        <Label Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPoints}"/>
+        <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyPoints}"/>
+        <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Points"/>
+        <Label Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentPoints}"/>
         <!-- Row 5 -->
-        <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyPointsWithBonus}"/>
-        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="WithBonus" FontSize="14"/>
-        <Label Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentPointsWithBonus}"/>
+        <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyPointsWithBonus}"/>
+        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="With bonus"/>
+        <Label Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentPointsWithBonus}"/>
         <!-- Row 6 -->
-        <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.MyAge}"/>
-        <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Age" FontSize="14"/>
-        <Label Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" Text="{Binding OneGame.OpponentAge}"/>
-        <!-- Row 7 -->
-        <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker x:Name="MySetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.MySets}"/>
+        <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyAge}"/>
+        <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Age"/>
+        <Label Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentAge}"/>
+        <!-- Row 7: sets -->
+        <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PickerChip}" WidthRequest="64">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker x:Name="MySetsPicker" Title="Sets" Style="{StaticResource ChipPicker}" FontSize="16" FontFamily="OpenSansSemibold"
+                        ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.MySets}"/>
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
-        <Label Grid.Row="7" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Score"/>
-        <Border Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker x:Name="OpponentSetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.OpponentSets}"/>
+        <Label Grid.Row="7" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Score"/>
+        <Border Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PickerChip}" WidthRequest="64">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker x:Name="OpponentSetsPicker" Title="Sets" Style="{StaticResource ChipPicker}" FontSize="16" FontFamily="OpenSansSemibold"
+                        ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneGame.OpponentSets}"/>
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
-        <!-- Row 8 -->
-        <!-- Row 9 -->
-        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="40, 10, *" ColumnDefinitions="*, 50, 50" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" Grid.ColumnSpan="3" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"
-                       IsReadOnly="{Binding IsSearchDisabled}"/>
-            <Label Grid.Row="1" Text="Player" FontSize="8" HorizontalTextAlignment="Center"/>
-            <Label Grid.Row="1" Grid.Column="1" Text="Points" FontSize="8" HorizontalTextAlignment="Center"/>
-            <Label Grid.Row="1" Grid.Column="2" Text="WithBonus" FontSize="8" HorizontalTextAlignment="Center"/>
+
+        <!-- Row 9: opponent search -->
+        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="48, 18, *" ColumnDefinitions="*, 50, 60" Style="{StaticResource PrimaryGrid}">
+            <Border Grid.Row="0" Grid.ColumnSpan="3" Style="{StaticResource GlassField}">
+                <SearchBar Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}" Placeholder="Search opponent"
+                           IsReadOnly="{Binding IsSearchDisabled}"/>
+            </Border>
+            <Label Grid.Row="1" Text="Player" Style="{StaticResource CaptionLabel}" FontSize="11" HorizontalOptions="Start" Margin="4,0"/>
+            <Label Grid.Row="1" Grid.Column="1" Text="Points" Style="{StaticResource CaptionLabel}" FontSize="11"/>
+            <Label Grid.Row="1" Grid.Column="2" Text="Bonus" Style="{StaticResource CaptionLabel}" FontSize="11"/>
             <ListView Grid.Row="2" Grid.ColumnSpan="3" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedOpponent}" 
                       Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>
-                            <Grid ColumnDefinitions="*, 50, 50">
-                                <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1"/>
+                            <Grid ColumnDefinitions="*, 50, 60" Padding="4,0">
+                                <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="1"/>
                                 <Label Grid.Column="1" Text="{Binding Points}" Style="{StaticResource ListItemLabel}"/>
-                                <Label Grid.Column="2" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}"/>
+                                <Label Grid.Column="2" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontFamily="OpenSansSemibold"/>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </Grid>
-        <!-- Row 10 -->
-        <Entry Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" x:Name="EntryOpponentName" Placeholder="Name" TextChanged="EntryOppName_OnTextChanged"
-               Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
-        <Entry Grid.Row="10" Grid.Column="3" Grid.ColumnSpan="2" x:Name="EntryOpponentSurname" Placeholder="Surname" TextChanged="EntryOppName_OnTextChanged"
-               Style="{StaticResource PrimaryEntry}" WidthRequest="99" HeightRequest="49" />
-        <Border Grid.Row="10" Grid.Column="6" Grid.ColumnSpan="2" MaximumHeightRequest="30" MaximumWidthRequest="80" StrokeThickness="2" HorizontalOptions="Center">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker Style="{StaticResource PrimaryPicker}" 
-                    ItemsSource="{Binding IsOpponentForeignOptions}" SelectedItem="{Binding SelectedOpponentForeignOption, Mode=TwoWay}"
-                    ItemDisplayBinding="{Binding Label}" />
-        </Border>
+
+        <!-- Row 10: opponent not in list -->
+        <Grid Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="7" ColumnDefinitions="*, *, 110" ColumnSpacing="6">
+            <Border Style="{StaticResource GlassField}" HeightRequest="42">
+                <Entry x:Name="EntryOpponentName" Placeholder="Name" TextChanged="EntryOppName_OnTextChanged" Style="{StaticResource PrimaryEntry}" />
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource GlassField}" HeightRequest="42">
+                <Entry x:Name="EntryOpponentSurname" Placeholder="Surname" TextChanged="EntryOppName_OnTextChanged" Style="{StaticResource PrimaryEntry}" />
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource PickerChip}">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Picker Style="{StaticResource ChipPicker}" 
+                            ItemsSource="{Binding IsOpponentForeignOptions}" SelectedItem="{Binding SelectedOpponentForeignOption, Mode=TwoWay}"
+                            ItemDisplayBinding="{Binding Label}" />
+                    <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </views:BaseContentPage>

@@ -20,6 +20,11 @@ namespace RankingApp.Core.ViewModels
         private List<PlayerListItem>? _sortedPlayers = [];
         private AppData? _cachedAppData;
         private System.Timers.Timer? _searchDebounceTimer;
+
+        // Only one ranking download at a time. FormDatePicker sets the date twice when it changes
+        // (AddDays(-1), then the real date), which used to start two downloads in parallel.
+        private bool _isLoadingPlayers;
+        private DateTime? _pendingLoadDate;
         private List<Game> _allGames = [];
 
         [ObservableProperty]
@@ -207,6 +212,16 @@ namespace RankingApp.Core.ViewModels
 
         public async Task LoadPlayersFromApiAsync(DateTime? date = null)
         {
+            DateTime requested = date ?? DateTime.UtcNow;
+
+            if (_isLoadingPlayers)
+            {
+                // Remember only the newest request; handled when the current download finishes
+                _pendingLoadDate = requested;
+                return;
+            }
+
+            _isLoadingPlayers = true;
             _progressDialog.Show("Loading players...");
 
             try
@@ -226,6 +241,16 @@ namespace RankingApp.Core.ViewModels
             {
                 await Task.Delay(1000);
                 await _progressDialog.HideAsync();
+                _isLoadingPlayers = false;
+            }
+
+            // A different month was picked while downloading → download that one too
+            if (_pendingLoadDate is DateTime next)
+            {
+                _pendingLoadDate = null;
+
+                if (next.Year != requested.Year || next.Month != requested.Month)
+                    await LoadPlayersFromApiAsync(next);
             }
         }
 

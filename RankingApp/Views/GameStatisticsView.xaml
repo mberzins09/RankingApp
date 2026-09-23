@@ -6,32 +6,50 @@
     x:Class="RankingApp.Views.GameStatisticsView"
     x:DataType="model:GameStatistics">
 
+    <!-- Headers in lavender, numbers in white; row heights unchanged so it still fits the panels it sits in -->
     <Grid RowDefinitions="15,15,15,15"
-          ColumnDefinitions="*,60,60,60,60"
-          ColumnSpacing="10"
+          ColumnDefinitions="*,56,56,56,56"
+          ColumnSpacing="6"
           RowSpacing="2">
+        <Grid.Resources>
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="VerticalTextAlignment" Value="Center" />
+            </Style>
+            <Style TargetType="Label" x:Key="StatHeader">
+                <Setter Property="TextColor" Value="{StaticResource TextSoft}" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="VerticalTextAlignment" Value="Center" />
+            </Style>
+            <Style TargetType="Label" x:Key="StatRowName" BasedOn="{StaticResource StatHeader}">
+                <Setter Property="HorizontalTextAlignment" Value="Start" />
+            </Style>
+        </Grid.Resources>
 
-        <Label Grid.Row="0" Grid.Column="1" Text="Total" FontSize="12"/>
-        <Label Grid.Row="0" Grid.Column="2" Text="Won" FontSize="12"/>
-        <Label Grid.Row="0" Grid.Column="3" Text="Lost" FontSize="12"/>
-        <Label Grid.Row="0" Grid.Column="4" Text="%" FontSize="12"/>
+        <Label Grid.Row="0" Grid.Column="1" Text="Total" Style="{StaticResource StatHeader}"/>
+        <Label Grid.Row="0" Grid.Column="2" Text="Won" Style="{StaticResource StatHeader}"/>
+        <Label Grid.Row="0" Grid.Column="3" Text="Lost" Style="{StaticResource StatHeader}"/>
+        <Label Grid.Row="0" Grid.Column="4" Text="%" Style="{StaticResource StatHeader}"/>
 
-        <Label Grid.Row="1" Grid.Column="0" Text="Games:" FontSize="12"/>
+        <Label Grid.Row="1" Grid.Column="0" Text="Games" Style="{StaticResource StatRowName}"/>
         <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalGames}"/>
-        <Label Grid.Row="1" Grid.Column="2" Text="{Binding TotalWins}"/>
-        <Label Grid.Row="1" Grid.Column="3" Text="{Binding TotalLosses}"/>
-        <Label Grid.Row="1" Grid.Column="4" Text="{Binding TotalGamesPercentage}"/>
+        <Label Grid.Row="1" Grid.Column="2" Text="{Binding TotalWins}" TextColor="{StaticResource Positive}"/>
+        <Label Grid.Row="1" Grid.Column="3" Text="{Binding TotalLosses}" TextColor="{StaticResource Negative}"/>
+        <Label Grid.Row="1" Grid.Column="4" Text="{Binding TotalGamesPercentage}" FontFamily="OpenSansSemibold"/>
 
-        <Label Grid.Row="2" Grid.Column="0" Text="Sets:" FontSize="12"/>
+        <Label Grid.Row="2" Grid.Column="0" Text="Sets" Style="{StaticResource StatRowName}"/>
         <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalSets}"/>
-        <Label Grid.Row="2" Grid.Column="2" Text="{Binding TotalSetsWon}"/>
-        <Label Grid.Row="2" Grid.Column="3" Text="{Binding TotalSetsLost}"/>
-        <Label Grid.Row="2" Grid.Column="4" Text="{Binding TotalSetsPercentage}"/>
+        <Label Grid.Row="2" Grid.Column="2" Text="{Binding TotalSetsWon}" TextColor="{StaticResource Positive}"/>
+        <Label Grid.Row="2" Grid.Column="3" Text="{Binding TotalSetsLost}" TextColor="{StaticResource Negative}"/>
+        <Label Grid.Row="2" Grid.Column="4" Text="{Binding TotalSetsPercentage}" FontFamily="OpenSansSemibold"/>
 
-        <Label Grid.Row="3" Grid.Column="0" Text="5th Sets:" FontSize="12"/>
+        <Label Grid.Row="3" Grid.Column="0" Text="5th sets" Style="{StaticResource StatRowName}"/>
         <Label Grid.Row="3" Grid.Column="1" Text="{Binding FifthSetTotal}"/>
-        <Label Grid.Row="3" Grid.Column="2" Text="{Binding FifthSetsWon}"/>
-        <Label Grid.Row="3" Grid.Column="3" Text="{Binding FifthSetsLost}"/>
-        <Label Grid.Row="3" Grid.Column="4" Text="{Binding FifthSetWinPercentage}"/>
+        <Label Grid.Row="3" Grid.Column="2" Text="{Binding FifthSetsWon}" TextColor="{StaticResource Positive}"/>
+        <Label Grid.Row="3" Grid.Column="3" Text="{Binding FifthSetsLost}" TextColor="{StaticResource Negative}"/>
+        <Label Grid.Row="3" Grid.Column="4" Text="{Binding FifthSetWinPercentage}" FontFamily="OpenSansSemibold"/>
     </Grid>
 </ContentView>

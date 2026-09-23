@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
+             xmlns:views="clr-namespace:RankingApp.Views"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
+             x:Class="RankingApp.Views.HomePage"
+             x:DataType="viewmodel:HomeViewModel"
+             Title="Home"
+             Style="{StaticResource PrimaryContentPage}">
+    <views:BaseContentPage.Resources>
+        <ResourceDictionary>
+            <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
+            <!-- Big number + small caption inside the summary cards -->
+            <Style TargetType="Label" x:Key="BigValue">
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                <Setter Property="FontSize" Value="26" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="HorizontalOptions" Value="Start" />
+            </Style>
+            <Style TargetType="Label" x:Key="ValueNote">
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="TextColor" Value="{StaticResource TextFaint}" />
+                <Setter Property="HorizontalOptions" Value="Start" />
+            </Style>
+            <Style TargetType="Label" x:Key="CardTitle">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{StaticResource TextSoft}" />
+                <Setter Property="HorizontalOptions" Value="Start" />
+            </Style>
+        </ResourceDictionary>
+    </views:BaseContentPage.Resources>
+
+    <Grid Style="{StaticResource PrimaryGrid}">
+        <ScrollView>
+            <VerticalStackLayout Padding="14,10,14,20" Spacing="10">
+                <!-- Greeting + menu -->
+                <Grid ColumnDefinitions="*, Auto">
+                    <VerticalStackLayout Spacing="0" VerticalOptions="Center">
+                        <Label Text="Welcome!" Style="{StaticResource CardTitle}" FontSize="14"/>
+                        <Label Text="{Binding PlayerName}" IsVisible="{Binding HasPlayer}" FontFamily="OpenSansSemibold" FontSize="26"
+                               TextColor="{StaticResource TextMain}" LineBreakMode="TailTruncation" MaxLines="1"/>
+                        <Label Text="Choose your player in Rankings: long press → Set as default player"
+                               FontSize="13" TextColor="{StaticResource TextSoft}" IsVisible="False">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding HasPlayer}" Value="False">
+                                    <Setter Property="IsVisible" Value="True"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1" Style="{StaticResource MoreButton}" Clicked="MoreButton_Clicked" VerticalOptions="Start"/>
+                </Grid>
+
+                <!-- Downloaded ranking + year filter -->
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                    <Border Style="{StaticResource PickerChip}" HorizontalOptions="Start" Padding="12,0">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="📊" FontSize="14" VerticalOptions="Center"/>
+                            <Label Text="Ranking" Style="{StaticResource CaptionLabel}"/>
+                            <Label Text="{Binding RankingMonth}" FontFamily="OpenSansSemibold" FontSize="14" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource PickerChip}" WidthRequest="112">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Picker Title="Year" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Style="{StaticResource ChipPicker}">
+                                <Picker.ItemDisplayBinding>
+                                    <Binding Converter="{StaticResource YearDisplayConverter}" />
+                                </Picker.ItemDisplayBinding>
+                            </Picker>
+                            <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Tournaments -->
+                <Border Style="{StaticResource Card}" Margin="0">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Tournaments played" Style="{StaticResource CardTitle}"/>
+                            <Label Text="{Binding TournamentCount}" Style="{StaticResource BigValue}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="🏓" FontSize="30" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Games / sets statistics (singles) -->
+                <Border Style="{StaticResource Card}" Margin="0">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Singles statistics" Style="{StaticResource CardTitle}"/>
+                        <views:GameStatisticsView BindingContext="{Binding Stats}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Best in the selected years -->
+                <Border Style="{StaticResource Card}" Margin="0">
+                    <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="12" RowSpacing="4">
+                        <Label Grid.ColumnSpan="2" Text="🏅 Best" Style="{StaticResource CardTitle}"/>
+                        <VerticalStackLayout Grid.Row="1" Spacing="0">
+                            <Label Text="Highest place" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
+                            <Label Text="{Binding BestPlace}" Style="{StaticResource BigValue}"/>
+                            <Label Text="{Binding BestPlaceDate}" Style="{StaticResource ValueNote}"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="0">
+                            <Label Text="Highest rating" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
+                            <Label Text="{Binding BestRating}" Style="{StaticResource BigValue}" TextColor="{StaticResource Accent}"/>
+                            <Label Text="{Binding BestRatingDate}" Style="{StaticResource ValueNote}"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Now -->
+                <Border Style="{StaticResource Card}" Margin="0">
+                    <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="12" RowSpacing="4">
+                        <Label Grid.ColumnSpan="2" Text="📍 Now" Style="{StaticResource CardTitle}"/>
+                        <VerticalStackLayout Grid.Row="1" Spacing="0">
+                            <Label Text="Current place" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
+                            <Label Text="{Binding CurrentPlace}" Style="{StaticResource BigValue}"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="0">
+                            <Label Text="Current rating" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
+                            <Label Text="{Binding CurrentRating}" Style="{StaticResource BigValue}" TextColor="{StaticResource Accent}"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+                <Label Text="{Binding CurrentSource}" Style="{StaticResource ValueNote}" Margin="4,-4,0,0"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Slide-in menu (moved here from the tournament list) -->
+        <Grid x:Name="MoreMenuOverlay" IsVisible="False" InputTransparent="False">
+            <BoxView Style="{StaticResource PrimaryBoxView}">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="MoreOverlay_Tapped" NumberOfTapsRequired="1"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="MoreMenuPanel" Style="{StaticResource BoxContainer}" HorizontalOptions="End"
+                    VerticalOptions="Start" Margin="0,8,10,0" WidthRequest="240" IsVisible="True" TranslationX="300">
+                <VerticalStackLayout Spacing="8">
+                    <Button Text="➕  Add tournament" Clicked="MenuAdd_Clicked" Style="{StaticResource PrimaryButton}"/>
+                    <Button Text="📋  All tournaments" Clicked="MenuTournaments_Clicked" Style="{StaticResource MenuButton}"/>
+                    <Button Text="🏆  Rankings" Clicked="MenuRankings_Clicked" Style="{StaticResource MenuButton}"/>
+                    <Button Text="🏓  All games" Clicked="MenuAllGames_Clicked" Style="{StaticResource MenuButton}"/>
+                    <Button Text="📂  Import database" Clicked="MenuImport_Clicked" Style="{StaticResource MenuButton}"/>
+                    <Button Text="💾  Export database" Clicked="MenuExport_Clicked" Style="{StaticResource MenuButton}"/>
+                    <Button Text="🗄  Get old tournaments" Clicked="MenuOldTournaments_Clicked" Style="{StaticResource MenuButton}"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</views:BaseContentPage>
