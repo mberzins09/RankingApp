@@ -443,9 +443,48 @@ namespace RankingApp.Core.ViewModels
             if (me == null)
                 return;
 
-            await _importer.InsertGamesAsync(apiGames, OneTournament, _playersCache, _databasePlayers, me);
+            if (apiGames.Count > 0)
+            {
+                await _importer.InsertGamesAsync(apiGames, OneTournament, _playersCache, _databasePlayers, me);
+            }
+
+            // Doubles exist only in the event results (and teams singles may be missing from the singles
+            // endpoint), so always read them too - games already in the DB are skipped by ExternalGameId.
+            await ImportTeamsGamesForTournamentAsync(me);
 
             await LoadGamesAsync();
+        }
+
+        /// <summary>
+        /// Teams event: loads competition-event-results for the tournament's playing_date and imports
+        /// the user's singles and doubles games that are not in the DB yet (checked by ExternalGameId),
+        /// so pressing the button again after every played game adds only the new ones.
+        /// </summary>
+        private async Task ImportTeamsGamesForTournamentAsync(PlayerDB me)
+        {
+            if (OneTournament == null)
+                return;
+
+            var date = OneTournament.Date.Date;
+
+            var result = await _tournamentService.GetEventResultsAsync(OneTournament.ExternalTournamentId, date.ToString("yyyy-MM-dd"));
+
+            if (result == null)
+                return;
+
+            var byDate = TeamsGamesCollector.CollectMyGamesByDate(result, _appData.AppUserNewId, _appData.AppUserKeyName, date);
+
+            // Response is already filtered by playing_date; still take only this tournament's day
+            // so games from another round can never end up here.
+            TeamsDayGames? day = byDate.TryGetValue(date, out var sameDay)
+                ? sameDay
+                : byDate.Count == 1 ? byDate.Values.First() : null;
+
+            if (day == null || day.Count == 0)
+                return;
+
+            await _importer.InsertGamesAsync(day.Singles, OneTournament, _playersCache, _databasePlayers, me, _appData.AppUserNewId);
+            await _importer.InsertDoublesGamesAsync(day.Doubles, OneTournament, _playersCache, _databasePlayers, me);
         }
 
         public async Task FixGamesAsync()

@@ -190,6 +190,7 @@ namespace RankingApp.Core.Services
         {
             await AddColumnIfNotExistsAsync("Tournament", "ExternalTournamentId", "INTEGER", "0");
             await AddColumnIfNotExistsAsync("Game", "ExternalGameId", "INTEGER", "0");
+            await AddColumnIfNotExistsAsync("DoublesGame", "ExternalGameId", "INTEGER", "0");
         }
 
         public async Task MigrateDatabaseAsync()

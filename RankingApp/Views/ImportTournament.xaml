@@ -7,17 +7,25 @@
              x:Class="RankingApp.Views.ImportTournament"
              x:DataType="viewmodel:ImportTournamentViewModel"          
              Title="ImportTournament">
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="3, 60, 30, *, 3" ColumnDefinitions="3, *, 3">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="3, 60, 40, 30, *, 3" ColumnDefinitions="3, *, 3">
         <Label Grid.Row="1" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource PrimaryLabel}"/>
-        <Button Grid.Row="2" Grid.Column="1" Text="Import Selected Tournaments" Command="{Binding ImportSelectedTournamentsCommand}"
+
+        <!-- Singles (default) / Teams events toggle -->
+        <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="20" HorizontalOptions="Center" VerticalOptions="Center">
+            <Label Text="Show teams events" Style="{StaticResource PrimaryLabel}"/>
+            <Switch IsToggled="{Binding ShowTeamsEvents, Mode=TwoWay}" />
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HeightRequest="20" WidthRequest="20"/>
+        </HorizontalStackLayout>
+
+        <Button Grid.Row="3" Grid.Column="1" Text="Import Selected Tournaments" Command="{Binding ImportSelectedTournamentsCommand}"
     Style="{StaticResource PrimaryButton}" MaximumWidthRequest="100" />
-        <CollectionView Grid.Row="3" Grid.Column="1" ItemsSource="{Binding Tournaments}" SelectionMode="Multiple" SelectedItems="{Binding SelectedTournaments}">
+        <CollectionView Grid.Row="4" Grid.Column="1" ItemsSource="{Binding Tournaments}" SelectionMode="Multiple" SelectedItems="{Binding SelectedTournaments}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="model:APITournament">
                     <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Padding="5">
                         <Label Grid.ColumnSpan="2" Text="{Binding Competition}" Style="{StaticResource ListItemLabel}" FontSize="12" HorizontalTextAlignment="Start"/>
                         <Label Grid.Row="1" Text="{Binding EventName}" Style="{StaticResource ListItemLabel}" FontSize="10" HorizontalTextAlignment="Start"/>
-                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Date}" Style="{StaticResource ListItemLabel}" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="End"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding DateDisplay}" Style="{StaticResource ListItemLabel}" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="End"/>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
