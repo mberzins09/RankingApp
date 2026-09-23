@@ -299,7 +299,7 @@ namespace RankingApp.Core.ViewModels
                 TournamentPlayerSurname = me.Surname,
                 Date = parsedDate,
                 Name = BuildTournamentName(apiTournament),
-                Coefficient = apiTournament.Coefficient
+                Coefficient = CoefficientFormatter.Normalize(apiTournament.Coefficient)
             };
 
             await _databaseService.SaveAsync(tournament);
@@ -414,7 +414,7 @@ namespace RankingApp.Core.ViewModels
                         TournamentPlayerSurname = me.Surname,
                         Date = date,
                         Name = roundName,
-                        Coefficient = apiTournament.Coefficient
+                        Coefficient = CoefficientFormatter.Normalize(apiTournament.Coefficient)
                     };
 
                     await _databaseService.SaveAsync(tournament);

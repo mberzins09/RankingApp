@@ -41,6 +41,125 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private string selectedRatingFilter = "All Games";
 
+        // ── "Most ... vs opponent": top 10 opponents instead of all games ─────
+
+        private const int TopOpponentCount = 10;
+
+        private static readonly string[] OpponentFilters =
+            ["Most games vs opponent", "Most wins vs opponent", "Most losses vs opponent"];
+
+        private List<Game> _yearSinglesGames = [];
+        private string? _openOpponentKey;
+
+        /// <summary>True when the list shows opponents (singles + one of the "Most ... vs opponent" filters).</summary>
+        [ObservableProperty]
+        private bool isOpponentMode;
+
+        [ObservableProperty]
+        private ObservableCollection<OpponentSummary> topOpponents = [];
+
+        [ObservableProperty]
+        private bool isOpponentOverlayVisible;
+
+        [ObservableProperty]
+        private string opponentTitle = "";
+
+        [ObservableProperty]
+        private ObservableCollection<IGame> opponentGames = [];
+
+        [ObservableProperty]
+        private GameStatistics? opponentStats;
+
+        [RelayCommand]
+        private void OpenOpponent(OpponentSummary? opponent)
+        {
+            if (opponent == null)
+                return;
+
+            _openOpponentKey = opponent.KeyName;
+            OpponentTitle = opponent.Name;
+            FillOpponentGames();
+            IsOpponentOverlayVisible = true;
+        }
+
+        [RelayCommand]
+        private void CloseOpponentOverlay()
+        {
+            IsOpponentOverlayVisible = false;
+            _openOpponentKey = null;
+        }
+
+        private void FillOpponentGames()
+        {
+            var games = _yearSinglesGames
+                .Where(g => g.OppKeyName == _openOpponentKey)
+                .OrderByDescending(g => g.TournamentDate)
+                .Cast<IGame>()
+                .ToList();
+
+            OpponentGames = new ObservableCollection<IGame>(games);
+            OpponentStats = GameStatisticsCalculator.Calculate(games);
+        }
+
+        /// <summary>
+        /// Groups the year's singles games by opponent and keeps the 10 with most games / wins / losses.
+        /// Search narrows the opponents. Stats show all games against the listed opponents.
+        /// </summary>
+        private void ShowTopOpponents(List<Game> games)
+        {
+            _yearSinglesGames = games;
+
+            var groups = games
+                .Where(g => !string.IsNullOrEmpty(g.OppKeyName))
+                .GroupBy(g => g.OppKeyName);
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                string normalizedSearch = NameNormalizer.NormalizeKey(SearchText);
+                groups = groups.Where(gr => gr.Key.Contains(normalizedSearch));
+            }
+
+            var summaries = groups.Select(gr =>
+            {
+                var latest = gr.OrderByDescending(g => g.TournamentDate).First();
+                int wins = gr.Count(g => g.IsWin);
+
+                return new OpponentSummary
+                {
+                    KeyName = gr.Key,
+                    Name = $"{latest.Name} {latest.Surname}".Trim(),
+                    Games = gr.Count(),
+                    Wins = wins,
+                    Losses = gr.Count() - wins
+                };
+            });
+
+            summaries = SelectedRatingFilter switch
+            {
+                "Most wins vs opponent" => summaries.Where(o => o.Wins > 0)
+                    .OrderByDescending(o => o.Wins).ThenByDescending(o => o.Games),
+                "Most losses vs opponent" => summaries.Where(o => o.Losses > 0)
+                    .OrderByDescending(o => o.Losses).ThenByDescending(o => o.Games),
+                _ => summaries.OrderByDescending(o => o.Games).ThenByDescending(o => o.Wins)
+            };
+
+            var top = summaries.Take(TopOpponentCount).ToList();
+
+            for (int i = 0; i < top.Count; i++)
+                top[i].Rank = i + 1;
+
+            TopOpponents = new ObservableCollection<OpponentSummary>(top);
+
+            var keys = top.Select(o => o.KeyName).ToHashSet();
+            DisplayGames = new ObservableCollection<IGame>(
+                games.Where(g => keys.Contains(g.OppKeyName)).OrderByDescending(g => g.TournamentDate));
+
+            Stats = GameStatisticsCalculator.Calculate(DisplayGames);
+
+            if (IsOpponentOverlayVisible && _openOpponentKey != null)
+                FillOpponentGames();
+        }
+
         public double GameFontSize => SelectedGameMode == "Singles" ? 16 : 10;
 
         partial void OnSelectedGameModeChanged(string value)
@@ -119,6 +238,9 @@ namespace RankingApp.Core.ViewModels
             SelectedYear = 0;
             OnPropertyChanged(nameof(SelectedYear));
             ApplyAllFilters();
+
+            if (IsOpponentOverlayVisible && _openOpponentKey != null)
+                FillOpponentGames();
         }
 
         private void ApplyAllFilters()
@@ -129,6 +251,16 @@ namespace RankingApp.Core.ViewModels
 
             if (SelectedYear > 0)
                 source = source.Where(g => g.TournamentDate.Year == SelectedYear);
+
+            IsOpponentMode = SelectedGameMode == "Singles" && OpponentFilters.Contains(SelectedRatingFilter);
+
+            if (IsOpponentMode)
+            {
+                ShowTopOpponents(source.OfType<Game>().ToList());
+                return;
+            }
+
+            TopOpponents = [];
 
             if (!string.IsNullOrWhiteSpace(SelectedRatingFilter) && SelectedRatingFilter != "All Games")
             {
@@ -166,62 +298,11 @@ namespace RankingApp.Core.ViewModels
                                 !g.IsOpponentForeign);
                             break;
 
-                        case "Most games vs opponent":
-                            {
-                                var topOpp = singlesSource
-                                    .GroupBy(g => g.OppKeyName)
-                                    .OrderByDescending(g => g.Count())
-                                    .Select(g => g.Key)
-                                    .FirstOrDefault();
-
-                                source = topOpp == null
-                                    ? []
-                                    : singlesSource.Where(g => g.OppKeyName == topOpp);
-
-                                break;
-                            }
-
-                        case "Most wins vs opponent":
-                            {
-                                var topOpp = singlesSource
-                                    .Where(g => g.IsWin)
-                                    .GroupBy(g => g.OppKeyName)
-                                    .OrderByDescending(g => g.Count())
-                                    .Select(g => g.Key)
-                                    .FirstOrDefault();
-
-                                source = topOpp == null
-                                    ? []
-                                    : singlesSource.Where(g => g.OppKeyName == topOpp);
-
-                                break;
-                            }
-
-                        case "Most losses vs opponent":
-                            {
-                                var topOpp = singlesSource
-                                    .Where(g => !g.IsWin)
-                                    .GroupBy(g => g.OppKeyName)
-                                    .OrderByDescending(g => g.Count())
-                                    .Select(g => g.Key)
-                                    .FirstOrDefault();
-
-                                source = topOpp == null
-                                    ? []
-                                    : singlesSource.Where(g => g.OppKeyName == topOpp);
-
-                                break;
-                            }
                     }
                 }
             }
 
-            bool ignoreSearch = SelectedGameMode == "Singles" &&
-                                (SelectedRatingFilter == "Most games vs opponent" ||
-                                SelectedRatingFilter == "Most wins vs opponent" ||
-                                SelectedRatingFilter == "Most losses vs opponent");
-
-            if (!ignoreSearch && !string.IsNullOrWhiteSpace(SearchText))
+            if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 string normalizedSearch = NameNormalizer.NormalizeKey(SearchText);
 

@@ -9,30 +9,36 @@
              x:Class="RankingApp.Views.EditTournamentPlayer"
              Title="Tournament Details"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="60, 40, *, 5" ColumnDefinitions="5, 100, 100, 100, *, 5">
-        <!-- Row 0 -->
-        <ImageButton Grid.Row="0" Grid.Column="1" WidthRequest="50" HeightRequest="50" Source="savenoborder.png"
-             x:Name="ButtonSave" Clicked="ButtonSave_OnClicked" Style="{StaticResource PrimaryImageButton}"/>
-        <Label Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}"
-               Text="{Binding CurrentTournament.Name}" FontSize="22"/>
-        <!-- Row 1 -->
-        <Label Grid.Row="1" Grid.Column="1" Text="Player:" Style="{StaticResource PrimaryLabel}" HorizontalOptions="Start" />
-        <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3">
-            <Label Text="{Binding CurrentTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" />
-            <Label Text="{Binding CurrentTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" />
-        </HorizontalStackLayout>
-        <!-- Row 3 -->
-        <Grid RowDefinitions="40,*" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource PrimaryGrid}">
-            <SearchBar Grid.Row="0" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}"
-                       IsReadOnly="{Binding IsSearchDisabled}"/>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="64, 44, *, 6" ColumnDefinitions="10, 100, 100, 100, *, 10">
+        <!-- Row 0: save + tournament -->
+        <Button Grid.Row="0" Grid.Column="1" Text="💾  Save" WidthRequest="96"
+                x:Name="ButtonSave" Clicked="ButtonSave_OnClicked" Style="{StaticResource PrimaryButton}" HorizontalOptions="Start"/>
+        <Label Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontFamily="OpenSansSemibold"
+               Text="{Binding CurrentTournament.Name}" FontSize="18" LineBreakMode="TailTruncation" MaxLines="2" HorizontalTextAlignment="Center"/>
+        <!-- Row 1: current player -->
+        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource Card}" Margin="0" Padding="14,0">
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                <Label Text="Player" Style="{StaticResource CaptionLabel}"/>
+                <HorizontalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                    <Label Text="{Binding CurrentTournament.TournamentPlayerName}" Style="{StaticResource PrimaryLabel}" FontFamily="OpenSansSemibold"/>
+                    <Label Text="{Binding CurrentTournament.TournamentPlayerSurname}" Style="{StaticResource PrimaryLabel}" FontFamily="OpenSansSemibold"/>
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+        <!-- Row 2: pick another player -->
+        <Grid RowDefinitions="56,*" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource PrimaryGrid}">
+            <Border Style="{StaticResource GlassField}" VerticalOptions="End">
+                <SearchBar Style="{StaticResource PrimarySearchBar}" Placeholder="Search player" Text="{Binding SearchText, Mode=TwoWay}"
+                           IsReadOnly="{Binding IsSearchDisabled}"/>
+            </Border>
             <ListView Grid.Row="1" x:Name ="AllPlayers" Style="{StaticResource PrimaryListView}"
                       ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerDB">
                         <ViewCell>
-                            <Grid ColumnDefinitions="*, 50">
-                                <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1"/>
-                                <Label Grid.Column="1" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}"/>
+                            <Grid ColumnDefinitions="*, 60" Padding="4,0">
+                                <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                <Label Grid.Column="1" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontFamily="OpenSansSemibold"/>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>

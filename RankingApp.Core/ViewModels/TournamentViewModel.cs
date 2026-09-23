@@ -35,7 +35,7 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private IGame? selectedItem;
 
-        public List<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "3", "4"];
+        public ObservableCollection<string> CoefficientOptions { get; } = ["0", "0.25", "0.5", "1", "1.5", "2", "3", "4"];
 
         public List<string> GameModes { get; } = ["Singles", "Doubles"];
 
@@ -121,7 +121,7 @@ namespace RankingApp.Core.ViewModels
             {
                 _databasePlayers = await _database.GetAllRecordsAsync<PlayerDB>();
             }
-            OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
+            OneTournament = await GetTournamentAsync(Data.TournamentId);
             
             if (OneTournament == null)
             {
@@ -130,7 +130,7 @@ namespace RankingApp.Core.ViewModels
                 if (last != null)
                     Data.TournamentId = last.Id;
 
-                OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
+                OneTournament = await GetTournamentAsync(Data.TournamentId);
             }
 
             await LoadGamesAsync();
@@ -159,9 +159,46 @@ namespace RankingApp.Core.ViewModels
             }
         }
 
+        /// <summary>
+        /// Loads a tournament with its coefficient in the Picker's form ("1.50" → "1.5"), fixing tournaments
+        /// imported earlier. An unusual value (e.g. "0.75") is added to the options so it is still shown.
+        /// Done before the tournament is assigned, so no change events (EditCoefficient) are fired.
+        /// </summary>
+        private async Task<Tournament?> GetTournamentAsync(int id)
+        {
+            var tournament = await _database.GetByIdAsync<Tournament>(id);
+
+            if (tournament == null)
+                return null;
+
+            string normalized = CoefficientFormatter.Normalize(tournament.Coefficient);
+
+            if (normalized != tournament.Coefficient)
+            {
+                tournament.Coefficient = normalized;
+                await _database.SaveAsync(tournament);
+            }
+
+            if (!string.IsNullOrEmpty(normalized) && !CoefficientOptions.Contains(normalized) &&
+                double.TryParse(normalized, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
+            {
+                int index = 0;
+
+                while (index < CoefficientOptions.Count &&
+                       double.Parse(CoefficientOptions[index], System.Globalization.CultureInfo.InvariantCulture) < value)
+                {
+                    index++;
+                }
+
+                CoefficientOptions.Insert(index, normalized);
+            }
+
+            return tournament;
+        }
+
         public async Task LoadGamesAsync()
         {
-            OneTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
+            OneTournament = await GetTournamentAsync(Data.TournamentId);
             var allGames = await _database.GetAllRecordsAsync<Game>();
             _games = [.. allGames.Where(x => x.TournamentId == Data.TournamentId)];
 

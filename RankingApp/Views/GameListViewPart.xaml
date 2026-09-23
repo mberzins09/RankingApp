@@ -15,7 +15,7 @@
     <CollectionView ItemsSource="{Binding ItemsSource, Source={RelativeSource AncestorType={x:Type local:GameListViewPart}}}">
         <CollectionView.ItemTemplate>
             <DataTemplate x:DataType="model:IGame">
-                <SwipeView>
+                <SwipeView BackgroundColor="Transparent">
                     <SwipeView.RightItems>
                         <SwipeItems Mode="Reveal">
                             <SwipeItem
@@ -31,18 +31,29 @@
                                 CommandParameter="{Binding .}" />
                         </SwipeItems>
                     </SwipeView.RightItems>
-                <Grid RowDefinitions="*, *, *" ColumnDefinitions="80, *, 30, 25">
-                    <Label Grid.ColumnSpan="4" Text="{Binding GameDate}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                    <HorizontalStackLayout Style="{StaticResource PrimaryHorizontal}" Grid.Row="1" Grid.ColumnSpan="2">
-                        <Label Grid.ColumnSpan="2" Text="{Binding GameDisplayMe}" FontSize="12" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
-                            <Label Style="{StaticResource ListItemLabel}" Text="/"/>
-                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding GameDisplayOpp}" FontSize="12" Style="{StaticResource ListItemLabel}" FontAttributes="Bold"/>
-                    </HorizontalStackLayout>
-                    <Label Grid.Column="2" Grid.RowSpan="3" Text="{Binding Gamescore}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                    <Label Grid.Column="3" Grid.RowSpan="3" Text="{Binding RatingDifference}" FontSize="12" Style="{StaticResource ListItemLabel}"
-                           TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
-                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding TournamentName}" FontSize="12" Style="{StaticResource ListItemLabel}"/>
-                </Grid>
+                    <Border Style="{StaticResource Card}" Padding="12,6">
+                        <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, 44, 36" RowSpacing="1">
+                            <Label Text="{Binding GameDate}" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="Start"/>
+                            <!-- One Label (not a StackLayout) so it is limited to column 0:
+                                 long names wrap instead of running over the score / rating -->
+                            <Label Grid.Row="1" HorizontalOptions="Fill" HorizontalTextAlignment="Start"
+                                   LineBreakMode="TailTruncation" MaxLines="2">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding GameDisplayMe}" FontSize="13" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextMain}"/>
+                                        <Span Text="  vs  " FontSize="11" TextColor="{StaticResource TextSoft}"/>
+                                        <Span Text="{Binding GameDisplayOpp}" FontSize="13" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextMain}"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label Grid.Row="2" Text="{Binding TournamentName}" FontSize="11" Style="{StaticResource ListItemSubLabel}"
+                                   HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="1"/>
+                            <Label Grid.Column="1" Grid.RowSpan="3" Text="{Binding Gamescore}" FontSize="13" Style="{StaticResource ListItemLabel}"/>
+                            <Label Grid.Column="2" Grid.RowSpan="3" Text="{Binding RatingDifference}" FontSize="14" Style="{StaticResource ListItemLabel}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
+                        </Grid>
+                    </Border>
                 </SwipeView>
             </DataTemplate>
         </CollectionView.ItemTemplate>

@@ -1,64 +1,84 @@
 using RankingApp.Core.ViewModels;
 using RankingApp.Core.Models;
 using RankingApp.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RankingApp.Views
 {
     public class BaseContentPage : ContentPage
     {
         private readonly ToolbarItem _homeToolbar;
+        private readonly ToolbarItem _tournamentListToolbar;
         private readonly ToolbarItem _rankingsToolbar;
         private readonly ToolbarItem _gamesToolbar;
         private readonly ToolbarItem _addToolbar;
         private readonly ToolbarItem _importToolbar;
+        // Toolbar uses emojis as text (not as icons): Shell tints icons with one flat colour,
+        // which would turn a colour emoji into a white silhouette - text is not tinted.
+        private const string HomeEmoji = "🏠";
+        private const string TournamentListEmoji = "📋";
+        private const string RankingsEmoji = "🏆";
+        private const string TournamentEmoji = "🏓";
+        private const string AddEmoji = "➕";
+        private const string ImportEmoji = "📥";
+
         public BaseContentPage()
         {
+            Style = Application.Current?.Resources.TryGetValue("PrimaryContentPage", out var pageStyle) == true
+                ? pageStyle as Style
+                : null;
+
             _homeToolbar = new ToolbarItem
             {
-                Text = "Home",
-                IconImageSource = "home.png",
+                Text = HomeEmoji,
                 Order = ToolbarItemOrder.Primary,
                 Priority = 0
             };
-            _homeToolbar.Command = new Command(async () => await SaveAndNavigateAsync(nameof(AllTournaments), typeof(AllTournaments)));
+            // Home is the Shell root: "//" goes back to it instead of pushing another copy
+            _homeToolbar.Command = new Command(async () => await SaveAndNavigateAsync($"//{nameof(HomePage)}", typeof(HomePage)));
+
+            _tournamentListToolbar = new ToolbarItem
+            {
+                Text = TournamentListEmoji,
+                Order = ToolbarItemOrder.Primary,
+                Priority = 1
+            };
+            _tournamentListToolbar.Command = new Command(async () => await SaveAndNavigateAsync(nameof(AllTournaments), typeof(AllTournaments)));
 
             _rankingsToolbar = new ToolbarItem
             {
-                Text = "Rankings",
-                IconImageSource = "ranksnoborder.png",
+                Text = RankingsEmoji,
                 Order = ToolbarItemOrder.Primary,
-                Priority = 1
+                Priority = 2
             };
             _rankingsToolbar.Command = new Command(async () => await SaveAndNavigateAsync(nameof(AllPlayerRanking), typeof(AllPlayerRanking)));
 
             _gamesToolbar = new ToolbarItem
             {
-                Text = "Tournament",
-                IconImageSource = "gamesnoborder.png",
+                Text = TournamentEmoji,
                 Order = ToolbarItemOrder.Primary,
-                Priority = 2
+                Priority = 3
             };
             _gamesToolbar.Command = new Command(async () => await EnsureTournamentIdAndNavigateAsync(nameof(TournamentView), typeof(TournamentView)));
 
             _addToolbar = new ToolbarItem
             {
-                Text = "Add",
-                IconImageSource = "plusnoborder.png",
+                Text = AddEmoji,
                 Order = ToolbarItemOrder.Primary,
-                Priority = 3
+                Priority = 4
             };
             _addToolbar.Command = new Command(async () => await AddActionAsync());
 
             _importToolbar = new ToolbarItem
             {
-                Text = "Import",
-                IconImageSource = "importfromapi.png",
+                Text = ImportEmoji,
                 Order = ToolbarItemOrder.Primary,
-                Priority = 4
+                Priority = 5
             };
             _importToolbar.Command = new Command(async () => await ImportActionAsync());
 
             ToolbarItems.Add(_homeToolbar);
+            ToolbarItems.Add(_tournamentListToolbar);
             ToolbarItems.Add(_rankingsToolbar);
             ToolbarItems.Add(_gamesToolbar);
             ToolbarItems.Add(_addToolbar);
@@ -86,10 +106,11 @@ namespace RankingApp.Views
                 var current = Shell.Current?.CurrentPage;
                 var currentType = current?.GetType();
 
-                _homeToolbar.IsEnabled = currentType != typeof(AllTournaments);
+                _homeToolbar.IsEnabled = currentType != typeof(HomePage);
+                _tournamentListToolbar.IsEnabled = currentType != typeof(AllTournaments);
                 _rankingsToolbar.IsEnabled = currentType != typeof(AllPlayerRanking);
                 _gamesToolbar.IsEnabled = currentType != typeof(TournamentView);
-                _addToolbar.IsEnabled = currentType == typeof(AllTournaments) || currentType == typeof(TournamentView);
+                _addToolbar.IsEnabled = currentType == typeof(HomePage) || currentType == typeof(AllTournaments) || currentType == typeof(TournamentView);
                 _importToolbar.IsEnabled = currentType != typeof(ImportTournament);
             }
             catch
@@ -174,9 +195,13 @@ namespace RankingApp.Views
 
             try
             {
-                if (current.GetType() == typeof(AllTournaments))
+                if (current.GetType() == typeof(AllTournaments) || current.GetType() == typeof(HomePage))
                 {
-                    if (vm is AllTournamentsViewModel allTournamentsvm)
+                    // Home has its own view model - the tournament list's one knows how to create a tournament
+                    var allTournamentsvm = vm as AllTournamentsViewModel
+                        ?? IPlatformApplication.Current?.Services.GetService<AllTournamentsViewModel>();
+
+                    if (allTournamentsvm != null)
                     {
                         await allTournamentsvm.CreateNewTournamentSave();
                     }

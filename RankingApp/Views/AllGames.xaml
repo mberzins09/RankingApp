@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewmodel="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
-             xmlns:model="using:RankingApp.Core.Models;assembly=RankingApp.Core"
+             xmlns:model="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"
              xmlns:converters="clr-namespace:RankingApp.Converters"
              xmlns:views="clr-namespace:RankingApp.Views"
              x:Class="RankingApp.Views.AllGames"
@@ -15,49 +15,105 @@
         <ResourceDictionary>
             <converters:YearDisplayConverter x:Key="YearDisplayConverter" />
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
         </ResourceDictionary>
     </views:BaseContentPage.Resources>
 
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="2, 40, *, 2" ColumnDefinitions="120, *, 120">
-        <Border Grid.Row="1" MaximumWidthRequest="100" MaximumHeightRequest="30" StrokeThickness="2">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker Title="Select Game Mode" ItemsSource="{Binding GameModes}" 
-                    SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" Style="{StaticResource PrimaryPicker}" />
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="6, 48, *, 4" ColumnDefinitions="10, 110, *, 90, 10" ColumnSpacing="8">
+        <!-- Row 1: mode, rating filter, year -->
+        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource PickerChip}">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker Title="Mode" ItemsSource="{Binding GameModes}" 
+                        SelectedItem="{Binding SelectedGameMode, Mode=TwoWay}" Style="{StaticResource ChipPicker}" />
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="1" MaximumWidthRequest="250" MaximumHeightRequest="30" StrokeThickness="2" HorizontalOptions="Center">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker Title="Filter" ItemsSource="{Binding RatingFilters}" SelectedItem="{Binding SelectedRatingFilter, Mode=TwoWay}" Style="{StaticResource PrimaryPicker}" />
+        <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource PickerChip}" MaximumWidthRequest="250">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker Title="Filter" ItemsSource="{Binding RatingFilters}" SelectedItem="{Binding SelectedRatingFilter, Mode=TwoWay}" Style="{StaticResource ChipPicker}" />
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="2" MaximumWidthRequest="100" MaximumHeightRequest="30" StrokeThickness="2">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker Title="Select Year" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Style="{StaticResource PrimaryPicker}">
-                <Picker.ItemDisplayBinding>
-                    <Binding Converter="{StaticResource YearDisplayConverter}" />
-                </Picker.ItemDisplayBinding>
-            </Picker>
+        <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource PickerChip}">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker Title="Year" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Style="{StaticResource ChipPicker}">
+                    <Picker.ItemDisplayBinding>
+                        <Binding Converter="{StaticResource YearDisplayConverter}" />
+                    </Picker.ItemDisplayBinding>
+                </Picker>
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
-        
-        <Grid Grid.Row="2" Grid.ColumnSpan="3" RowDefinitions="40, 40, 40, *" ColumnDefinitions="*, *, *, *">
-            <views:GameStatisticsView BindingContext="{Binding Stats}" Grid.RowSpan="2" Grid.ColumnSpan="4"/>
-            <SearchBar Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource PrimarySearchBar}" Text="{Binding SearchText, Mode=TwoWay}" />
-            <views:GameListViewPart ItemsSource="{Binding DisplayGames}" Grid.Row="3" Grid.ColumnSpan="4"
-                        
+
+        <!-- Row 2: stats, search, games -->
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" RowDefinitions="Auto, 48, *" RowSpacing="6">
+            <Border Style="{StaticResource Card}" Margin="0,4,0,0">
+                <views:GameStatisticsView BindingContext="{Binding Stats}"/>
+            </Border>
+            <Border Grid.Row="1" Style="{StaticResource GlassField}">
+                <SearchBar Style="{StaticResource PrimarySearchBar}" Placeholder="Search games" Text="{Binding SearchText, Mode=TwoWay}" />
+            </Border>
+            <!-- "Most ... vs opponent": top 10 opponents, tap one to see the games -->
+            <CollectionView Grid.Row="2" Margin="-6,0" ItemsSource="{Binding TopOpponents}" IsVisible="{Binding IsOpponentMode}"
+                            SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="No opponents for this filter" Style="{StaticResource CaptionLabel}" Margin="0,20"/>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:OpponentSummary">
+                        <Border Style="{StaticResource Card}">
+                            <Grid ColumnDefinitions="28, *, Auto" ColumnSpacing="8">
+                                <Label Text="{Binding RankDisplay}" Style="{StaticResource ListItemSubLabel}" FontSize="14" HorizontalOptions="Start"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" Style="{StaticResource ListItemLabel}" FontFamily="OpenSansSemibold"
+                                           HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                    <Label Text="{Binding GamesDisplay}" Style="{StaticResource ListItemSubLabel}" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                                <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center">
+                                    <Label Text="{Binding WinsDisplay}" FontFamily="OpenSansSemibold" FontSize="14" TextColor="{StaticResource Positive}"/>
+                                    <Label Text="{Binding LossesDisplay}" FontFamily="OpenSansSemibold" FontSize="14" TextColor="{StaticResource Negative}"/>
+                                </HorizontalStackLayout>
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenOpponentCommand}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <views:GameListViewPart ItemsSource="{Binding DisplayGames}" Grid.Row="2" Margin="-6,0"
+                        IsVisible="{Binding IsOpponentMode, Converter={StaticResource InverseBoolConverter}}"
                         RightPrimaryCommand="{Binding GoToGameCommand}"
                         Swipe1Text="Game"
-                        Swipe1Color="Blue"
-                        
+                        Swipe1Color="{StaticResource SwipeGame}"
                         RightSecondaryCommand="{Binding GoToTournamentCommand}"
                         Swipe2Text="Tournament"
-                        Swipe2Color="Green"
+                        Swipe2Color="{StaticResource SwipeTournament}"
                         />
+        </Grid>
+
+        <!-- Games against the tapped opponent -->
+        <Grid IsVisible="{Binding IsOpponentOverlayVisible}" InputTransparent="False" Grid.RowSpan="4" Grid.ColumnSpan="5">
+            <BoxView Style="{StaticResource PrimaryBoxView}">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseOpponentOverlayCommand}" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <Border Style="{StaticResource BoxContainer}" HorizontalOptions="Fill" VerticalOptions="Fill" Margin="12,24">
+                <Grid RowDefinitions="40, 74, *" ColumnDefinitions="*, 80" RowSpacing="4">
+                    <Label Text="{Binding OpponentTitle}" Style="{StaticResource PrimaryLabel}" FontFamily="OpenSansSemibold" FontSize="17"
+                           HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="1"/>
+                    <Button Grid.Column="1" Text="Close" Command="{Binding CloseOpponentOverlayCommand}" Style="{StaticResource PrimaryButton}" HeightRequest="34"/>
+                    <views:GameStatisticsView BindingContext="{Binding OpponentStats}" Grid.Row="1" Grid.ColumnSpan="2"/>
+                    <views:GameListViewPart ItemsSource="{Binding OpponentGames}" Grid.Row="2" Grid.ColumnSpan="2"
+                                            RightPrimaryCommand="{Binding GoToGameCommand}" Swipe1Text="Game" Swipe1Color="{StaticResource SwipeGame}"
+                                            RightSecondaryCommand="{Binding GoToTournamentCommand}" Swipe2Text="Tournament" Swipe2Color="{StaticResource SwipeTournament}"/>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </views:BaseContentPage>

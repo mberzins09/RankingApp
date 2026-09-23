@@ -5,135 +5,144 @@
              xmlns:viewmodels="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
              xmlns:views="clr-namespace:RankingApp.Views"
              xmlns:models="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"
+             xmlns:converters="clr-namespace:RankingApp.Converters"
              x:DataType="viewmodels:DoublesGameViewModel"
              x:Class="RankingApp.Views.DoublesGameView"
              Title="Doubles Game"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid RowDefinitions="40, 3, 60, 25, 25, 25, 25, 25, 3, *, 3" ColumnDefinitions="3, 50, 50, 50, *, 50, 50, 50, 3" Style="{StaticResource PrimaryGrid}">
-        <!-- Row 0 -->
-        <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="60" MaximumHeightRequest="30" Text="Save"
-                x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" Padding="0" />
+    <views:BaseContentPage.Resources>
+        <ResourceDictionary>
+            <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
+            <!-- "12 | 34" rows: my/partner or opponent 1/opponent 2 -->
+            <Style TargetType="Label" x:Key="PairValue" BasedOn="{StaticResource PrimaryLabel}">
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+            <Style TargetType="Label" x:Key="PairSeparator" BasedOn="{StaticResource PrimaryLabel}">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="TextColor" Value="{StaticResource TextFaint}" />
+                <Setter Property="Text" Value="|" />
+            </Style>
+        </ResourceDictionary>
+    </views:BaseContentPage.Resources>
+
+    <Grid RowDefinitions="52, 4, 60, 24, 24, 24, 24, 48, 6, *, 6" ColumnDefinitions="10, 50, 50, 50, *, 50, 50, 50, 10" Style="{StaticResource PrimaryGrid}">
+        <!-- Row 0: save + rating change -->
+        <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" WidthRequest="96" Text="💾  Save"
+                x:Name="ButtonGameSave" Clicked="ButtonGameSave_OnClicked" Style="{StaticResource PrimaryButton}" HorizontalOptions="Start" />
         <Label Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="3" x:Name ="LabelRatingDifference" 
-           Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.RatingDifference}"  FontSize="24"/>
-        <!-- Row 1 Empty-->
-        <!-- Row 2 -->
-        <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <VerticalStackLayout>
-                <HorizontalStackLayout>
-                    <Label Text="{Binding OneDoublesGame.MyName}" Style="{StaticResource PrimaryLabel}" />
-                    <Label Text=" "></Label>
-                    <Label Text="{Binding OneDoublesGame.MySurname}" Style="{StaticResource PrimaryLabel}"/>
-                    <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-                </HorizontalStackLayout>
-                <HorizontalStackLayout>
-                    <Label Text="{Binding OneDoublesGame.MyPartnerName}" Style="{StaticResource PrimaryLabel}" />
-                    <Label Text=" "></Label>
-                    <Label Text="{Binding OneDoublesGame.MyPartnerSurname}" Style="{StaticResource PrimaryLabel}"/>
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-        </HorizontalStackLayout>
-        <HorizontalStackLayout Grid.Row="2" Grid.Column="4" Style="{StaticResource PrimaryHorizontal}">
-            <Label Style="{StaticResource PrimaryLabel}" Text="-" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="VS" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="-" />
-        </HorizontalStackLayout>
-        <HorizontalStackLayout Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <VerticalStackLayout>
-                <HorizontalStackLayout>
-                    <Label Text="{Binding OneDoublesGame.Opponent1Name}" Style="{StaticResource PrimaryLabel}" />
-                    <Label Text=" "></Label>
-                    <Label Text="{Binding OneDoublesGame.Opponent1Surname}" Style="{StaticResource PrimaryLabel}"/>
-                    <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-                </HorizontalStackLayout>
-                <HorizontalStackLayout>
-                    <Label Text="{Binding OneDoublesGame.Opponent2Name}" Style="{StaticResource PrimaryLabel}" />
-                    <Label Text=" "></Label>
-                    <Label Text="{Binding OneDoublesGame.Opponent2Surname}" Style="{StaticResource PrimaryLabel}"/>
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-        </HorizontalStackLayout>
+               Style="{StaticResource ScoreLabel}" Text="{Binding OneDoublesGame.RatingDifference}"
+               TextColor="{Binding OneDoublesGame.RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
+
+        <!-- Stats panel behind rows 2-7 -->
+        <Border Grid.Row="2" Grid.RowSpan="6" Grid.Column="1" Grid.ColumnSpan="7" Style="{StaticResource Card}" Margin="0" Padding="0" />
+
+        <!-- Row 2: pairs -->
+        <VerticalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+            <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                <Label Text="{Binding OneDoublesGame.MyName}" Style="{StaticResource PairValue}" FontFamily="OpenSansSemibold"/>
+                <Label Text="{Binding OneDoublesGame.MySurname}" Style="{StaticResource PairValue}" FontFamily="OpenSansSemibold"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                <Label Text="{Binding OneDoublesGame.MyPartnerName}" Style="{StaticResource PairValue}"/>
+                <Label Text="{Binding OneDoublesGame.MyPartnerSurname}" Style="{StaticResource PairValue}"/>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+        <Label Grid.Row="2" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="vs" FontSize="13" TextColor="{StaticResource Accent}" FontFamily="OpenSansSemibold"/>
+        <VerticalStackLayout Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="3" VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+            <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                <Label Text="{Binding OneDoublesGame.Opponent1Name}" Style="{StaticResource PairValue}" FontFamily="OpenSansSemibold"/>
+                <Label Text="{Binding OneDoublesGame.Opponent1Surname}" Style="{StaticResource PairValue}" FontFamily="OpenSansSemibold"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                <Label Text="{Binding OneDoublesGame.Opponent2Name}" Style="{StaticResource PairValue}" FontFamily="OpenSansSemibold"/>
+                <Label Text="{Binding OneDoublesGame.Opponent2Surname}" Style="{StaticResource PairValue}" FontFamily="OpenSansSemibold"/>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
         <!-- Row 3 -->
         <HorizontalStackLayout Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyPlace}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyPartnerPlace}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyPlace}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyPartnerPlace}"/>
         </HorizontalStackLayout>
-        <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Place"/>
+        <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Place"/>
         <HorizontalStackLayout Grid.Row="3" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label  Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent1Place}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent2Place}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent1Place}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent2Place}"/>
         </HorizontalStackLayout>
         <!-- Row 4 -->
         <HorizontalStackLayout Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label  Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyPoints}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label  Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyPartnerPoints}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyPoints}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyPartnerPoints}"/>
         </HorizontalStackLayout>
-        <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Points"/>
+        <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Points"/>
         <HorizontalStackLayout Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label  Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent1Points}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label  Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent2Points}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent1Points}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent2Points}"/>
         </HorizontalStackLayout>
         <!-- Row 5 -->
         <HorizontalStackLayout Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyPointsWithBonus}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyPartnerPointsWithBonus}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyPointsWithBonus}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyPartnerPointsWithBonus}"/>
         </HorizontalStackLayout>
-        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="WithBonus"/>
+        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="With bonus"/>
         <HorizontalStackLayout Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent1PointsWithBonus}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent2PointsWithBonus}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent1PointsWithBonus}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent2PointsWithBonus}"/>
         </HorizontalStackLayout>
         <!-- Row 6 -->
         <HorizontalStackLayout Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyAge}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.MyPartnerAge}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyAge}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.MyPartnerAge}"/>
         </HorizontalStackLayout>
-        <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Age"/>
+        <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Age"/>
         <HorizontalStackLayout Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryHorizontal}">
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent1Age}"/>
-            <Label Text=" | " Style="{StaticResource PrimaryLabel}" />
-            <Label Style="{StaticResource PrimaryLabel}" Text="{Binding OneDoublesGame.Opponent2Age}"/>
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent1Age}"/>
+            <Label Style="{StaticResource PairSeparator}" />
+            <Label Style="{StaticResource PairValue}" Text="{Binding OneDoublesGame.Opponent2Age}"/>
         </HorizontalStackLayout>
-        <!-- Row 7 -->
-        <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" x:Name="MySetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" 
-                    ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.MySets}"/>
+        <!-- Row 7: sets -->
+        <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PickerChip}" WidthRequest="64">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker x:Name="MySetsPicker" Title="Sets" Style="{StaticResource ChipPicker}" FontSize="16" FontFamily="OpenSansSemibold"
+                        ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.MySets}"/>
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
-        <Label Grid.Row="7" Grid.Column="4" Style="{StaticResource PrimaryLabel}" Text="Score"/>
-        <Border Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" MaximumWidthRequest="50" StrokeThickness="2">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="45"/>
-            </Border.StrokeShape>
-            <Picker Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" x:Name="OpponentSetsPicker" Title="Sets" Style="{StaticResource PrimaryPicker}" 
-                    ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.OpponentSets}"/>
+        <Label Grid.Row="7" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Score"/>
+        <Border Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PickerChip}" WidthRequest="64">
+            <Grid ColumnDefinitions="*, Auto">
+                <Picker x:Name="OpponentSetsPicker" Title="Sets" Style="{StaticResource ChipPicker}" FontSize="16" FontFamily="OpenSansSemibold"
+                        ItemsSource="{Binding SetsOptions}" SelectedItem="{Binding OneDoublesGame.OpponentSets}"/>
+                <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+            </Grid>
         </Border>
-        <!-- Row 8 Empty-->
-        <!-- Row 9 -->
-        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="30, 40, *" ColumnDefinitions="100, *" Style="{StaticResource PrimaryGrid}">
-            <Border MaximumWidthRequest="100" StrokeThickness="2">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="45"/>
-                </Border.StrokeShape>
-                <Picker Style="{StaticResource PrimaryPicker}" ItemsSource="{Binding SelectionOptions}" SelectedItem="{Binding SelectionMode, Mode=TwoWay}"/>
+
+        <!-- Row 9: choose who to set, then search -->
+        <Grid Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" RowDefinitions="44, 48, *" ColumnDefinitions="Auto, *" ColumnSpacing="8" Style="{StaticResource PrimaryGrid}">
+            <Label Text="Set" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
+            <Border Grid.Column="1" Style="{StaticResource PickerChip}" WidthRequest="150" HorizontalOptions="Start">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Picker Style="{StaticResource ChipPicker}" Title="Who" ItemsSource="{Binding SelectionOptions}" SelectedItem="{Binding SelectionMode, Mode=TwoWay}"/>
+                    <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+                </Grid>
             </Border>
-            <SearchBar Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}"
-                   IsReadOnly="{Binding IsSearchDisabled}"/>
+            <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource GlassField}">
+                <SearchBar Text="{Binding SearchText, Mode=TwoWay}" Style="{StaticResource PrimarySearchBar}" Placeholder="Search player"
+                           IsReadOnly="{Binding IsSearchDisabled}"/>
+            </Border>
             <ListView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" Style="{StaticResource PrimaryListView}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:PlayerDB">
                         <ViewCell>
-                            <Grid ColumnDefinitions="*, 50">
-                                <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1"/>
-                                <Label Grid.Column="1" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}"/>
+                            <Grid ColumnDefinitions="*, 60" Padding="4,0">
+                                <Label Grid.Column="0" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                <Label Grid.Column="1" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontFamily="OpenSansSemibold"/>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>

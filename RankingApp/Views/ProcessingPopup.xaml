@@ -4,10 +4,12 @@
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                x:Class="RankingApp.Views.ProcessingPopup"
                x:Name="RootPopup">
-    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
-        <ActivityIndicator IsRunning="True" WidthRequest="50" HeightRequest="50" 
-                           Color="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}"/>
-        <Label Text="{Binding Message, Source={x:Reference RootPopup}}" HorizontalOptions="Center" VerticalOptions="Center"
-               Style="{StaticResource PrimaryLabel}"/>
-    </VerticalStackLayout>
+    <!-- Own dark background, so the light text is readable whatever the popup's default colour is -->
+    <Border Style="{StaticResource BoxContainer}" Margin="0" Padding="24,20" MinimumWidthRequest="220">
+        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="12">
+            <ActivityIndicator IsRunning="True" WidthRequest="44" HeightRequest="44" Color="{StaticResource Accent}"/>
+            <Label Text="{Binding Message, Source={x:Reference RootPopup}}" HorizontalOptions="Center" VerticalOptions="Center"
+                   HorizontalTextAlignment="Center" Style="{StaticResource PrimaryLabel}" FontSize="14"/>
+        </VerticalStackLayout>
+    </Border>
 </toolkit:Popup>

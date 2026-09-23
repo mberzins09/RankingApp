@@ -9,136 +9,234 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <!-- Label -->
+
+            <!-- ══ Page ═══════════════════════════════════════════════════════════ -->
+            <Style TargetType="ContentPage" x:Key="PrimaryContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource PlumDeep}"/>
+                <Setter Property="Background" Value="{StaticResource PageGradient}"/>
+            </Style>
+
+            <!-- Layouts stay transparent so the gradient shows through -->
+            <Style TargetType="Grid" x:Key="PrimaryGrid">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+            </Style>
+
+            <Style TargetType="HorizontalStackLayout" x:Key="PrimaryHorizontal">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="Spacing" Value="4" />
+            </Style>
+
+            <Style TargetType="VerticalStackLayout" x:Key="PrimaryVertical">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="Spacing" Value="4" />
+                <Setter Property="Padding" Value="4" />
+            </Style>
+
+            <!-- ══ Text ═══════════════════════════════════════════════════════════ -->
             <Style TargetType="Label" x:Key="PrimaryLabel">
-                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
                 <Setter Property="FontSize" Value="16" />
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>
 
-            <!-- Label in ListItem-->
+            <!-- Small lavender caption: "Coef", column headers, "Place", "Points" ... -->
+            <Style TargetType="Label" x:Key="CaptionLabel">
+                <Setter Property="TextColor" Value="{StaticResource TextSoft}"/>
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
             <Style TargetType="Label" x:Key="ListItemLabel">
                 <Setter Property="FontSize" Value="15" />
-                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="HorizontalOptions" Value="Center" />
             </Style>
 
-            <!-- SearchBar -->
-            <Style TargetType="SearchBar" x:Key="PrimarySearchBar">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="PlaceholderColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="Placeholder" Value="Search..." />
-                <Setter Property="FontSize" Value="14" />
+            <Style TargetType="Label" x:Key="ListItemSubLabel" BasedOn="{StaticResource ListItemLabel}">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{StaticResource TextSoft}"/>
+            </Style>
+
+            <!-- Big rating number at the top of Tournament / Game pages -->
+            <Style TargetType="Label" x:Key="ScoreLabel">
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
                 <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="HorizontalTextAlignment" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>
 
-            <!-- ListView -->
-            <Style TargetType="ListView" x:Key="PrimaryListView">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-                <Setter Property="SeparatorColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-            </Style>
-
-            <!-- Grid -->
-            <Style TargetType="Grid" x:Key="PrimaryGrid">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-            </Style>
-
-            <!-- DatePicker -->
-            <Style TargetType="local:FormDatePicker" x:Key="PrimaryDatePicker">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="FontSize" Value="16"/>
-                <Setter Property="HorizontalOptions" Value="Center"/>
+            <!-- ══ Pickers: translucent pill + ▾ ═══════════════════════════════════
+                 <Border Style="{StaticResource PickerChip}">
+                     <Grid ColumnDefinitions="*, Auto">
+                         <Picker Style="{StaticResource ChipPicker}" ... />
+                         <Label Grid.Column="1" Style="{StaticResource ChipChevron}" />
+                     </Grid>
+                 </Border>                                                            -->
+            <Style TargetType="Border" x:Key="PickerChip">
+                <Setter Property="StrokeShape" Value="RoundRectangle 18"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stroke" Value="{StaticResource GlassStroke}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource GlassStrong}"/>
+                <Setter Property="Padding" Value="10,0,8,0"/>
+                <Setter Property="HeightRequest" Value="36"/>
                 <Setter Property="VerticalOptions" Value="Center"/>
             </Style>
 
-            <!-- Picker -->
-            <Style TargetType="Picker" x:Key="PrimaryPicker">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="FontSize" Value="16"/>
-                <Setter Property="HorizontalOptions" Value="Center"/>
+            <Style TargetType="Picker" x:Key="ChipPicker">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                <Setter Property="TitleColor" Value="{StaticResource TextFaint}"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="HorizontalOptions" Value="Fill"/>
                 <Setter Property="VerticalOptions" Value="Center"/>
                 <Setter Property="HorizontalTextAlignment" Value="Center"/>
             </Style>
 
-            <Style TargetType="Picker" x:Key="BoxedPicker" BasedOn="{StaticResource PrimaryPicker}">
-                <Setter Property="BackgroundColor" Value="Transparent"/>
+            <Style TargetType="Label" x:Key="ChipChevron">
+                <Setter Property="Text" Value="▾"/>
+                <Setter Property="TextColor" Value="{StaticResource Accent}"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+                <Setter Property="InputTransparent" Value="True"/>
+            </Style>
+
+            <!-- Kept for pickers that are not in a chip -->
+            <Style TargetType="Picker" x:Key="PrimaryPicker" BasedOn="{StaticResource ChipPicker}" />
+
+            <Style TargetType="Picker" x:Key="BoxedPicker" BasedOn="{StaticResource ChipPicker}">
                 <Setter Property="HorizontalTextAlignment" Value="Start"/>
-                <Setter Property="VerticalOptions" Value="End"/>
-                <Setter Property="FontSize" Value="16"/>
             </Style>
 
-            <!-- Border -->
-            <Style TargetType="Border" x:Key="BoxContainer">
-                <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+            <Style TargetType="local:FormDatePicker" x:Key="PrimaryDatePicker">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="HorizontalOptions" Value="Center"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <!-- ══ Text inputs: same glass, softer corners ═════════════════════════ -->
+            <Style TargetType="Border" x:Key="GlassField">
+                <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
                 <Setter Property="StrokeThickness" Value="1"/>
-                <Setter Property="Padding" Value="8,4"/>
-                <Setter Property="Margin" Value="4,4,4,8"/>
-                <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
+                <Setter Property="Stroke" Value="{StaticResource GlassStroke}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource Glass}"/>
+                <Setter Property="Padding" Value="8,0"/>
+                <Setter Property="Margin" Value="2,2"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
             </Style>
 
-            <!-- Entry -->
-            <Style TargetType="Entry" x:Key="PrimaryEntry">
-                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="PlaceholderColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="FontSize" Value="16" />
-                <Setter Property="HorizontalOptions" Value="Center" />
+            <Style TargetType="SearchBar" x:Key="PrimarySearchBar">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextFaint}"/>
+                <Setter Property="CancelButtonColor" Value="{StaticResource TextSoft}"/>
+                <Setter Property="Placeholder" Value="Search..." />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="HorizontalOptions" Value="Fill" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>
 
-            <!-- ImageButton -->
+            <Style TargetType="Entry" x:Key="PrimaryEntry">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextFaint}"/>
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="HorizontalOptions" Value="Fill" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <!-- ══ Lists ══════════════════════════════════════════════════════════ -->
+            <Style TargetType="ListView" x:Key="PrimaryListView">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="SeparatorColor" Value="{StaticResource Divider}"/>
+            </Style>
+
+            <!-- One tournament / game in a CollectionView -->
+            <Style TargetType="Border" x:Key="Card">
+                <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stroke" Value="{StaticResource Divider}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource Glass}"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="Margin" Value="6,3"/>
+            </Style>
+
+            <!-- Slide-in "more" menu and the player games panel -->
+            <Style TargetType="Border" x:Key="BoxContainer">
+                <Setter Property="StrokeShape" Value="RoundRectangle 18"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Padding" Value="12"/>
+                <Setter Property="Margin" Value="4,4,4,8"/>
+                <Setter Property="Stroke" Value="{StaticResource GlassStroke}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource Panel}"/>
+            </Style>
+
+            <!-- Dimmed background behind menus / panels -->
+            <Style TargetType="BoxView" x:Key="PrimaryBoxView">
+                <Setter Property="Color" Value="{StaticResource Scrim}"/>
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+            </Style>
+
+            <!-- ══ Buttons ════════════════════════════════════════════════════════ -->
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Accent}"/>
+                <Setter Property="TextColor" Value="{StaticResource OnAccent}"/>
+                <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="BorderWidth" Value="0"/>
+                <Setter Property="CornerRadius" Value="18"/>
+                <Setter Property="Padding" Value="12,0"/>
+                <Setter Property="Margin" Value="0"/>
+                <Setter Property="HeightRequest" Value="36"/>
+            </Style>
+
+            <!-- Menu entries: quieter than the orange action button -->
+            <Style TargetType="Button" x:Key="MenuButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Glass}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                <Setter Property="BorderColor" Value="{StaticResource Divider}"/>
+                <Setter Property="BorderWidth" Value="1"/>
+                <Setter Property="FontFamily" Value="OpenSansRegular"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="12,0"/>
+                <Setter Property="HeightRequest" Value="40"/>
+            </Style>
+
+            <!-- The ⋮ "more" button in page corners -->
+            <Style TargetType="Button" x:Key="MoreButton">
+                <Setter Property="Text" Value="⋮"/>
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource Glass}"/>
+                <Setter Property="BorderWidth" Value="0"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="WidthRequest" Value="40"/>
+                <Setter Property="HeightRequest" Value="40"/>
+                <Setter Property="HorizontalOptions" Value="End"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
             <Style TargetType="ImageButton" x:Key="PrimaryImageButton">
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="BackgroundColor" Value="Transparent" />
             </Style>
 
-            <!-- BoxView -->
-            <Style TargetType="BoxView" x:Key="PrimaryBoxView">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-            </Style>
-                <!-- Button -->
-            <Style TargetType="Button" x:Key="PrimaryButton">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-                <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
-                <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Gray500}, Light={StaticResource Gray200}}"/>
-                <Setter Property="BorderWidth" Value="2"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="Margin" Value="0"/>
-            </Style>
-
-            <!-- ContentPage -->
-            <Style TargetType="ContentPage" x:Key="PrimaryContentPage">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-            </Style>
-
-            <!-- HorizontalStackLayout -->
-            <Style TargetType="HorizontalStackLayout" x:Key="PrimaryHorizontal">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-                <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="VerticalOptions" Value="Center" />
-                <Setter Property="Spacing" Value="3" />
-            </Style>
-
-            <!-- VerticalStackLayout -->
-            <Style TargetType="VerticalStackLayout" x:Key="PrimaryVertical">
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray300}}"/>
-                <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="VerticalOptions" Value="Center" />
-                <Setter Property="Spacing" Value="3" />
-                <Setter Property="Padding" Value="3" />
-            </Style>
-
-            <!-- ActivityIndicator -->
+            <!-- ══ Misc ═══════════════════════════════════════════════════════════ -->
             <Style TargetType="ActivityIndicator" x:Key="PrimaryActivity">
-                <Setter Property="Color" Value="{AppThemeBinding Dark={StaticResource Gray300}, Light={StaticResource Gray600}}"/>
+                <Setter Property="Color" Value="{StaticResource Accent}"/>
                 <Setter Property="HorizontalOptions" Value="End" />
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="WidthRequest" Value="30" />
