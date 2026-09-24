@@ -17,7 +17,11 @@ namespace RankingApp.Core.ViewModels.HelperClasses
             };
         }
 
-        public static List<PlayerListItem> Sort(List<PlayerDB> players, string sort)
+        /// <summary>
+        /// Place is always the rank by the chosen value from the top (highest = 1), also when shown
+        /// ascending - so "2400-2500" searches and the numbers keep meaning the same thing.
+        /// </summary>
+        public static List<PlayerListItem> Sort(List<PlayerDB> players, string sort, bool descending = true)
         {
             IEnumerable<PlayerDB> sorted = sort switch
             {
@@ -29,11 +33,16 @@ namespace RankingApp.Core.ViewModels.HelperClasses
 
             var list = sorted.ToList();
 
-            return [.. list.Select((p, index) => new PlayerListItem
+            var items = list.Select((p, index) => new PlayerListItem
             {
                 Player = p,
                 Place = index + 1
-            })];
+            }).ToList();
+
+            if (!descending)
+                items.Reverse();
+
+            return items;
         }
 
         public static List<PlayerListItem> Search(List<PlayerListItem> players, string? searchText)
