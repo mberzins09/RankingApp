@@ -18,14 +18,26 @@
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
     </views:BaseContentPage.Resources>
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="6, 36, 48, 40, *, 44, 4" ColumnDefinitions="10, 50, 50, *, 90, 40, 10" ColumnSpacing="0">
-        <!-- Row 1: ranking month -->
-        <Label Text="Downloaded" Style="{StaticResource CaptionLabel}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalOptions="Start"/>
-        <Label Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" FontSize="17" FontFamily="OpenSansSemibold" Style="{StaticResource PrimaryLabel}"
-               HorizontalOptions="Start" Text="{Binding AppDataLabel}"/>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="6, 48, 48, 40, *, 44, 4" ColumnDefinitions="10, 50, 50, *, 90, 40, 10" ColumnSpacing="0">
+        <!-- Row 1: downloaded ranking month + date picker to change it -->
+        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="*, Auto" ColumnSpacing="8">
+            <VerticalStackLayout Spacing="0" VerticalOptions="Center">
+                <Label Text="Downloaded" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
+                <Label FontSize="17" FontFamily="OpenSansSemibold" Style="{StaticResource PrimaryLabel}"
+                       HorizontalOptions="Start" Text="{Binding AppDataLabel}"/>
+            </VerticalStackLayout>
+            <Border Grid.Column="1" Style="{StaticResource PickerChip}" Padding="12,0">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="📅" FontSize="14" VerticalOptions="Center" InputTransparent="True"/>
+                    <rankingApp:FormDatePicker Date="{Binding SelectedDate, Mode=TwoWay}"
+                                               MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
+                                               Style="{StaticResource PrimaryDatePicker}"/>
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
 
-        <!-- Row 2: filter, sort, date -->
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="*, *, Auto" ColumnSpacing="8">
+        <!-- Row 2: filter, sort, sort direction -->
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="*, *, 40" ColumnSpacing="8">
             <Border Style="{StaticResource PickerChip}">
                 <Grid ColumnDefinitions="*, Auto">
                     <Picker Style="{StaticResource ChipPicker}" ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" />
@@ -38,14 +50,10 @@
                     <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
                 </Grid>
             </Border>
-            <Border Grid.Column="2" Style="{StaticResource PickerChip}" Padding="12,0">
-                <HorizontalStackLayout Spacing="6">
-                    <Label Text="📅" FontSize="14" VerticalOptions="Center" InputTransparent="True"/>
-                    <rankingApp:FormDatePicker Date="{Binding SelectedDate, Mode=TwoWay}"
-                                               MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
-                                               Style="{StaticResource PrimaryDatePicker}"/>
-                </HorizontalStackLayout>
-            </Border>
+            <!-- ↓ highest first / ↑ lowest first -->
+            <Button Grid.Column="2" Text="{Binding SortDirectionIcon}" Command="{Binding ToggleSortDirectionCommand}"
+                    Style="{StaticResource PrimaryButton}" Padding="0" WidthRequest="40" HeightRequest="36"
+                    CornerRadius="18" FontSize="18" VerticalOptions="Center"/>
         </Grid>
 
         <!-- Row 3: app player -->
@@ -64,16 +72,15 @@
             </Label.Text>
         </Label>
 
-        <!-- Row 4: search + player list -->
-        <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="48, 20, *" ColumnDefinitions="4, *, 50, 1, 55, 40, 4" Style="{StaticResource PrimaryGrid}">
-            <Border Grid.ColumnSpan="7" Style="{StaticResource GlassField}">
-                <SearchBar Style="{StaticResource PrimarySearchBar}" Placeholder="Search players" Text="{Binding SearchText, Mode=TwoWay}"/>
+        <!-- Row 4: search, count, player cards, pages -->
+        <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="48, 24, *, 46" Style="{StaticResource PrimaryGrid}">
+            <Border Style="{StaticResource GlassField}">
+                <SearchBar Style="{StaticResource PrimarySearchBar}" Placeholder="Search name or place (e.g. 2400-2500)" Text="{Binding SearchText, Mode=TwoWay}"/>
             </Border>
-            <Label Grid.Row="1" Grid.Column="1" Text="Player" Style="{StaticResource CaptionLabel}" FontSize="11" HorizontalOptions="Start" VerticalOptions="End"/>
-            <Label Grid.Row="1" Grid.Column="2" Text="Points" Style="{StaticResource CaptionLabel}" FontSize="11" VerticalOptions="End"/>
-            <Label Grid.Row="1" Grid.Column="4" Text="Bonus" Style="{StaticResource CaptionLabel}" FontSize="11" VerticalOptions="End"/>
-            <Label Grid.Row="1" Grid.Column="5" Text="+/-" Style="{StaticResource CaptionLabel}" FontSize="11" VerticalOptions="End"/>
-            <ListView Grid.Row="2" Grid.ColumnSpan="7" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}" SelectionMode="Single" ItemTapped="ListView_ItemTapped">
+            <Label Grid.Row="1" Text="{Binding PlayerCountLabel}" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start" Margin="4,0"/>
+
+            <ListView Grid.Row="2" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}"
+                      SelectionMode="Single" ItemTapped="ListView_ItemTapped" HasUnevenRows="True" SeparatorVisibility="None" Margin="-6,0">
                 <ListView.Behaviors>
                     <toolkit:EventToCommandBehavior
                         EventName="ItemSelected"
@@ -82,14 +89,33 @@
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:PlayerListItem">
                         <ViewCell>
-                            <Grid Style="{StaticResource PrimaryGrid}" ColumnDefinitions="4, *, 50, 1, 55, 40, 4">
-                                <Label Grid.Column="1" Style="{StaticResource ListItemLabel}" LineBreakMode="TailTruncation" MaxLines="1" HorizontalOptions="Start"
-                                       Text="{Binding Display}"/>
-                                <Label Grid.Column="2" Style="{StaticResource ListItemLabel}" Text="{Binding Points}"/>
-                                <Label Grid.Column="4" Style="{StaticResource ListItemLabel}" Text="{Binding PointsWithBonus}" FontFamily="OpenSansSemibold"/>
-                                <Label Grid.Column="5" Style="{StaticResource ListItemLabel}" Text="{Binding PointsChanged}"
-                                       TextColor="{Binding PointsChanged, Converter={StaticResource NumericToColorConverter}}"/>
-                            </Grid>
+                            <Border Style="{StaticResource Card}" Padding="12,6">
+                                <Grid RowDefinitions="Auto, Auto" RowSpacing="2">
+                                    <!-- Row 1: place, full name (wraps, never cut), age -->
+                                    <Label HorizontalOptions="Fill" HorizontalTextAlignment="Start" LineBreakMode="WordWrap">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding PlaceDisplay}" FontSize="13" TextColor="{StaticResource TextSoft}"/>
+                                                <Span Text=" "/>
+                                                <Span Text="{Binding FullName}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextMain}"/>
+                                                <Span Text="  "/>
+                                                <Span Text="{Binding AgeDisplay}" FontSize="12" TextColor="{StaticResource TextFaint}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <!-- Row 2: points, bonus, +/- at the end -->
+                                    <HorizontalStackLayout Grid.Row="1" HorizontalOptions="End" Spacing="6">
+                                        <Label Text="Points" Style="{StaticResource CaptionLabel}" FontSize="11"/>
+                                        <Label Text="{Binding Points}" FontSize="14" VerticalOptions="Center" MinimumWidthRequest="36" HorizontalTextAlignment="End"/>
+                                        <Label Text="Bonus" Style="{StaticResource CaptionLabel}" FontSize="11" Margin="8,0,0,0"/>
+                                        <Label Text="{Binding PointsWithBonus}" FontSize="14" FontFamily="OpenSansSemibold" VerticalOptions="Center"
+                                               MinimumWidthRequest="36" HorizontalTextAlignment="End"/>
+                                        <Label Text="{Binding PointsChanged}" FontSize="14" FontFamily="OpenSansSemibold" VerticalOptions="Center"
+                                               MinimumWidthRequest="40" HorizontalTextAlignment="End" Margin="8,0,0,0"
+                                               TextColor="{Binding PointsChanged, Converter={StaticResource NumericToColorConverter}}"/>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
                             <ViewCell.ContextActions>
                                 <MenuItem Text="Set as default player"
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetAsDefaultPlayerCommand}"
@@ -99,6 +125,16 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+
+            <!-- Pages of 200: « ‹ 3 / 13 › » -->
+            <HorizontalStackLayout Grid.Row="3" HorizontalOptions="Center" VerticalOptions="Center" Spacing="8">
+                <Button Text="«" Command="{Binding FirstPageCommand}" Style="{StaticResource MenuButton}" WidthRequest="44" HeightRequest="36" Padding="0" FontSize="18"/>
+                <Button Text="‹" Command="{Binding PreviousPageCommand}" Style="{StaticResource MenuButton}" WidthRequest="44" HeightRequest="36" Padding="0" FontSize="18"/>
+                <Label Text="{Binding PageLabel}" Style="{StaticResource PrimaryLabel}" FontFamily="OpenSansSemibold" FontSize="15"
+                       MinimumWidthRequest="70" HorizontalTextAlignment="Center"/>
+                <Button Text="›" Command="{Binding NextPageCommand}" Style="{StaticResource MenuButton}" WidthRequest="44" HeightRequest="36" Padding="0" FontSize="18"/>
+                <Button Text="»" Command="{Binding LastPageCommand}" Style="{StaticResource MenuButton}" WidthRequest="44" HeightRequest="36" Padding="0" FontSize="18"/>
+            </HorizontalStackLayout>
         </Grid>
 
         <!-- Row 5: reminder -->

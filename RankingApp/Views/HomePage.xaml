@@ -73,23 +73,33 @@
                     </Border>
                 </Grid>
 
-                <!-- Tournaments -->
+                <!-- Tournaments → tournament list -->
                 <Border Style="{StaticResource Card}" Margin="0">
-                    <Grid ColumnDefinitions="*, Auto">
+                    <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10">
                         <VerticalStackLayout Spacing="0">
                             <Label Text="Tournaments played" Style="{StaticResource CardTitle}"/>
                             <Label Text="{Binding TournamentCount}" Style="{StaticResource BigValue}"/>
                         </VerticalStackLayout>
                         <Label Grid.Column="1" Text="🏓" FontSize="30" VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Text="›" FontSize="24" TextColor="{StaticResource Accent}" VerticalOptions="Center"/>
                     </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TournamentsCard_Tapped"/>
+                    </Border.GestureRecognizers>
                 </Border>
 
-                <!-- Games / sets statistics (singles) -->
+                <!-- Games / sets statistics (singles) → All games -->
                 <Border Style="{StaticResource Card}" Margin="0">
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Singles statistics" Style="{StaticResource CardTitle}"/>
-                        <views:GameStatisticsView BindingContext="{Binding Stats}"/>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Text="Singles statistics" Style="{StaticResource CardTitle}"/>
+                            <Label Grid.Column="1" Text="›" FontSize="20" TextColor="{StaticResource Accent}" VerticalOptions="Center"/>
+                        </Grid>
+                        <views:GameStatisticsView BindingContext="{Binding Stats}" InputTransparent="True"/>
                     </VerticalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="StatsCard_Tapped"/>
+                    </Border.GestureRecognizers>
                 </Border>
 
                 <!-- Best in the selected years -->
@@ -109,10 +119,14 @@
                     </Grid>
                 </Border>
 
-                <!-- Now -->
+                <!-- Now → rankings (whether the values come from the ranking or the last game) -->
                 <Border Style="{StaticResource Card}" Margin="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="NowCard_Tapped"/>
+                    </Border.GestureRecognizers>
                     <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="12" RowSpacing="4">
                         <Label Grid.ColumnSpan="2" Text="📍 Now" Style="{StaticResource CardTitle}"/>
+                        <Label Grid.Column="1" Text="›" FontSize="20" TextColor="{StaticResource Accent}" HorizontalOptions="End" VerticalOptions="Center"/>
                         <VerticalStackLayout Grid.Row="1" Spacing="0">
                             <Label Text="Current place" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
                             <Label Text="{Binding CurrentPlace}" Style="{StaticResource BigValue}"/>

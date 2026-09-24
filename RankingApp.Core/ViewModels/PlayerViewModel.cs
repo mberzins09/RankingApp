@@ -72,6 +72,62 @@ namespace RankingApp.Core.ViewModels
         public List<string> FilterOptions { get; } = ["Men", "Women", "AllActive", "Inactive", "All"];
         public List<string> SortOptions { get; } = ["PointsWithBonus", "Points", "PointsChanged", "Age"];
 
+        // ── Sort direction ────────────────────────────────────────────────
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SortDirectionIcon))]
+        private bool sortDescending = true;
+
+        public string SortDirectionIcon => SortDescending ? "↓" : "↑";
+
+        [RelayCommand]
+        private void ToggleSortDirection() => SortDescending = !SortDescending;
+
+        partial void OnSortDescendingChanged(bool value) => SortPlayers();
+
+        // ── Paging: 200 players per page, search runs over all players first ──
+        private const int PageSize = 200;
+        private List<PlayerListItem> _searchResult = [];
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PageLabel))]
+        [NotifyCanExecuteChangedFor(nameof(PreviousPageCommand), nameof(FirstPageCommand), nameof(NextPageCommand), nameof(LastPageCommand))]
+        private int currentPage = 1;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PageLabel))]
+        [NotifyCanExecuteChangedFor(nameof(PreviousPageCommand), nameof(FirstPageCommand), nameof(NextPageCommand), nameof(LastPageCommand))]
+        private int pageCount = 1;
+
+        /// <summary>"2512 players" or, while searching, "12 found".</summary>
+        [ObservableProperty]
+        private string playerCountLabel = "";
+
+        public string PageLabel => $"{CurrentPage} / {PageCount}";
+
+        private bool CanGoBack() => CurrentPage > 1;
+        private bool CanGoForward() => CurrentPage < PageCount;
+
+        [RelayCommand(CanExecute = nameof(CanGoBack))]
+        private void FirstPage() => ShowPage(1);
+
+        [RelayCommand(CanExecute = nameof(CanGoBack))]
+        private void PreviousPage() => ShowPage(CurrentPage - 1);
+
+        [RelayCommand(CanExecute = nameof(CanGoForward))]
+        private void NextPage() => ShowPage(CurrentPage + 1);
+
+        [RelayCommand(CanExecute = nameof(CanGoForward))]
+        private void LastPage() => ShowPage(PageCount);
+
+        private void ShowPage(int page)
+        {
+            PageCount = Math.Max(1, (int)Math.Ceiling(_searchResult.Count / (double)PageSize));
+            CurrentPage = Math.Clamp(page, 1, PageCount);
+
+            Players = new ObservableCollection<PlayerListItem>(
+                _searchResult.Skip((CurrentPage - 1) * PageSize).Take(PageSize));
+        }
+
         [RelayCommand]
         public async Task SetAsDefaultPlayerAsync(PlayerDB player)
         {
@@ -265,7 +321,7 @@ namespace RankingApp.Core.ViewModels
             if (_filteredPlayers == null)
                 return;
 
-            _sortedPlayers = PlayerLogic.Sort(_filteredPlayers, SelectedSort);
+            _sortedPlayers = PlayerLogic.Sort(_filteredPlayers, SelectedSort, SortDescending);
             ApplySearch();
         }
 
@@ -274,8 +330,14 @@ namespace RankingApp.Core.ViewModels
             if (_sortedPlayers == null)
                 return;
 
-            var result = PlayerLogic.Search(_sortedPlayers, SearchText);
-            Players = new ObservableCollection<PlayerListItem>(result);
+            _searchResult = PlayerLogic.Search(_sortedPlayers, SearchText);
+
+            PlayerCountLabel = string.IsNullOrWhiteSpace(SearchText)
+                ? $"{_searchResult.Count} players"
+                : $"{_searchResult.Count} found";
+
+            // New filter / sort / search → back to the first page
+            ShowPage(1);
         }
 
         private async Task UpdateAppDataLabel()

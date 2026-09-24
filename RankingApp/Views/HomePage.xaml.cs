@@ -37,6 +37,23 @@ public partial class HomePage : BaseContentPage
         await _viewModel.LoadDataAsync();
     }
 
+    // ── Tappable cards ───────────────────────────────────────────────────
+
+    private async void TournamentsCard_Tapped(object? sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(AllTournaments));
+    }
+
+    private async void StatsCard_Tapped(object? sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(AllGames));
+    }
+
+    private async void NowCard_Tapped(object? sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(AllPlayerRanking));
+    }
+
     // ── ⋮ menu ───────────────────────────────────────────────────────────
 
     private void MoreMenuPanel_SizeChanged(object? sender, EventArgs e)
