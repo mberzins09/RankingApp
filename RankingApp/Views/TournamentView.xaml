@@ -69,30 +69,49 @@
         </Border>
 
         <!-- Row 4: games -->
-        <ListView Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" ItemsSource="{Binding DisplayGames}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                  Style="{StaticResource PrimaryListView}" HasUnevenRows="True">
-            <ListView.ItemTemplate>
+        <!-- CollectionView (not ListView): the ListView could stop scrolling on Android when the
+             Auto rows above it (auto-growing name Editor, stats card) changed size -->
+        <CollectionView Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" Margin="-6,0"
+                        ItemsSource="{Binding DisplayGames}" SelectionMode="Single" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+            <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="model:IGame">
-                    <ViewCell>
-                        <ViewCell.ContextActions>
-                            <MenuItem Text="Delete" IsDestructive="True"
-                              Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
-                              CommandParameter="{Binding .}" />
-                        </ViewCell.ContextActions>
-                        <Grid ColumnDefinitions="*, 44, 40" Padding="4,10">
-                            <VerticalStackLayout Spacing="1" VerticalOptions="Center">
-                                <!-- Opponent first and big - "me" is the same in every row and already shown at the top -->
-                                <Label Text="{Binding GameDisplayOpp}" Style="{StaticResource ListItemLabel}" HorizontalOptions="Start" FontFamily="OpenSansSemibold"/>
-                                <Label Text="{Binding GameDisplayMe}" Style="{StaticResource ListItemSubLabel}" HorizontalOptions="Start"/>
-                            </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
-                            <Label Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" FontFamily="OpenSansSemibold"
-                                   TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
-                        </Grid>
-                    </ViewCell>
+                    <SwipeView BackgroundColor="Transparent">
+                        <!-- No grey "selected" flash: tapping opens the game -->
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroupList>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateGroupList>
+                        </VisualStateManager.VisualStateGroups>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Reveal">
+                                <SwipeItem Text="Delete" BackgroundColor="{StaticResource SwipeDelete}"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Border Style="{StaticResource Card}" Padding="12,8">
+                            <Grid ColumnDefinitions="*, 44, 40">
+                                <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                                    <!-- Opponent is the interesting part; me is already shown at the top of the page -->
+                                    <Label Text="{Binding GameDisplayOpp}" Style="{StaticResource ListItemLabel}" HorizontalOptions="Start" FontFamily="OpenSansSemibold"/>
+                                    <Label Text="{Binding GameDisplayMe}" Style="{StaticResource ListItemSubLabel}" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding Gamescore}" Style="{StaticResource ListItemLabel}" />
+                                <Label Grid.Column="2" Text="{Binding RatingDifference}" Style="{StaticResource ListItemLabel}" FontFamily="OpenSansSemibold"
+                                       TextColor="{Binding RatingDifference, Converter={StaticResource NumericToColorConverter}}"/>
+                            </Grid>
+                        </Border>
+                    </SwipeView>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
         <!-- Slide-in menu -->
         <Grid x:Name="MoreMenuOverlay" Grid.Row="0" Grid.RowSpan="6" Grid.Column="0" Grid.ColumnSpan="7" IsVisible="False" InputTransparent="False">
