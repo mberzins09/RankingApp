@@ -38,13 +38,20 @@ public partial class EventResultsPage : BaseContentPage
     private static Color ResourceColor(string key, Color fallback) =>
         Application.Current?.Resources.TryGetValue(key, out var value) == true && value is Color c ? c : fallback;
 
-    private void ShowSelected()
+    private int _showToken;
+    private string? _shownKey;
+    private int _shownVersion = -1;
+
+    private async void ShowSelected()
     {
         var option = _viewModel.SelectedOption;
+        int token = ++_showToken;
 
         if (option == null || option.Kind == ResultViewKind.Participants)
         {
             DrawingScroll.Content = null;
+            BusyIndicator.IsVisible = false;
+            _shownKey = null;
             return;
         }
 
@@ -54,13 +61,37 @@ public partial class EventResultsPage : BaseContentPage
             _cacheVersion = _viewModel.DataVersion;
         }
 
-        if (!_viewCache.TryGetValue(option.Key, out var view))
-        {
-            view = null;
+        // Already on screen (e.g. OnAppearing after the picker handled it)
+        if (_shownKey == option.Key && _shownVersion == _cacheVersion && DrawingScroll.Content != null)
+            return;
 
+        _shownKey = null;
+
+        if (_viewCache.TryGetValue(option.Key, out var cached))
+        {
+            DrawingScroll.Content = cached;
+            BusyIndicator.IsVisible = false;
+            _shownKey = option.Key;
+            _shownVersion = _cacheVersion;
+            return;
+        }
+
+        // Not built yet: clear the old drawing, show the spinner and let the UI paint it before the heavy work starts
+        DrawingScroll.Content = null;
+        BusyIndicator.IsVisible = true;
+        await Task.Delay(50);
+
+        if (token != _showToken)
+            return;
+
+        View? view = null;
+
+        try
+        {
             if (option.Kind == ResultViewKind.Stage)
             {
-                // Whole stage: heading with the places it is played for, then every group / bracket under each other
+                // Whole stage: heading with the places it is played for, then every group / bracket under each other.
+                // Parts are added one by one with a pause between them, so the page stays responsive and fills up gradually.
                 var stack = new VerticalStackLayout { Spacing = 24, Padding = new Thickness(0, 0, 0, 24) };
 
                 stack.Children.Add(new Label
@@ -70,6 +101,8 @@ public partial class EventResultsPage : BaseContentPage
                     FontAttributes = FontAttributes.Bold,
                     TextColor = ResourceColor("Accent", Colors.Orange)
                 });
+
+                DrawingScroll.Content = stack;
 
                 foreach (var key in option.ItemKeys)
                 {
@@ -89,7 +122,15 @@ public partial class EventResultsPage : BaseContentPage
                     }
 
                     if (part != null)
+                    {
                         stack.Children.Add(part);
+                        BusyIndicator.IsVisible = false; // first content is visible, the rest keeps arriving
+                    }
+
+                    await Task.Delay(1);
+
+                    if (token != _showToken)
+                        return; // another option was chosen meanwhile - drop this half-built page
                 }
 
                 view = stack;
@@ -108,16 +149,19 @@ public partial class EventResultsPage : BaseContentPage
                 if (bracket != null)
                     view = EventResultsDrawer.DrawBracket(bracket);
             }
-
-            if (view == null)
-            {
-                DrawingScroll.Content = null;
-                return;
-            }
-
-            _viewCache[option.Key] = view;
+        }
+        finally
+        {
+            if (token == _showToken)
+                BusyIndicator.IsVisible = false;
         }
 
+        if (token != _showToken || view == null)
+            return;
+
+        _viewCache[option.Key] = view;
+        _shownKey = option.Key;
+        _shownVersion = _cacheVersion;
         DrawingScroll.Content = view;
     }
 }

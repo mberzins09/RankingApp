@@ -65,6 +65,10 @@
             </CollectionView>
 
             <ScrollView x:Name="DrawingScroll" Orientation="Both" IsVisible="{Binding IsDrawingSelected}"/>
+            <VerticalStackLayout x:Name="BusyIndicator" IsVisible="False" Spacing="10" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,60,0,0">
+                <ActivityIndicator IsRunning="{Binding Source={x:Reference BusyIndicator}, Path=IsVisible}" HeightRequest="40" WidthRequest="40" HorizontalOptions="Center"/>
+                <Label Text="Drawing..." Style="{StaticResource PrimaryLabel}" FontSize="14" HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
         </Grid>
     </Grid>
 </views:BaseContentPage>
