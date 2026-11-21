@@ -18,7 +18,7 @@ public partial class AllPlayerRanking : BaseContentPage
     {
         base.OnAppearing();
         await _viewModel.LoadDataAsync();
-        _viewModel.SearchText = String.Empty;
+        // Search text is kept, like the other filters, when coming back to this page
     }
 
     private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)

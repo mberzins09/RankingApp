@@ -2,6 +2,7 @@ using RankingApp.Core.ViewModels;
 using RankingApp.Core.Models;
 using RankingApp.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using RankingApp.Core.Interfaces;
 
 namespace RankingApp.Views
 {
@@ -43,7 +44,15 @@ namespace RankingApp.Views
                 Order = ToolbarItemOrder.Primary,
                 Priority = 1
             };
-            _tournamentListToolbar.Command = new Command(async () => await SaveAndNavigateAsync(nameof(AllTournaments), typeof(AllTournaments)));
+            // Back to the list if it is the previous page (keeps its filters), otherwise open it
+            _tournamentListToolbar.Command = new Command(async () =>
+            {
+                await SaveInterfaceAsync();
+                if (Shell.Current?.CurrentPage?.GetType() == typeof(AllTournaments))
+                    return;
+
+                await (AppNavigation is { } nav ? nav.GoToTournamentListAsync() : Shell.Current!.GoToAsync(nameof(AllTournaments)));
+            });
 
             _rankingsToolbar = new ToolbarItem
             {
@@ -91,6 +100,10 @@ namespace RankingApp.Views
         }
 
         private void Shell_Navigated(object? sender, ShellNavigatedEventArgs e) => UpdateToolbarState();
+
+        /// <summary>App navigation service (passes ids as navigation parameters).</summary>
+        private static INavigationService? AppNavigation =>
+            IPlatformApplication.Current?.Services.GetService<INavigationService>();
 
         protected override void OnDisappearing()
         {
@@ -181,6 +194,12 @@ namespace RankingApp.Views
             if (currentType == destinationType)
                 return;
 
+            if (destinationType == typeof(TournamentView) && AppNavigation is { } nav && Data.TournamentId > 0)
+            {
+                await nav.GoToTournamentAsync(Data.TournamentId);
+                return;
+            }
+
             await Shell.Current.GoToAsync(routeName);
         }
 
@@ -203,10 +222,9 @@ namespace RankingApp.Views
 
                     if (allTournamentsvm != null)
                     {
-                        await allTournamentsvm.CreateNewTournamentSave();
+                        await allTournamentsvm.CreateAndOpenTournamentAsync();
                     }
 
-                    await Shell.Current.GoToAsync(nameof(TournamentView));
                     return;
                 }
 
@@ -214,10 +232,9 @@ namespace RankingApp.Views
                 {
                     if (vm is TournamentViewModel tournamentvm)
                     {
-                        await tournamentvm.CreateNewGameAsync(false);
+                        await tournamentvm.AddGameAsync(false);
                     }
 
-                    await Shell.Current.GoToAsync(nameof(GameView));
                     return;
                 }
             }

@@ -65,15 +65,13 @@ public partial class TournamentView : BaseContentPage
     private async void MenuAddGame_Clicked(object? sender, EventArgs e)
     {
         await CloseMenuAsync();
-        await _viewModel.CreateNewGameAsync(false);
-        await Shell.Current.GoToAsync(nameof(GameView));
+        await _viewModel.AddGameAsync(false);
     }
 
     private async void MenuAddDoubles_Clicked(object? sender, EventArgs e)
     {
         await CloseMenuAsync();
-        await _viewModel.CreateNewGameAsync(true);
-        await Shell.Current.GoToAsync(nameof(DoublesGameView));
+        await _viewModel.AddGameAsync(true);
     }
 
     private async void FixGames_Clicked(object? sender, EventArgs e)
@@ -85,8 +83,7 @@ public partial class TournamentView : BaseContentPage
     private async void MenuSave_Clicked(object? sender, EventArgs e)
     {
         await CloseMenuAsync();
-        await _viewModel.SaveTournamentAsync();
-        await Shell.Current.GoToAsync(nameof(AllTournaments));
+        await _viewModel.SaveAndGoToTournamentListAsync();
     }
 
     private void Entry_Focused(object sender, FocusEventArgs e)

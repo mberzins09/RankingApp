@@ -13,6 +13,14 @@ public partial class GameView : BaseContentPage
         BindingContext = _viewModel;
     }
 
+    protected override async void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        // Last safety net: whatever way the page is left, the game is stored
+        await _viewModel.SaveGameAsync();
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -24,7 +32,7 @@ public partial class GameView : BaseContentPage
     private async void ButtonGameSave_OnClicked(object? sender, EventArgs e)
     {
         await _viewModel.SaveGameAsync();
-        await Shell.Current.GoToAsync(nameof(TournamentView));
+        await _viewModel.ReturnToTournamentAsync();
     }
 
     private async void EntryOppName_OnTextChanged(object? sender, TextChangedEventArgs e)

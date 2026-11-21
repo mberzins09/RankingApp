@@ -188,10 +188,7 @@ namespace RankingApp.Core.ViewModels
                 return;
             }
 
-            Data.TournamentId = game.TournamentId;
-            Data.GameId = game.Id;
-
-            await _navigation.GoToAsync("TournamentView");
+            await _navigation.GoToTournamentAsync(game.TournamentId);
         }
 
         [RelayCommand]
@@ -202,17 +199,7 @@ namespace RankingApp.Core.ViewModels
                 return;
             }
 
-            Data.TournamentId = game.TournamentId;
-            Data.GameId = game.Id;
-
-            if (game is Game)
-            {
-                await _navigation.GoToAsync("GameView");
-            }
-            else if (game is DoublesGame)
-            {
-                await _navigation.GoToAsync("DoublesGameView");
-            }
+            await _navigation.GoToGameAsync(game);
         }
 
         public async Task LoadDataAsync()
@@ -230,12 +217,15 @@ namespace RankingApp.Core.ViewModels
                 .OrderByDescending(y => y)
                 .ToList();
 
+            // Keep the chosen year when coming back (e.g. from a game opened from this list)
+            int keepYear = allYears.Contains(SelectedYear) ? SelectedYear : 0;
+
             Years.Clear();
             Years.Add(0);
             foreach (var year in allYears)
                 Years.Add(year);
 
-            SelectedYear = 0;
+            SelectedYear = keepYear;
             OnPropertyChanged(nameof(SelectedYear));
             ApplyAllFilters();
 
