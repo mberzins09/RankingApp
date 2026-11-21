@@ -20,6 +20,7 @@ namespace RankingApp
             Routing.RegisterRoute(nameof(CalendarPage), typeof(CalendarPage));
             Routing.RegisterRoute(nameof(CalendarEventPage), typeof(CalendarEventPage));
             Routing.RegisterRoute(nameof(ResultsPage), typeof(ResultsPage));
+            Routing.RegisterRoute(nameof(EventResultsPage), typeof(EventResultsPage));
         }
     }
 }

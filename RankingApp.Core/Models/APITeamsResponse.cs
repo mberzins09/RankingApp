@@ -110,6 +110,25 @@ namespace RankingApp.Core.Models
         [JsonPropertyName("order")]
         public int Order { get; set; }
 
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        /// <summary>"groups", "single_elimination", ...</summary>
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("start_place")]
+        public int? StartPlace { get; set; }
+
+        [JsonPropertyName("end_place")]
+        public int? EndPlace { get; set; }
+
+        [JsonPropertyName("custom_name")]
+        public string? CustomName { get; set; }
+
+        [JsonPropertyName("use_custom_name")]
+        public bool UseCustomName { get; set; }
+
         [JsonPropertyName("groups")]
         public List<APINetGroup>? Groups { get; set; }
 
@@ -119,18 +138,66 @@ namespace RankingApp.Core.Models
 
     public class APINetGroup
     {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("group_number")]
+        public int GroupNumber { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("use_custom_name")]
+        public bool UseCustomName { get; set; }
+
+        [JsonPropertyName("players")]
+        public List<APIGroupPlayer>? Players { get; set; }
+
         [JsonPropertyName("games")]
         public List<APINetGame>? Games { get; set; }
     }
 
+    public class APIGroupPlayer
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = "";
+
+        [JsonPropertyName("surname")]
+        public string Surname { get; set; } = "";
+
+        [JsonPropertyName("position")]
+        public int Position { get; set; }
+
+        [JsonPropertyName("points")]
+        public int? Points { get; set; }
+    }
+
     public class APIEliminationTree
     {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("start_place")]
+        public int? StartPlace { get; set; }
+
+        [JsonPropertyName("end_place")]
+        public int? EndPlace { get; set; }
+
         [JsonPropertyName("rounds")]
         public List<APIRound>? Rounds { get; set; }
     }
 
     public class APIRound
     {
+        [JsonPropertyName("round")]
+        public int Round { get; set; }
+
         [JsonPropertyName("games")]
         public List<APINetGame>? Games { get; set; }
     }
@@ -158,6 +225,15 @@ namespace RankingApp.Core.Models
 
         [JsonPropertyName("player2_score")]
         public string? Player2Score { get; set; }
+
+        [JsonPropertyName("player1_points")]
+        public int? Player1Points { get; set; }
+
+        [JsonPropertyName("player2_points")]
+        public int? Player2Points { get; set; }
+
+        [JsonPropertyName("winner")]
+        public APIGamePlayer? Winner { get; set; }
 
         /// <summary>Doubles only, e.g. { "id": 1704, "name": "Nikolajs Golubevs / Anrijs Bergs" }</summary>
         [JsonPropertyName("player1_doubles_pair")]

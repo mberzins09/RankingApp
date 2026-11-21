@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:RankingApp.Views"
+             xmlns:viewmodel="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
+             xmlns:model="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"
+             x:Class="RankingApp.Views.EventResultsPage"
+             x:DataType="viewmodel:EventResultsViewModel"
+             Title="Event results"
+             Style="{StaticResource PrimaryContentPage}">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="Auto, 52, Auto, *, 6" ColumnDefinitions="10, *, 10" RowSpacing="6">
+        <!-- Row 0: competition + event name, date / time / coefficient -->
+        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Card}" Margin="0,6,0,0">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding Title}" Style="{StaticResource ListItemLabel}" FontSize="15" FontFamily="OpenSansSemibold"
+                       HorizontalOptions="Start" HorizontalTextAlignment="Start"/>
+                <Label Text="{Binding Info}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
+                       HorizontalOptions="Start" HorizontalTextAlignment="Start"/>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Row 1: what to show (participants / groups / play-offs) -->
+        <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*, Auto, Auto, Auto" ColumnSpacing="8">
+            <Border Style="{StaticResource PickerChip}">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Picker Title="Show" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedOption}" Style="{StaticResource ChipPicker}"/>
+                    <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+                </Grid>
+            </Border>
+            <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                               HeightRequest="20" WidthRequest="20" VerticalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="Center">
+                <Label Text="By stage" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="Center"/>
+                <Switch IsToggled="{Binding SortByStage}" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+            <Button Grid.Column="3" Text="⟳" Command="{Binding RefreshCommand}" Style="{StaticResource PrimaryButton}"
+                    HeightRequest="40" VerticalOptions="Center"/>
+        </Grid>
+
+        <!-- Row 2: status -->
+        <Label Grid.Row="2" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource PrimaryLabel}" FontSize="14"
+               HorizontalTextAlignment="Center"/>
+
+        <!-- Row 3: participants list OR a drawn group table / bracket (built in code, cached per option) -->
+        <Grid Grid.Row="3" Grid.Column="1">
+            <CollectionView Margin="-6,0" ItemsSource="{Binding Participants}" SelectionMode="None" IsVisible="{Binding IsParticipantsSelected}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:CalendarParticipantItem">
+                        <Grid Padding="6,2">
+                            <Border Style="{StaticResource Card}" Margin="0" Padding="12,8">
+                                <Grid ColumnDefinitions="34, *, Auto" ColumnSpacing="6">
+                                    <Label Text="{Binding Position, StringFormat='{0}.'}" Style="{StaticResource ListItemSubLabel}"
+                                           HorizontalOptions="Start" VerticalOptions="Center"/>
+                                    <Label Grid.Column="1" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" FontSize="14"
+                                           HorizontalOptions="Start" HorizontalTextAlignment="Start" VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation" MaxLines="1"/>
+                                    <Label Grid.Column="2" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontSize="14"
+                                           FontFamily="OpenSansSemibold" TextColor="{StaticResource Accent}"
+                                           HorizontalOptions="End" VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <ScrollView x:Name="DrawingScroll" Orientation="Both" IsVisible="{Binding IsDrawingSelected}"/>
+        </Grid>
+    </Grid>
+</views:BaseContentPage>

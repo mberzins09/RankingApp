@@ -2,11 +2,55 @@
 <views:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:RankingApp.Views"
+             xmlns:viewmodel="clr-namespace:RankingApp.Core.ViewModels;assembly=RankingApp.Core"
+             xmlns:model="clr-namespace:RankingApp.Core.Models;assembly=RankingApp.Core"
              x:Class="RankingApp.Views.ResultsPage"
+             x:DataType="viewmodel:ResultsViewModel"
              Title="Results"
              Style="{StaticResource PrimaryContentPage}">
-    <Grid Style="{StaticResource PrimaryGrid}">
-        <Label Text="Results - coming soon" Style="{StaticResource PrimaryLabel}" FontSize="16"
-               HorizontalOptions="Center" VerticalOptions="Center"/>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="56, Auto, *, 6" ColumnDefinitions="10, *, 10" RowSpacing="4">
+        <!-- Row 0: year + month + loading indicator -->
+        <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="Auto, Auto, *, Auto" ColumnSpacing="10">
+            <Border Style="{StaticResource PickerChip}" WidthRequest="100">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Picker Title="Year" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Style="{StaticResource ChipPicker}"/>
+                    <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource PickerChip}" WidthRequest="150">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Picker Title="Month" ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Style="{StaticResource ChipPicker}"/>
+                    <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+                </Grid>
+            </Border>
+            <ActivityIndicator Grid.Column="3" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                               HeightRequest="20" WidthRequest="20" VerticalOptions="Center"/>
+        </Grid>
+
+        <!-- Row 1: status -->
+        <Label Grid.Row="1" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource PrimaryLabel}" FontSize="14"
+               HorizontalTextAlignment="Center"/>
+
+        <!-- Row 2: events -->
+        <CollectionView Grid.Row="2" Grid.Column="1" Margin="-6,0" ItemsSource="{Binding Events}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:CalendarEventItem">
+                    <Grid Padding="6,3">
+                        <Border Style="{StaticResource Card}" Margin="0">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding Title}" Style="{StaticResource ListItemLabel}" FontSize="13"
+                                       FontFamily="OpenSansSemibold" HorizontalOptions="Start" HorizontalTextAlignment="Start"/>
+                                <Label Text="{Binding Subtitle}" Style="{StaticResource ListItemSubLabel}" FontSize="12"
+                                       HorizontalOptions="Start" HorizontalTextAlignment="Start"/>
+                            </VerticalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenEventCommand}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </Grid>
 </views:BaseContentPage>
