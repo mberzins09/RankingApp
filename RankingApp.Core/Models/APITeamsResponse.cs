@@ -71,6 +71,9 @@ namespace RankingApp.Core.Models
         [JsonPropertyName("start_date")]
         public string StartDate { get; set; } = "";
 
+        [JsonPropertyName("start_time")]
+        public string? StartTime { get; set; }
+
         [JsonPropertyName("end_date")]
         public string EndDate { get; set; } = "";
 
@@ -94,6 +97,9 @@ namespace RankingApp.Core.Models
 
         [JsonPropertyName("surname")]
         public string Surname { get; set; } = "";
+
+        [JsonPropertyName("birth_date")]
+        public string? BirthDate { get; set; }
 
         [JsonPropertyName("team_name")]
         public string? TeamName { get; set; }

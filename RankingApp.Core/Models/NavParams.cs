@@ -8,6 +8,10 @@
     {
         public const string TournamentId = "tournamentId";
         public const string GameId = "gameId";
+        public const string EventId = "eventId";
+
+        /// <summary>Shell route of the calendar event page (same as nameof(CalendarEventPage) registered in AppShell).</summary>
+        public const string CalendarEventRoute = "CalendarEventPage";
 
         /// <summary>Reads an int parameter - accepts int or numeric string, ignores 0 / missing.</summary>
         public static bool TryGetInt(IDictionary<string, object> query, string key, out int value)
