@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Microsoft.Maui.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RankingApp.Core.Interfaces;
 using RankingApp.Core.Models;
@@ -11,9 +12,30 @@ using Game = RankingApp.Core.Models.Game;
 
 namespace RankingApp.Core.ViewModels
 {
-    public partial class TournamentViewModel(IDatabaseService database, IPlayerRepositoryWithDate playerRepository, ApiGameImporterService importer, TournamentService tournamentService, INavigationService navigation) : BaseViewModel, ISaveBeforeNavigate
+    public partial class TournamentViewModel(IDatabaseService database, IPlayerRepositoryWithDate playerRepository, ApiGameImporterService importer, TournamentService tournamentService, INavigationService navigation) : BaseViewModel, ISaveBeforeNavigate, IQueryAttributable
     {
         private readonly INavigationService _navigation = navigation;
+
+        // ── Which tournament is shown ─────────────────────────────────────
+        // Set from the navigation parameter "tournamentId"; Data.TournamentId is only the
+        // fallback (and is kept in sync) for any navigation that comes without a parameter.
+        private int _pendingTournamentId;
+        private int _tournamentId;
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (NavParams.TryGetInt(query, NavParams.TournamentId, out int id))
+            {
+                _pendingTournamentId = id;
+                Data.TournamentId = id;
+            }
+        }
+
+        private void SetCurrentTournament(int id)
+        {
+            _tournamentId = id;
+            Data.TournamentId = id;
+        }
         private readonly IDatabaseService _database = database;
         private readonly IPlayerRepositoryWithDate _playerRepository = playerRepository;
         private readonly ApiGameImporterService _importer = importer;
@@ -84,23 +106,25 @@ namespace RankingApp.Core.ViewModels
             }
         }
 
+        /// <summary>
+        /// Opens a game when its card is tapped. (Not through list selection: swiping and tapping
+        /// "Delete" also selected the row, which opened the game that was just being deleted.)
+        /// </summary>
+        [RelayCommand]
+        private async Task OpenGameAsync(IGame? game)
+        {
+            if (game == null)
+                return;
+
+            await _navigation.GoToGameAsync(game);
+        }
+
         partial void OnSelectedItemChanged(IGame? value)
         {
             if (value is null)
                 return;
 
-            switch (value)
-            {
-                case Game game:
-                    Data.GameId = game.Id;
-                    _navigation.GoToAsync("GameView");
-                    break;
-
-                case DoublesGame doublesGame:
-                    Data.GameId = doublesGame.Id;
-                    _navigation.GoToAsync("DoublesGameView");
-                    break;
-            }
+            _ = _navigation.GoToGameAsync(value);
 
             SelectedItem = null;
         }
@@ -113,6 +137,12 @@ namespace RankingApp.Core.ViewModels
             }
         }
 
+        public async Task SaveAndGoToTournamentListAsync()
+        {
+            await SaveTournamentAsync();
+            await _navigation.GoToTournamentListAsync();
+        }
+
         public async Task LoadDataAsync()
         {
             _appData = await _database.GetAppDataAsync();
@@ -121,16 +151,20 @@ namespace RankingApp.Core.ViewModels
             {
                 _databasePlayers = await _database.GetAllRecordsAsync<PlayerDB>();
             }
-            OneTournament = await GetTournamentAsync(Data.TournamentId);
+            // Navigation parameter wins; without one, fall back to Data (the old way)
+            SetCurrentTournament(_pendingTournamentId > 0 ? _pendingTournamentId : Data.TournamentId);
+            _pendingTournamentId = 0;
+
+            OneTournament = await GetTournamentAsync(_tournamentId);
             
             if (OneTournament == null)
             {
                 var tournaments = await _database.GetAllRecordsAsync<Tournament>();
                 var last = tournaments.OrderByDescending(t => t.Date).ThenByDescending(t => t.Id).FirstOrDefault();
                 if (last != null)
-                    Data.TournamentId = last.Id;
+                    SetCurrentTournament(last.Id);
 
-                OneTournament = await GetTournamentAsync(Data.TournamentId);
+                OneTournament = await GetTournamentAsync(_tournamentId);
             }
 
             await LoadGamesAsync();
@@ -198,14 +232,23 @@ namespace RankingApp.Core.ViewModels
 
         public async Task LoadGamesAsync()
         {
-            OneTournament = await GetTournamentAsync(Data.TournamentId);
+            if (_tournamentId == 0)
+                SetCurrentTournament(Data.TournamentId);
+
+            OneTournament = await GetTournamentAsync(_tournamentId);
             var allGames = await _database.GetAllRecordsAsync<Game>();
-            _games = [.. allGames.Where(x => x.TournamentId == Data.TournamentId)];
+            _games = [.. allGames.Where(x => x.TournamentId == _tournamentId)];
 
             var allDoublesGames = await _database.GetAllRecordsAsync<DoublesGame>();
-            _doubleGames = [.. allDoublesGames.Where(x => x.TournamentId == Data.TournamentId)];
+            _doubleGames = [.. allDoublesGames.Where(x => x.TournamentId == _tournamentId)];
 
-            OneTournament.PointsDifference = allGames.Where(x => x.TournamentId == Data.TournamentId).Sum(x => x.RatingDifference);
+            if (OneTournament == null)
+            {
+                RefreshDisplayGames();
+                return;
+            }
+
+            OneTournament.PointsDifference = _games.Sum(x => x.RatingDifference);
 
             RefreshDisplayGames();
         }
@@ -283,7 +326,14 @@ namespace RankingApp.Core.ViewModels
             Stats = GameStatisticsCalculator.Calculate(DisplayGames);
         }
 
-        public async Task CreateNewGameAsync(bool isDoubles)
+        /// <summary>Creates a new singles/doubles game in this tournament and opens it.</summary>
+        public async Task AddGameAsync(bool isDoubles)
+        {
+            var game = await CreateNewGameAsync(isDoubles);
+            await _navigation.GoToGameAsync(game);
+        }
+
+        public async Task<IGame> CreateNewGameAsync(bool isDoubles)
         {
             var player = new PlayerDB()
             {
@@ -319,7 +369,7 @@ namespace RankingApp.Core.ViewModels
             string name = player.Name == "Edgars(R)" ? "Edgars" : player.Name;
             string coef = OneTournament?.Coefficient ?? "0.5";
             DateTime tDate = OneTournament?.Date ?? DateTime.Today;
-            int tournamentId = OneTournament?.Id ?? Data.TournamentId;
+            int tournamentId = OneTournament?.Id ?? _tournamentId;
             string tournamentName = OneTournament?.Name;
 
             if (isDoubles)
@@ -340,6 +390,7 @@ namespace RankingApp.Core.ViewModels
 
                 await _database.SaveAsync<DoublesGame>(doublesGame);
                 Data.GameId = doublesGame.Id;
+                return doublesGame;
             }
             else
             {
@@ -361,6 +412,7 @@ namespace RankingApp.Core.ViewModels
 
                 await _database.SaveAsync<Game>(game);
                 Data.GameId = game.Id;
+                return game;
             }
         }
 

@@ -39,8 +39,7 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
     private async Task TournamentSelectedAsync(Tournament tournament)
     {
         if (tournament == null) return;
-        Data.TournamentId = tournament.Id;
-        await _navigation.GoToAsync("TournamentView");
+        await _navigation.GoToTournamentAsync(tournament.Id);
     }
 
     [RelayCommand]
@@ -69,8 +68,7 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
         if (tournament == null)
             return;
 
-        Data.TournamentId = tournament.Id;
-        await _navigation.GoToAsync("EditTournamentPlayer");
+        await _navigation.GoToEditTournamentPlayerAsync(tournament.Id);
     }
 
     [RelayCommand]
@@ -128,6 +126,10 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
         }
 
         var uniqueYears = _allTournaments.Select(t => t.Date.Year).Distinct().OrderByDescending(y => y).ToList();
+
+        // Keep the chosen year when coming back to the list (unless that year no longer exists)
+        int keepYear = uniqueYears.Contains(SelectedYear) ? SelectedYear : 0;
+
         Years.Clear();
         Years.Add(0);
         foreach (var year in uniqueYears)
@@ -135,7 +137,7 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
             Years.Add(year);
         }
 
-        SelectedYear = 0;
+        SelectedYear = keepYear;
         OnPropertyChanged(nameof(SelectedYear));
 
         ApplyAllFilters();
@@ -231,6 +233,13 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
 
         await _database.SaveAsync<Tournament>(tournament);
         Data.TournamentId = tournament.Id;
+    }
+
+    /// <summary>Creates a tournament for the app player and opens it.</summary>
+    public async Task CreateAndOpenTournamentAsync()
+    {
+        await CreateNewTournamentSave();
+        await _navigation.GoToTournamentAsync(Data.TournamentId);
     }
 
     public async Task CheckRankingUpdateAsync(DateTime systemDate)

@@ -157,10 +157,7 @@ namespace RankingApp.Core.ViewModels
                 return;
             }
 
-            Data.TournamentId = game.TournamentId;
-            Data.GameId = game.Id;
-
-            await _navigation.GoToAsync("TournamentView");
+            await _navigation.GoToTournamentAsync(game.TournamentId);
         }
 
         [RelayCommand]
@@ -171,17 +168,7 @@ namespace RankingApp.Core.ViewModels
                 return;
             }
 
-            Data.TournamentId = game.TournamentId;
-            Data.GameId = game.Id;
-
-            if (game is Game)
-            {
-                await _navigation.GoToAsync("GameView");
-            }
-            else if (game is DoublesGame)
-            {
-                await _navigation.GoToAsync("DoublesGameView");
-            }
+            await _navigation.GoToGameAsync(game);
         }
 
         [RelayCommand]
@@ -262,7 +249,12 @@ namespace RankingApp.Core.ViewModels
             _cachedAppData = await _playerService.GetAppDataAsync();
             RemindRankingUpdate = _cachedAppData.RemindRankingUpdate;
             AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(_cachedAppData);
+
+            // Filter, sort and search are kept in this view model; also stay on the same page
+            int keepPage = CurrentPage;
             FilterPlayers();
+            ShowPage(keepPage);
+
             await UpdateAppDataLabel();
         }
 

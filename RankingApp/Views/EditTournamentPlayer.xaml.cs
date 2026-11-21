@@ -21,6 +21,6 @@ public partial class EditTournamentPlayer : ContentPage
 
     private async void ButtonSave_OnClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(TournamentView));
+        await _viewModel.ReturnToTournamentAsync();
     }
 }

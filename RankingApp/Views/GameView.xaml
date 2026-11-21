@@ -38,21 +38,21 @@
             <Label Text="{Binding OneGame.Surname}" Style="{StaticResource PrimaryLabel}" FontSize="14" FontFamily="OpenSansSemibold"/>
         </HorizontalStackLayout>
         <!-- Row 3 -->
-        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyPlace}"/>
+        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.MyPlace}"/>
         <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Place"/>
-        <Label Grid.Row="3" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentPlace}"/>
+        <Label Grid.Row="3" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.OpponentPlace}"/>
         <!-- Row 4 -->
-        <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyPoints}"/>
+        <Label Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.MyPoints}"/>
         <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Points"/>
-        <Label Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentPoints}"/>
+        <Label Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.OpponentPoints}"/>
         <!-- Row 5 -->
-        <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyPointsWithBonus}"/>
-        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="With bonus"/>
-        <Label Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentPointsWithBonus}"/>
+        <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.MyPointsWithBonus}"/>
+        <Label Grid.Row="5" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="P+Bonus"/>
+        <Label Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.OpponentPointsWithBonus}"/>
         <!-- Row 6 -->
-        <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.MyAge}"/>
+        <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.MyAge}"/>
         <Label Grid.Row="6" Grid.Column="4" Style="{StaticResource CaptionLabel}" Text="Age"/>
-        <Label Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" Text="{Binding OneGame.OpponentAge}"/>
+        <Label Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="14" Text="{Binding OneGame.OpponentAge}"/>
         <!-- Row 7: sets -->
         <Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource PickerChip}" WidthRequest="64">
             <Grid ColumnDefinitions="*, Auto">

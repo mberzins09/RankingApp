@@ -47,7 +47,7 @@
             <!-- Small lavender caption: "Coef", column headers, "Place", "Points" ... -->
             <Style TargetType="Label" x:Key="CaptionLabel">
                 <Setter Property="TextColor" Value="{StaticResource TextSoft}"/>
-                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontSize" Value="10" />
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>

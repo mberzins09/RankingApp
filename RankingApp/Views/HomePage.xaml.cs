@@ -99,8 +99,7 @@ public partial class HomePage : BaseContentPage
     private async void MenuAdd_Clicked(object sender, EventArgs e)
     {
         await CloseMenuAsync();
-        await _tournamentsViewModel.CreateNewTournamentSave();
-        await Shell.Current.GoToAsync(nameof(TournamentView));
+        await _tournamentsViewModel.CreateAndOpenTournamentAsync();
     }
 
     private async void MenuTournaments_Clicked(object sender, EventArgs e)

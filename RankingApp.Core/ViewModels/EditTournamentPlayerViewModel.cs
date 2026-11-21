@@ -1,13 +1,35 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using RankingApp.Core.Interfaces;
+using Microsoft.Maui.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using RankingApp.Core.Models;
 using RankingApp.Core.Services.Interfaces;
 using System.Collections.ObjectModel;
 
 namespace RankingApp.Core.ViewModels
 {
-    public partial class EditTournamentPlayerViewModel(IDatabaseService database) : BaseViewModel
+    public partial class EditTournamentPlayerViewModel(IDatabaseService database, INavigationService navigation) : BaseViewModel, IQueryAttributable
     {
         private readonly IDatabaseService _database = database;
+        private readonly INavigationService _navigation = navigation;
+
+        // Set from the navigation parameter "tournamentId"; Data.TournamentId is the fallback
+        private int _pendingTournamentId;
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (NavParams.TryGetInt(query, NavParams.TournamentId, out int id))
+            {
+                _pendingTournamentId = id;
+                Data.TournamentId = id;
+            }
+        }
+
+        /// <summary>Save is automatic (on player pick) - open the edited tournament instead of this page.</summary>
+        public async Task ReturnToTournamentAsync()
+        {
+            int tournamentId = CurrentTournament?.Id ?? Data.TournamentId;
+            await _navigation.ReturnToTournamentAsync(tournamentId);
+        }
 
         private List<PlayerDB> _allPlayers = [];
 
@@ -47,7 +69,11 @@ namespace RankingApp.Core.ViewModels
         public async Task LoadDataAsync()
         {
             IsSearchDisabled = true;
-            CurrentTournament = await _database.GetByIdAsync<Tournament>(Data.TournamentId);
+            int tournamentId = _pendingTournamentId > 0 ? _pendingTournamentId : Data.TournamentId;
+            _pendingTournamentId = 0;
+            Data.TournamentId = tournamentId;
+
+            CurrentTournament = await _database.GetByIdAsync<Tournament>(tournamentId);
             var players = await _database.GetAllRecordsAsync<PlayerDB>();
             _allPlayers = players.OrderByDescending(x => x.PointsWithBonus).ToList();
 

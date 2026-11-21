@@ -13,6 +13,14 @@ public partial class DoublesGameView : BaseContentPage
         BindingContext = _viewModel;
     }
 
+    protected override async void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        // Last safety net: whatever way the page is left, the game is stored
+        await _viewModel.SaveDoublesGameAsync();
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -24,6 +32,6 @@ public partial class DoublesGameView : BaseContentPage
     private async void ButtonGameSave_OnClicked(object? sender, EventArgs e)
     {
         await _viewModel.SaveDoublesGameAsync();
-        await Shell.Current.GoToAsync(nameof(TournamentView));
+        await _viewModel.ReturnToTournamentAsync();
     }
 }

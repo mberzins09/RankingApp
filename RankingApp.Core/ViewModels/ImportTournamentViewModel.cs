@@ -250,7 +250,7 @@ namespace RankingApp.Core.ViewModels
             progress.Report("Finished");
             await Task.Delay(500);
 
-            await _navigation.GoToAsync("AllTournaments");
+            await _navigation.GoToTournamentListAsync();
         }
 
         /// <summary>Ranking list valid for the month of the given date (cached per month).</summary>
