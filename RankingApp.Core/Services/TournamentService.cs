@@ -98,6 +98,33 @@ namespace RankingApp.Core.Services
         }
 
         /// <summary>
+        /// Competitions (with their events) of one year, e.g. competitions?year=2026&status=planned.
+        /// </summary>
+        public async Task<List<APICompetition>> GetCompetitionsAsync(int year, string status = "planned")
+        {
+            try
+            {
+                string url = $"{Data.ApiUrl}competitions?year={year}&status={status}";
+
+                var response = await SendWithRetryAsync(url);
+
+                if (response == null || !response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Competitions API failed for year {year}");
+                    return [];
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<APICompetitionsResponse>();
+
+                return result?.Competitions ?? [];
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        /// <summary>
         /// Full results of one event (participants + nets with games).
         /// For season events pass playingDate (yyyy-MM-dd) to get only that round.
         /// </summary>

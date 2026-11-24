@@ -46,6 +46,10 @@ namespace RankingApp
             builder.Services.AddSingleton<DoublesGameViewModel>();
             builder.Services.AddSingleton<ImportTournamentViewModel>();
             builder.Services.AddSingleton<HomeViewModel>();
+            builder.Services.AddSingleton<CalendarViewModel>();
+            builder.Services.AddSingleton<CalendarEventViewModel>();
+            builder.Services.AddSingleton<ResultsViewModel>();
+            builder.Services.AddSingleton<EventResultsViewModel>();
 
             builder.Services.AddTransient<AllPlayerRanking>();
             builder.Services.AddTransient<TournamentView>();
@@ -56,6 +60,10 @@ namespace RankingApp
             builder.Services.AddTransient<DoublesGameView>();
             builder.Services.AddTransient<ImportTournament>();
             builder.Services.AddTransient<HomePage>();
+            builder.Services.AddTransient<CalendarPage>();
+            builder.Services.AddTransient<CalendarEventPage>();
+            builder.Services.AddTransient<ResultsPage>();
+            builder.Services.AddTransient<EventResultsPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

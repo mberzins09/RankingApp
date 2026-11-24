@@ -31,8 +31,8 @@
         </ResourceDictionary>
     </views:BaseContentPage.Resources>
 
-    <Grid Style="{StaticResource PrimaryGrid}">
-        <ScrollView>
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="*, Auto">
+        <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="14,10,14,20" Spacing="10">
                 <!-- Greeting + menu -->
                 <Grid ColumnDefinitions="*, Auto">
@@ -141,8 +141,14 @@
             </VerticalStackLayout>
         </ScrollView>
 
+        <!-- Bottom navigation: Calendar / Results -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, *" ColumnSpacing="10" Padding="14,6,14,12">
+            <Button Text="📅  Calendar" Clicked="Calendar_Clicked" Style="{StaticResource PrimaryButton}"/>
+            <Button Grid.Column="1" Text="📊  Results" Clicked="Results_Clicked" Style="{StaticResource PrimaryButton}"/>
+        </Grid>
+
         <!-- Slide-in menu (moved here from the tournament list) -->
-        <Grid x:Name="MoreMenuOverlay" IsVisible="False" InputTransparent="False">
+        <Grid x:Name="MoreMenuOverlay" Grid.RowSpan="2" IsVisible="False" InputTransparent="False">
             <BoxView Style="{StaticResource PrimaryBoxView}">
                 <BoxView.GestureRecognizers>
                     <TapGestureRecognizer Tapped="MoreOverlay_Tapped" NumberOfTapsRequired="1"/>

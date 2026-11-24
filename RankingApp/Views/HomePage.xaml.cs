@@ -54,6 +54,16 @@ public partial class HomePage : BaseContentPage
         await Shell.Current.GoToAsync(nameof(AllPlayerRanking));
     }
 
+    private async void Calendar_Clicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(CalendarPage));
+    }
+
+    private async void Results_Clicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(ResultsPage));
+    }
+
     // ── ⋮ menu ───────────────────────────────────────────────────────────
 
     private void MoreMenuPanel_SizeChanged(object? sender, EventArgs e)

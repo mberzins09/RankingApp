@@ -30,8 +30,8 @@
 		<!-- <ApplicationId>com.mberzins.rankingapp</ApplicationId> -->
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>3.6</ApplicationDisplayVersion>
-		<ApplicationVersion>27</ApplicationVersion>
+		<ApplicationDisplayVersion>4.0</ApplicationDisplayVersion>
+		<ApplicationVersion>31</ApplicationVersion>
 		<Version>$(ApplicationDisplayVersion)</Version>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
@@ -44,7 +44,7 @@
 
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" />
