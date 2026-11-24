@@ -18,7 +18,32 @@ namespace RankingApp.Core.Services
             _database.CreateTableAsync<Tournament>().Wait();
             _database.CreateTableAsync<AppData>().Wait();
             _database.CreateTableAsync<DoublesGame>().Wait();
+            _database.CreateTableAsync<MonthRankingRow>().Wait();
         }
+
+        // ── Stored monthly rankings ───────────────────────────────────────
+
+        public Task<List<MonthRankingRow>> GetMonthRankingAsync(int year, int month) =>
+            _database.Table<MonthRankingRow>().Where(r => r.Year == year && r.Month == month).ToListAsync();
+
+        public async Task<bool> HasMonthRankingAsync(int year, int month) =>
+            await _database.Table<MonthRankingRow>().Where(r => r.Year == year && r.Month == month).CountAsync() > 0;
+
+        /// <summary>Sets PlayerDB.PointsChanged for the given players (matched by KeyName), in one transaction.</summary>
+        public Task UpdatePointsChangedAsync(Dictionary<string, int> changesByKey) =>
+            _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var (key, change) in changesByKey)
+                    conn.Execute("UPDATE PlayerDB SET PointsChanged = ? WHERE KeyName = ?", change, key);
+            });
+
+        /// <summary>Replaces the stored ranking of one month.</summary>
+        public Task SaveMonthRankingAsync(int year, int month, List<MonthRankingRow> rows) =>
+            _database.RunInTransactionAsync(conn =>
+            {
+                conn.Execute("DELETE FROM MonthRanking WHERE Year = ? AND Month = ?", year, month);
+                conn.InsertAll(rows);
+            });
 
         public async Task<List<T>> GetAllRecordsAsync<T>() where T : Entity, new()
         {
@@ -120,7 +145,8 @@ namespace RankingApp.Core.Services
 
                 if (dbByKey.TryGetValue(apiPlayer.KeyName, out var existing))
                 {
-                    existing.PointsChanged = apiPlayer.PointsWithBonus - existing.PointsWithBonus;
+                    // Calculated by the caller against the previous month's ranking (PlayerService.SetPointsChanged)
+                    existing.PointsChanged = apiPlayer.PointsChanged;
                     existing.Points = apiPlayer.Points;
                     existing.PointsWithBonus = apiPlayer.PointsWithBonus;
                     existing.Place = apiPlayer.Place;
@@ -201,18 +227,26 @@ namespace RankingApp.Core.Services
             await AddColumnIfNotExistsAsync("DoublesGame", "ExternalGameId", "INTEGER", "0");
         }
 
+        // Static: DatabaseService is also created with `new` outside DI, and HomePage + AllTournaments
+        // both call MigrateDatabaseAsync on appearing — the seed must never run twice concurrently.
+        private static readonly SemaphoreSlim _migrateLock = new(1, 1);
+
         public async Task MigrateDatabaseAsync()
         {
-            var appData = await GetAppDataAsync();
-
-            var refDbPath = Path.Combine(FileSystem.AppDataDirectory, "lgtf.sqlite");
-
-            if (!File.Exists(refDbPath))
+            await _migrateLock.WaitAsync();
+            try
             {
-                using var stream = await FileSystem.OpenAppPackageFileAsync("lgtf.sqlite");
-                using var fs = File.Create(refDbPath);
-                await stream.CopyToAsync(fs);
+                await MigrateDatabaseCoreAsync();
             }
+            finally
+            {
+                _migrateLock.Release();
+            }
+        }
+
+        private async Task MigrateDatabaseCoreAsync()
+        {
+            var appData = await GetAppDataAsync();
 
             if (appData.PlayersDbMigrated)
             { return; }
@@ -220,9 +254,21 @@ namespace RankingApp.Core.Services
             await MigratePlayerTableAsync();
             await MigrateAppDataTableAsync();
 
-            var referenceDb = new SQLiteAsyncConnection(refDbPath);
+            List<LgtfApiPlayer> refPlayers;
+            try
+            {
+                refPlayers = await LgtfWebApi.GetPlayersAsync();
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+            {
+                // No internet / server down — PlayersDbMigrated stays false, so it is retried next time.
+                System.Diagnostics.Debug.WriteLine($"Player seed download failed: {ex.Message}");
+                return;
+            }
 
-            var refPlayers = await referenceDb.Table<PlayerDB>().ToListAsync();
+            if (refPlayers.Count == 0)
+            { return; }
+
             refPlayers = refPlayers.OrderBy(p => p.Id).ToList();
             await _database.ExecuteAsync("DELETE FROM PlayerDB");
             await _database.ExecuteAsync("DELETE FROM sqlite_sequence WHERE name = 'PlayerDB'");
@@ -266,6 +312,27 @@ namespace RankingApp.Core.Services
             await SaveAppDataAsync(appData);
 
             await _database.ExecuteAsync("CREATE UNIQUE INDEX IF NOT EXISTS idx_playerdb_keyname ON PlayerDB(KeyName)");
+        }
+
+        /// <summary>
+        /// Older app versions copied a ~50 MB lgtf.sqlite into AppData; that data now comes from the web API.
+        /// Called once at startup from MauiProgram so existing installs free the space.
+        /// </summary>
+        public static void DeleteLegacyReferenceDb()
+        {
+            foreach (var name in new[] { "lgtf.sqlite", "lgtf.sqlite-wal", "lgtf.sqlite-shm", "lgtf.sqlite-journal" })
+            {
+                try
+                {
+                    var path = Path.Combine(FileSystem.AppDataDirectory, name);
+                    if (File.Exists(path))
+                        File.Delete(path);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    // File still locked — try again on the next start.
+                }
+            }
         }
 
         private async Task FixAppUserPlayerIdAsync(AppData appData)

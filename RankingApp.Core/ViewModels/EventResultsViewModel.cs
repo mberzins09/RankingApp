@@ -11,16 +11,21 @@ namespace RankingApp.Core.ViewModels
     /// Results of one event. The response is loaded once and turned into ready models (participants, group
     /// tables, brackets); the picker only switches between them, so switching needs no work and no API call.
     /// </summary>
-    public partial class EventResultsViewModel(TournamentService tournamentService, IDatabaseService database) : BaseViewModel, IQueryAttributable
+    public partial class EventResultsViewModel(TournamentService tournamentService, IDatabaseService database, MonthRankingService rankingService) : BaseViewModel, IQueryAttributable
     {
         private readonly TournamentService _tournamentService = tournamentService;
         private readonly IDatabaseService _database = database;
+        private readonly MonthRankingService _rankingService = rankingService;
 
-        // Everything built for an event - kept for the whole app session
-        private readonly Dictionary<int, EventResultsData> _cache = [];
+        // Everything built for an event (+ playing date for season teams events) - kept for the whole app session
+        private readonly Dictionary<string, EventResultsData> _cache = [];
 
         private int _eventId;
+        private string _playingDate = "";
+        private string _loadedKey = "";
         private int _loadVersion;
+
+        private string CurrentKey => $"{_eventId}|{_playingDate}";
 
         private sealed class EventResultsData
         {
@@ -31,6 +36,8 @@ namespace RankingApp.Core.ViewModels
             public List<ResultViewOption> StageOptions { get; init; } = [];
             public Dictionary<string, GroupTableModel> Groups { get; init; } = [];
             public Dictionary<string, BracketModel> Brackets { get; init; } = [];
+            public bool IsTeams { get; init; }
+            public List<TeamMatchItem> TeamMatches { get; init; } = [];
         }
 
         private EventResultsData? _current;
@@ -53,9 +60,19 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private ResultViewOption? selectedOption;
 
-        /// <summary>Off (default): one picker entry per group / bracket. On: one entry per stage, everything under each other.</summary>
+        /// <summary>On (default): one picker entry per stage, everything under each other. Off: one entry per group / bracket.</summary>
         [ObservableProperty]
-        private bool sortByStage;
+        private bool sortByStage = true;
+
+        /// <summary>Season teams event: picker has only Participants and Results (team matches), no stage switch.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowStageSwitch))]
+        private bool isTeamsEvent;
+
+        public bool ShowStageSwitch => !IsTeamsEvent;
+
+        [ObservableProperty]
+        private bool isTeamResultsSelected;
 
         [ObservableProperty]
         private bool isParticipantsSelected;
@@ -71,10 +88,21 @@ namespace RankingApp.Core.ViewModels
 
         public ObservableCollection<CalendarParticipantItem> Participants { get; } = [];
 
+        /// <summary>Teams results: TeamMatchItem rows, with TeamGameItem rows of expanded matches below them.</summary>
+        public ObservableCollection<object> TeamRows { get; } = [];
+
         partial void OnSelectedOptionChanged(ResultViewOption? value)
         {
             IsParticipantsSelected = value?.Kind == ResultViewKind.Participants;
-            IsDrawingSelected = value != null && value.Kind != ResultViewKind.Participants;
+            IsTeamResultsSelected = value?.Kind == ResultViewKind.TeamMatches;
+            IsDrawingSelected = value != null && value.Kind is not (ResultViewKind.Participants or ResultViewKind.TeamMatches);
+        }
+
+        [RelayCommand]
+        private void ToggleTeamMatch(TeamMatchItem? match)
+        {
+            if (match != null)
+                CompetitionListBuilder.Toggle(TeamRows, match);
         }
 
         partial void OnSortByStageChanged(bool value)
@@ -120,6 +148,8 @@ namespace RankingApp.Core.ViewModels
         {
             if (NavParams.TryGetInt(query, NavParams.EventId, out int id))
                 _eventId = id;
+
+            _playingDate = NavParams.GetString(query, NavParams.PlayingDate);
         }
 
         public async Task LoadAsync()
@@ -128,21 +158,23 @@ namespace RankingApp.Core.ViewModels
                 return;
 
             // Same event as before (coming back to the page) - keep what is shown, including the picker choice
-            if (_eventId == LoadedEventId && Options.Count > 0)
+            if (CurrentKey == _loadedKey && Options.Count > 0)
                 return;
 
             int version = ++_loadVersion;
             int eventId = _eventId;
+            string playingDate = _playingDate;
+            string key = CurrentKey;
 
             try
             {
-                if (!_cache.TryGetValue(eventId, out var data))
+                if (!_cache.TryGetValue(key, out var data))
                 {
                     Clear();
                     IsLoading = true;
                     StatusText = "Loading results...";
 
-                    var result = await _tournamentService.GetEventResultsAsync(eventId);
+                    var result = await _tournamentService.GetEventResultsAsync(eventId, playingDate);
 
                     if (version != _loadVersion)
                         return;
@@ -153,15 +185,15 @@ namespace RankingApp.Core.ViewModels
                         return;
                     }
 
-                    data = await BuildAsync(result);
+                    data = await BuildAsync(result, playingDate);
 
                     if (version != _loadVersion)
                         return;
 
-                    _cache[eventId] = data;
+                    _cache[key] = data;
                 }
 
-                Apply(eventId, data);
+                Apply(eventId, key, data);
             }
             catch (Exception ex)
             {
@@ -184,6 +216,8 @@ namespace RankingApp.Core.ViewModels
 
             int version = ++_loadVersion;
             int eventId = _eventId;
+            string playingDate = _playingDate;
+            string key = CurrentKey;
             var keepOption = SelectedOption;
 
             try
@@ -191,7 +225,7 @@ namespace RankingApp.Core.ViewModels
                 IsLoading = true;
                 StatusText = "Refreshing...";
 
-                var result = await _tournamentService.GetEventResultsAsync(eventId);
+                var result = await _tournamentService.GetEventResultsAsync(eventId, playingDate);
 
                 if (version != _loadVersion)
                     return;
@@ -202,13 +236,13 @@ namespace RankingApp.Core.ViewModels
                     return;
                 }
 
-                var data = await BuildAsync(result);
+                var data = await BuildAsync(result, playingDate);
 
                 if (version != _loadVersion)
                     return;
 
-                _cache[eventId] = data;
-                Apply(eventId, data, keepOption);
+                _cache[key] = data;
+                Apply(eventId, key, data, keepOption);
             }
             catch (Exception ex)
             {
@@ -222,11 +256,50 @@ namespace RankingApp.Core.ViewModels
             }
         }
 
-        private async Task<EventResultsData> BuildAsync(APIEventResultsResponse result)
+        private async Task<EventResultsData> BuildAsync(APIEventResultsResponse result, string playingDate)
         {
             var ev = result.CompetitionEvent!;
 
-            string dateTime = string.IsNullOrWhiteSpace(ev.StartTime) ? ev.StartDate : $"{ev.StartDate} {ev.StartTime}";
+            // Season event loaded for one playing date - that date is what was played
+            string date = string.IsNullOrWhiteSpace(playingDate) ? ev.StartDate : playingDate;
+            string dateTime = string.IsNullOrWhiteSpace(ev.StartTime) ? date : $"{date} {ev.StartTime}";
+
+            // Ranking of the month when the games were played (October results → October ranking, not the current one)
+            MonthRanking? ranking = null;
+
+            if (CompetitionListBuilder.ParseDate(date) is { } eventDate)
+                ranking = await _rankingService.GetAsync(eventDate.Year, eventDate.Month);
+
+            var ratings = ranking == null
+                ? null
+                : EventResultsBuilder.CalculateRatingChanges(result.Nets, ranking, ev.RankingCoef);
+
+            string rankingInfo = ranking == null ? "ranking not available" : $"ranking {ranking.Label}";
+            string title = string.IsNullOrWhiteSpace(ev.Competition?.Name) ? ev.Name : $"{ev.Competition.Name}({ev.Name})";
+            string info = $"{dateTime} - {ev.RankingCoef} · {rankingInfo}";
+            var participants = await EventResultsBuilder.BuildParticipantsAsync(_database, result.Participants, ranking, ratings);
+
+            // Teams event: groups hold team matches (the group "players" are not real players) -
+            // show Participants + a list of team matches instead of cross tables
+            if (EventResultsBuilder.IsTeams(ev))
+            {
+                var teamOptions = new List<ResultViewOption>
+                {
+                    new() { Key = "participants", Title = "Participants", Kind = ResultViewKind.Participants },
+                    new() { Key = "teams", Title = "Results", Kind = ResultViewKind.TeamMatches }
+                };
+
+                return new EventResultsData
+                {
+                    Title = title,
+                    Info = info,
+                    Participants = participants,
+                    Options = teamOptions,
+                    StageOptions = teamOptions,
+                    IsTeams = true,
+                    TeamMatches = EventResultsBuilder.BuildTeamMatches(result.Nets, ratings)
+                };
+            }
 
             var options = new List<ResultViewOption>
             {
@@ -246,7 +319,7 @@ namespace RankingApp.Core.ViewModels
                     string key = EventResultsBuilder.GroupKey(net, group);
                     string groupTitle = EventResultsBuilder.GroupTitle(net, group, severalGroupNets);
 
-                    groups[key] = EventResultsBuilder.BuildGroupTable(groupTitle, group);
+                    groups[key] = EventResultsBuilder.BuildGroupTable(groupTitle, group, ratings);
                     options.Add(new ResultViewOption { Key = key, Title = groupTitle, Kind = ResultViewKind.Group });
                 }
 
@@ -255,7 +328,7 @@ namespace RankingApp.Core.ViewModels
                     string key = EventResultsBuilder.TreeKey(net, tree);
                     string treeTitle = EventResultsBuilder.TreeTitle(tree);
 
-                    brackets[key] = EventResultsBuilder.BuildBracket(treeTitle, tree);
+                    brackets[key] = EventResultsBuilder.BuildBracket(treeTitle, tree, ratings);
                     options.Add(new ResultViewOption { Key = key, Title = treeTitle, Kind = ResultViewKind.Bracket });
                 }
             }
@@ -293,28 +366,32 @@ namespace RankingApp.Core.ViewModels
             return new EventResultsData
             {
                 StageOptions = stageOptions,
-                Title = string.IsNullOrWhiteSpace(ev.Competition?.Name) ? ev.Name : $"{ev.Competition.Name}({ev.Name})",
-                Info = $"{dateTime} - {ev.RankingCoef}",
-                Participants = await EventResultsBuilder.BuildParticipantsAsync(_database, result.Participants),
+                Title = title,
+                Info = info,
+                Participants = participants,
                 Options = options,
                 Groups = groups,
                 Brackets = brackets
             };
         }
 
-        private void Apply(int eventId, EventResultsData data, ResultViewOption? keepOption = null)
+        private void Apply(int eventId, string key, EventResultsData data, ResultViewOption? keepOption = null)
         {
             _current = data;
             LoadedEventId = eventId;
+            _loadedKey = key;
             DataVersion++;
 
             Title = data.Title;
             Info = data.Info;
+            IsTeamsEvent = data.IsTeams;
 
             Participants.Clear();
 
             foreach (var p in data.Participants)
                 Participants.Add(p);
+
+            CompetitionListBuilder.Fill(TeamRows, data.TeamMatches);
 
             var list = OptionsFor(data);
             Options = new ObservableCollection<ResultViewOption>(list);
@@ -327,6 +404,8 @@ namespace RankingApp.Core.ViewModels
         {
             _current = null;
             LoadedEventId = 0;
+            _loadedKey = "";
+            TeamRows.Clear();
             Title = "";
             Info = "";
             Participants.Clear();

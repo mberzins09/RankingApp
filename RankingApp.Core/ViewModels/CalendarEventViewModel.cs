@@ -8,12 +8,13 @@ namespace RankingApp.Core.ViewModels
 {
     /// <summary>
     /// One event of the calendar: name, date / time / coefficient and registered participants,
-    /// numbered by ranking points (points are taken from the PlayerDB ranking list, 0 if not found).
+    /// numbered by the ranking of the current month (PlayerDB if it holds that month, otherwise downloaded; 0 if not found).
     /// </summary>
-    public partial class CalendarEventViewModel(TournamentService tournamentService, IDatabaseService database) : BaseViewModel, IQueryAttributable
+    public partial class CalendarEventViewModel(TournamentService tournamentService, IDatabaseService database, MonthRankingService rankingService) : BaseViewModel, IQueryAttributable
     {
         private readonly TournamentService _tournamentService = tournamentService;
         private readonly IDatabaseService _database = database;
+        private readonly MonthRankingService _rankingService = rankingService;
 
         private int _eventId;
         private int _loadedEventId;
@@ -83,40 +84,17 @@ namespace RankingApp.Core.ViewModels
                 string dateTime = string.IsNullOrWhiteSpace(ev.StartTime) ? ev.StartDate : $"{ev.StartDate} {ev.StartTime}";
                 Info = $"{dateTime} - {ev.RankingCoef}";
 
-                var items = new List<CalendarParticipantItem>();
+                // Future events: the current ranking (system month, or the previous one if not published yet)
+                var now = DateTime.Now;
+                var ranking = await _rankingService.GetAsync(now.Year, now.Month);
 
-                foreach (var p in result.Participants ?? [])
-                {
-                    // Same key as everywhere in the app: normalized name + surname
-                    string key = NameNormalizer.NormalizeKey($"{p.Name}{p.Surname}");
-                    var dbPlayer = string.IsNullOrEmpty(key) ? null : await _database.GetPlayerByKeyAsync(key);
-
-                    // Birth date from the event is the most exact; ranking list is the fallback
-                    string? birth = !string.IsNullOrWhiteSpace(p.BirthDate) ? p.BirthDate : dbPlayer?.BirthDate;
-
-                    items.Add(new CalendarParticipantItem
-                    {
-                        Name = p.Name,
-                        Surname = p.Surname,
-                        Age = string.IsNullOrWhiteSpace(birth) ? 0 : AgeCalculator.Calculate(birth),
-                        PointsWithBonus = dbPlayer?.PointsWithBonus ?? 0
-                    });
-                }
+                var sorted = await EventResultsBuilder.BuildParticipantsAsync(_database, result.Participants, ranking);
 
                 if (version != _loadVersion)
                     return;
 
-                var sorted = items
-                    .OrderByDescending(i => i.PointsWithBonus)
-                    .ThenBy(i => i.Surname)
-                    .ThenBy(i => i.Name)
-                    .ToList();
-
-                for (int i = 0; i < sorted.Count; i++)
-                {
-                    sorted[i].Position = i + 1;
-                    Participants.Add(sorted[i]);
-                }
+                foreach (var item in sorted)
+                    Participants.Add(item);
 
                 _loadedEventId = eventId;
                 ParticipantsHeader = $"Participants ({sorted.Count})";

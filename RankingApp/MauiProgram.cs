@@ -15,6 +15,9 @@ namespace RankingApp
     {
         public static MauiApp CreateMauiApp()
         {
+            // Remove the old bundled lgtf.sqlite copy left in AppData by previous versions (data now comes from the web API)
+            DatabaseService.DeleteLegacyReferenceDb();
+
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -26,13 +29,16 @@ namespace RankingApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<IPlayerRepositoryWithDate, PlayerReposotoryWithDate>();
+            // API repository wrapped by the stored-month cache (MonthRanking table) - everyone uses the cached one
+            builder.Services.AddSingleton<PlayerReposotoryWithDate>();
+            builder.Services.AddSingleton<IPlayerRepositoryWithDate, CachedPlayerRepositoryWithDate>();
             builder.Services.AddSingleton<IProgressDialogService, ProgressDialogService>();
             builder.Services.AddSingleton<INavigationService, NavigationService>();
             builder.Services.AddSingleton<PlayerServiceWithDate>();
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
             builder.Services.AddSingleton<IPlayerService, PlayerService>();
             builder.Services.AddSingleton<IMonthPlayersService, MonthPlayersService>();
+            builder.Services.AddSingleton<MonthRankingService>();
             builder.Services.AddSingleton<TournamentImportService>();
             builder.Services.AddSingleton<TournamentService>();
             builder.Services.AddSingleton<ApiGameImporterService>();

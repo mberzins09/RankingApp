@@ -8,6 +8,104 @@
              x:DataType="viewmodel:EventResultsViewModel"
              Title="Event results"
              Style="{StaticResource PrimaryContentPage}">
+    <views:BaseContentPage.Resources>
+        <!-- Team match: "Team A  4 : 3  Team B" - tap to show its games -->
+        <DataTemplate x:Key="TeamMatchRow" x:DataType="model:TeamMatchItem">
+            <Grid Padding="6,3">
+                <Border Style="{StaticResource Card}" Margin="0">
+                    <VerticalStackLayout Spacing="3">
+                        <Grid ColumnDefinitions="*, Auto, *, 18" ColumnSpacing="8">
+                            <Label Text="{Binding Team1}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
+                                   HorizontalOptions="End" HorizontalTextAlignment="End" VerticalOptions="Center" MaxLines="2">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsTeam1Winner}" Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                                        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Grid.Column="1" Text="{Binding Score}" Style="{StaticResource ListItemLabel}" FontSize="16"
+                                   FontFamily="OpenSansSemibold" TextColor="{StaticResource Accent}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="{Binding Team2}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
+                                   HorizontalOptions="Start" HorizontalTextAlignment="Start" VerticalOptions="Center" MaxLines="2">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsTeam2Winner}" Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                                        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Grid.Column="3" Text="{Binding Chevron}" TextColor="{StaticResource Accent}" FontSize="18"
+                                   HorizontalOptions="End" VerticalOptions="Center"/>
+                        </Grid>
+                        <Label Text="{Binding Subtitle}" Style="{StaticResource ListItemSubLabel}" FontSize="11" TextColor="{StaticResource TextFaint}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleTeamMatchCommand}"
+                                              CommandParameter="{Binding .}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <!-- One game of a team match: "+5 Player1 – Player2 -4   3:1" -->
+        <DataTemplate x:Key="TeamGameRow" x:DataType="model:TeamGameItem">
+            <Grid Padding="20,1,6,1">
+                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource GlassStrong}" Padding="8,6">
+                    <Grid ColumnDefinitions="30, *, Auto, *, 30, 36" ColumnSpacing="4">
+                        <Label Text="{Binding Rating1Text}" IsVisible="{Binding HasRating}" Style="{StaticResource ListItemSubLabel}"
+                               FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextFaint}" HorizontalOptions="Start">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsRating1Positive}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource Positive}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsRating1Negative}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource Negative}"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Grid.Column="1" Text="{Binding Player1}" Style="{StaticResource ListItemSubLabel}" FontSize="12"
+                               HorizontalOptions="End" HorizontalTextAlignment="End" MaxLines="2">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsPlayer1Winner}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                                    <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Grid.Column="2" Text="–" Style="{StaticResource ListItemSubLabel}" FontSize="12"/>
+                        <Label Grid.Column="3" Text="{Binding Player2}" Style="{StaticResource ListItemSubLabel}" FontSize="12"
+                               HorizontalOptions="Start" HorizontalTextAlignment="Start" MaxLines="2">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsPlayer2Winner}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource TextMain}"/>
+                                    <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Grid.Column="4" Text="{Binding Rating2Text}" IsVisible="{Binding HasRating}" Style="{StaticResource ListItemSubLabel}"
+                               FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextFaint}" HorizontalOptions="End">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsRating2Positive}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource Positive}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsRating2Negative}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource Negative}"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Grid.Column="5" Text="{Binding Score}" Style="{StaticResource ListItemLabel}" FontSize="13"
+                               FontFamily="OpenSansSemibold" HorizontalOptions="End"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <views:ExpandableRowTemplateSelector x:Key="TeamRowSelector"
+                                            HeaderTemplate="{StaticResource TeamMatchRow}"
+                                            ChildTemplate="{StaticResource TeamGameRow}"/>
+    </views:BaseContentPage.Resources>
     <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="Auto, 52, Auto, *, 6" ColumnDefinitions="10, *, 10" RowSpacing="6">
         <!-- Row 0: competition + event name, date / time / coefficient -->
         <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Card}" Margin="0,6,0,0">
@@ -29,7 +127,7 @@
             </Border>
             <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
                                HeightRequest="20" WidthRequest="20" VerticalOptions="Center"/>
-            <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="Center">
+            <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="Center" IsVisible="{Binding ShowStageSwitch}">
                 <Label Text="By stage" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="Center"/>
                 <Switch IsToggled="{Binding SortByStage}" HorizontalOptions="Center"/>
             </VerticalStackLayout>
@@ -44,11 +142,19 @@
         <!-- Row 3: participants list OR a drawn group table / bracket (built in code, cached per option) -->
         <Grid Grid.Row="3" Grid.Column="1">
             <CollectionView Margin="-6,0" ItemsSource="{Binding Participants}" SelectionMode="None" IsVisible="{Binding IsParticipantsSelected}">
+                <!-- Columns: ranking points with bonus | points (rating is calculated from these) | sum of this event's rating changes -->
+                <CollectionView.Header>
+                    <Grid Padding="18,2,18,2" ColumnDefinitions="34, *, 50, 50, 42" ColumnSpacing="6">
+                        <Label Grid.Column="1" Grid.ColumnSpan="2" Text="PointsWithBonus" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                        <Label Grid.Column="3" Text="Points" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                        <Label Grid.Column="4" Text="+/-" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                    </Grid>
+                </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:CalendarParticipantItem">
                         <Grid Padding="6,2">
                             <Border Style="{StaticResource Card}" Margin="0" Padding="12,8">
-                                <Grid ColumnDefinitions="34, *, Auto" ColumnSpacing="6">
+                                <Grid ColumnDefinitions="34, *, 50, 50, 42" ColumnSpacing="6">
                                     <Label Text="{Binding Position, StringFormat='{0}.'}" Style="{StaticResource ListItemSubLabel}"
                                            HorizontalOptions="Start" VerticalOptions="Center"/>
                                     <Label Grid.Column="1" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" FontSize="14"
@@ -57,12 +163,30 @@
                                     <Label Grid.Column="2" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontSize="14"
                                            FontFamily="OpenSansSemibold" TextColor="{StaticResource Accent}"
                                            HorizontalOptions="End" VerticalOptions="Center"/>
+                                    <Label Grid.Column="3" Text="{Binding Points}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
+                                           HorizontalOptions="End" VerticalOptions="Center"/>
+                                    <Label Grid.Column="4" Text="{Binding RatingChangeText}" IsVisible="{Binding HasRatingChange}"
+                                           Style="{StaticResource ListItemSubLabel}" FontSize="13" FontFamily="OpenSansSemibold"
+                                           HorizontalOptions="End" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsRatingPositive}" Value="True">
+                                                <Setter Property="TextColor" Value="{StaticResource Positive}"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsRatingNegative}" Value="True">
+                                                <Setter Property="TextColor" Value="{StaticResource Negative}"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                 </Grid>
                             </Border>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
+            <!-- Season teams event: team matches, each expands to its singles / doubles games -->
+            <CollectionView Margin="-6,0" ItemsSource="{Binding TeamRows}" SelectionMode="None" IsVisible="{Binding IsTeamResultsSelected}"
+                            ItemTemplate="{StaticResource TeamRowSelector}"/>
 
             <ScrollView x:Name="DrawingScroll" Orientation="Both" IsVisible="{Binding IsDrawingSelected}"/>
             <VerticalStackLayout x:Name="BusyIndicator" IsVisible="False" Spacing="10" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,60,0,0">

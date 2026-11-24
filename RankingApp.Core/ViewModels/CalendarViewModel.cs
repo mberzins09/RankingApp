@@ -4,17 +4,18 @@ using RankingApp.Core.Interfaces;
 using RankingApp.Core.Models;
 using RankingApp.Core.Services;
 using System.Collections.ObjectModel;
-using System.Globalization;
 
 namespace RankingApp.Core.ViewModels
 {
     /// <summary>
-    /// Calendar: planned events of the selected year (competitions?year=..&amp;status=planned).
-    /// Every event of a competition is its own row.
+    /// Calendar: planned events of the selected year (competitions?year=..&amp;status=planned),
+    /// grouped by competition. Tapping a competition shows its events.
+    /// Participants of future events are ranked by the current month's ranking.
     /// </summary>
-    public partial class CalendarViewModel(TournamentService tournamentService, INavigationService navigation) : BaseViewModel
+    public partial class CalendarViewModel(TournamentService tournamentService, MonthRankingService rankingService, INavigationService navigation) : BaseViewModel
     {
         private readonly TournamentService _tournamentService = tournamentService;
+        private readonly MonthRankingService _rankingService = rankingService;
         private readonly INavigationService _navigation = navigation;
 
         private int _loadVersion;
@@ -32,7 +33,8 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private string statusText = "";
 
-        public ObservableCollection<CalendarEventItem> Events { get; } = [];
+        /// <summary>CompetitionGroupItem rows, with CalendarEventItem rows of expanded competitions below them.</summary>
+        public ObservableCollection<object> Rows { get; } = [];
 
         partial void OnSelectedYearChanged(int value)
         {
@@ -43,19 +45,38 @@ namespace RankingApp.Core.ViewModels
         /// <summary>Called when the page appears. First time: system year; later the list is kept.</summary>
         public void Initialize()
         {
+            var now = DateTime.Now;
+
+            // Ranking of the current month for the event participants (from PlayerDB if it is that month)
+            _rankingService.Prefetch(now.Year, now.Month);
+
             if (_initialized)
                 return;
 
             _initialized = true;
 
-            int current = DateTime.Now.Year;
-
-            Years = new ObservableCollection<int>(Enumerable.Range(2020, current + 2 - 2020).OrderByDescending(y => y));
-            SelectedYear = current;   // triggers loading
+            Years = new ObservableCollection<int>(Enumerable.Range(2020, now.Year + 2 - 2020).OrderByDescending(y => y));
+            SelectedYear = now.Year;   // triggers loading
         }
 
         [RelayCommand]
         private async Task RefreshAsync() => await LoadEventsAsync();
+
+        [RelayCommand]
+        private async Task ToggleCompetitionAsync(CompetitionGroupItem? group)
+        {
+            if (group == null)
+                return;
+
+            // Only one event - no dropdown, open it straight away
+            if (group.OpensDirectly)
+            {
+                await OpenEventAsync(group.Events[0]);
+                return;
+            }
+
+            CompetitionListBuilder.Toggle(Rows, group);
+        }
 
         [RelayCommand]
         private async Task OpenEventAsync(CalendarEventItem? item)
@@ -76,7 +97,7 @@ namespace RankingApp.Core.ViewModels
 
             try
             {
-                Events.Clear();
+                Rows.Clear();
                 IsLoading = true;
                 StatusText = "Loading events...";
 
@@ -86,24 +107,26 @@ namespace RankingApp.Core.ViewModels
                 if (version != _loadVersion)
                     return;
 
-                var items = competitions
+                var events = competitions
                     .SelectMany(c => (c.Events ?? []).Select(e => new CalendarEventItem
                     {
                         EventId = e.Id,
+                        CompetitionId = c.Id,
                         CompetitionName = c.Name,
                         EventName = e.Name,
                         StartDate = e.StartDate,
                         StartTime = e.StartTime ?? "",
                         RankingCoef = e.RankingCoef
                     }))
-                    .OrderBy(i => ParseDate(i.StartDate) ?? DateTime.MaxValue)
-                    .ThenBy(i => i.StartTime)
                     .ToList();
 
-                foreach (var item in items)
-                    Events.Add(item);
+                var groups = CompetitionListBuilder.Group(events, newestFirst: false);
 
-                StatusText = items.Count == 0 ? $"No planned events found for {year}." : "";
+                foreach (var g in groups)
+                    g.OpensDirectly = g.Events.Count == 1;
+                CompetitionListBuilder.Fill(Rows, groups);
+
+                StatusText = groups.Count == 0 ? $"No planned events found for {year}." : "";
             }
             catch (Exception ex)
             {
@@ -116,8 +139,5 @@ namespace RankingApp.Core.ViewModels
                     IsLoading = false;
             }
         }
-
-        private static DateTime? ParseDate(string? value) =>
-            DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : null;
     }
 }

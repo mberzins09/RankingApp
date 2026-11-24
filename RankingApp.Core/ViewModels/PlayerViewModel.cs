@@ -27,6 +27,9 @@ namespace RankingApp.Core.ViewModels
         private DateTime? _pendingLoadDate;
         private List<Game> _allGames = [];
 
+        // Month shown when it is not the PlayerDB (latest) month - view only, PlayerDB is never changed by it
+        private DateTime? _viewMonth;
+
         [ObservableProperty]
         private ObservableCollection<Game>? filteredGames;
 
@@ -54,8 +57,13 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private DateTime selectedDate = DateTime.UtcNow;
 
+        /// <summary>Month shown in the list, e.g. "2026 October".</summary>
         [ObservableProperty]
         private string? appDataLabel;
+
+        /// <summary>"Latest ranking" or, for an older month, "Viewing · latest 2026 November".</summary>
+        [ObservableProperty]
+        private string rankingCaption = "Latest ranking";
 
         [ObservableProperty]
         private string? searchText;
@@ -134,6 +142,16 @@ namespace RankingApp.Core.ViewModels
             if (player == null)
                 return;
 
+            // A row of an older month is not a PlayerDB row - use the matching local player (by KeyName)
+            if (player.Id == 0 || _viewMonth != null)
+            {
+                var dbPlayer = (await _playerService.GetPlayersFromDbAsync()).FirstOrDefault(p => p.KeyName == player.KeyName);
+                if (dbPlayer == null)
+                    return;
+
+                player = dbPlayer;
+            }
+
             var appData = await _playerService.GetAppDataAsync();
             appData.AppUserPlayerId = player.Id;
             appData.AppUserOldId = player.Id;
@@ -208,22 +226,7 @@ namespace RankingApp.Core.ViewModels
             FilterPlayers();
         }
 
-        partial void OnSelectedDateChanged(DateTime value)
-        {
-            if (_cachedAppData == null)
-            {
-                _ = LoadPlayersFromApiAsync(value);
-                return;
-            }
-            
-            if (_cachedAppData.CurrentYear == value.Year &&
-                _cachedAppData.CurrentMonth == value.Month)
-            {
-                return;
-            }
-
-            _ = LoadPlayersFromApiAsync(value);
-        }
+        partial void OnSelectedDateChanged(DateTime value) => _ = ShowMonthAsync(value);
 
         partial void OnSearchTextChanged(string? value)
         {
@@ -244,7 +247,10 @@ namespace RankingApp.Core.ViewModels
 
         public async Task LoadDataAsync()
         {
-            _allPlayers = await _playerService.GetPlayersFromDbAsync();
+            // An older month is being viewed - keep it (coming back from a game / tournament page)
+            if (_viewMonth == null)
+                _allPlayers = await _playerService.GetPlayersFromDbAsync();
+
             _allGames = await _playerService.GetGamesFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
             RemindRankingUpdate = _cachedAppData.RemindRankingUpdate;
@@ -256,49 +262,122 @@ namespace RankingApp.Core.ViewModels
             ShowPage(keepPage);
 
             await UpdateAppDataLabel();
+
+            await EnsureStoredRankingsAsync();
         }
 
-        public async Task LoadPlayersFromApiAsync(DateTime? date = null)
-        {
-            DateTime requested = date ?? DateTime.UtcNow;
+        // Checked once per app session (an offline attempt is tried again on the next start)
+        private bool _storedRankingsChecked;
 
-            if (_isLoadingPlayers)
-            {
-                // Remember only the newest request; handled when the current download finishes
-                _pendingLoadDate = requested;
+        /// <summary>
+        /// First open: the PlayerDB month and the month before it must be in the MonthRanking table,
+        /// so PointsChanged can be shown. Missing ones are downloaded and stored once.
+        /// </summary>
+        private async Task EnsureStoredRankingsAsync()
+        {
+            if (_storedRankingsChecked || _isLoadingPlayers)
                 return;
-            }
+
+            _storedRankingsChecked = true;
+
+            if (await _playerService.AreCurrentRankingsStoredAsync())
+                return;
 
             _isLoadingPlayers = true;
-            _progressDialog.Show("Loading players...");
+            _progressDialog.Show("Downloading rankings...");
 
             try
             {
-                _allPlayers = await _playerService.LoadPlayersFromApiOrDbAsync(date, status => _progressDialog.Update(status));
-                _cachedAppData = await _playerService.GetAppDataAsync();
-                FilterPlayers();
-                await UpdateAppDataLabel();
-                _progressDialog.Update("✅ Players loaded successfully!");
-                AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(_cachedAppData);
+                await _playerService.EnsureCurrentRankingsStoredAsync(status => _progressDialog.Update(status));
+
+                if (_viewMonth == null)
+                {
+                    _allPlayers = await _playerService.GetPlayersFromDbAsync();
+                    FilterPlayers();
+                }
             }
             catch (Exception ex)
             {
                 _progressDialog.Update($"❌ Error: {ex.Message}");
+                await Task.Delay(1000);
             }
             finally
             {
-                await Task.Delay(1000);
                 await _progressDialog.HideAsync();
                 _isLoadingPlayers = false;
             }
+        }
 
-            // A different month was picked while downloading → download that one too
+        /// <summary>
+        /// Shows the ranking of the picked month. The PlayerDB month (latest) comes from PlayerDB; any other month is
+        /// view only - read from the MonthRanking table (downloaded and stored once if missing, with the month before it
+        /// for PointsChanged). PlayerDB and AppData are never changed here; the latest ranking is updated by the
+        /// ranking update on the home page.
+        /// </summary>
+        private async Task ShowMonthAsync(DateTime date)
+        {
+            if (_isLoadingPlayers)
+            {
+                // Remember only the newest request; handled when the current load finishes
+                _pendingLoadDate = date;
+                return;
+            }
+
+            _isLoadingPlayers = true;
+
+            try
+            {
+                _cachedAppData ??= await _playerService.GetAppDataAsync();
+
+                bool isLatest = _cachedAppData.CurrentYear == date.Year && _cachedAppData.CurrentMonth == date.Month;
+
+                if (isLatest)
+                {
+                    _viewMonth = null;
+                    _allPlayers = await _playerService.GetPlayersFromDbAsync();
+                }
+                else
+                {
+                    _progressDialog.Show("Loading ranking...");
+
+                    try
+                    {
+                        var monthPlayers = await _playerService.GetMonthRankingViewAsync(date, status => _progressDialog.Update(status));
+                        _viewMonth = new DateTime(date.Year, date.Month, 1);
+                        _allPlayers = monthPlayers;
+
+                        if (monthPlayers.Count == 0)
+                        {
+                            _progressDialog.Update($"No ranking for {date:yyyy-MM}");
+                            await Task.Delay(1000);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _progressDialog.Update($"❌ Error: {ex.Message}");
+                        await Task.Delay(1000);
+                    }
+                    finally
+                    {
+                        await _progressDialog.HideAsync();
+                    }
+                }
+
+                FilterPlayers();
+                await UpdateAppDataLabel();
+            }
+            finally
+            {
+                _isLoadingPlayers = false;
+            }
+
+            // A different month was picked while loading → show that one too
             if (_pendingLoadDate is DateTime next)
             {
                 _pendingLoadDate = null;
 
-                if (next.Year != requested.Year || next.Month != requested.Month)
-                    await LoadPlayersFromApiAsync(next);
+                if (next.Year != date.Year || next.Month != date.Month)
+                    await ShowMonthAsync(next);
             }
         }
 
@@ -335,16 +414,22 @@ namespace RankingApp.Core.ViewModels
         private async Task UpdateAppDataLabel()
         {
             var appData = await _playerService.GetAppDataAsync();
-            if (appData.CurrentYear > 0 && appData.CurrentMonth > 0)
+            string latest = appData.CurrentYear > 0 && appData.CurrentMonth > 0 ? MonthLabel(appData.CurrentYear, appData.CurrentMonth) : "";
+
+            if (_viewMonth is DateTime viewed)
             {
-                var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(appData.CurrentMonth);
-                AppDataLabel = $"{appData.CurrentYear} {monthName}";
+                AppDataLabel = MonthLabel(viewed.Year, viewed.Month);
+                RankingCaption = latest.Length > 0 ? $"Viewing · latest {latest}" : "Viewing";
             }
             else
             {
-                AppDataLabel = string.Empty;
+                AppDataLabel = latest;
+                RankingCaption = "Latest ranking";
             }
         }
+
+        private static string MonthLabel(int year, int month) =>
+            $"{year} {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)}";
 
         private static string GetGameKey(Game g)
         {

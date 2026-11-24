@@ -9,20 +9,23 @@ using System.Globalization;
 namespace RankingApp.Core.ViewModels
 {
     /// <summary>
-    /// Results: finished (and running) events of the selected year. status=ongoing returns both past and
-    /// ongoing competitions. A whole year is loaded once and cached - the month picker only filters the cache.
+    /// Results: events of the selected year + month (competition-events?year=..&amp;month=..), grouped by competition.
+    /// Every loaded year/month is kept in memory, so switching the pickers back and forth needs no new API call.
+    /// The ranking of the selected month is preloaded for the event results page.
     /// </summary>
-    public partial class ResultsViewModel(TournamentService tournamentService, INavigationService navigation) : BaseViewModel
+    public partial class ResultsViewModel(TournamentService tournamentService, MonthRankingService rankingService, INavigationService navigation) : BaseViewModel
     {
         private static readonly TimeSpan CacheLifetime = TimeSpan.FromMinutes(10);
 
         private readonly TournamentService _tournamentService = tournamentService;
+        private readonly MonthRankingService _rankingService = rankingService;
         private readonly INavigationService _navigation = navigation;
 
-        private readonly Dictionary<int, (DateTime LoadedAt, List<CalendarEventItem> Events)> _yearCache = [];
+        private readonly Dictionary<(int Year, int Month), (DateTime LoadedAt, List<CompetitionGroupItem> Groups)> _cache = [];
 
         private int _loadVersion;
         private bool _initialized;
+        private bool _suppressLoad;
 
         [ObservableProperty]
         private ObservableCollection<int> years = [];
@@ -42,17 +45,22 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private string statusText = "";
 
-        public ObservableCollection<CalendarEventItem> Events { get; } = [];
+        /// <summary>CompetitionGroupItem rows, with CalendarEventItem rows of expanded competitions below them.</summary>
+        public ObservableCollection<object> Rows { get; } = [];
 
-        partial void OnSelectedYearChanged(int value)
+        partial void OnSelectedYearChanged(int value) => OnPickerChanged();
+
+        partial void OnSelectedMonthChanged(MonthOption? value) => OnPickerChanged();
+
+        private void OnPickerChanged()
         {
-            if (value > 0)
-                _ = LoadYearAsync();
+            if (_suppressLoad || SelectedYear <= 0 || SelectedMonth == null)
+                return;
+
+            _ = LoadAsync();
         }
 
-        partial void OnSelectedMonthChanged(MonthOption? value) => ApplyMonthFilter();
-
-        /// <summary>First time: system year and month. Later: only reloads a year whose cache is old.</summary>
+        /// <summary>First time: system year and month. Later: reloads only if the shown month is old.</summary>
         public void Initialize()
         {
             if (!_initialized)
@@ -60,7 +68,6 @@ namespace RankingApp.Core.ViewModels
                 _initialized = true;
 
                 var now = DateTime.Now;
-
                 var names = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames;
 
                 var list = new List<MonthOption> { new() { Number = 0, Name = "All months" } };
@@ -68,16 +75,40 @@ namespace RankingApp.Core.ViewModels
                 for (int m = 1; m <= 12; m++)
                     list.Add(new MonthOption { Number = m, Name = Capitalize(names[m - 1]) });
 
+                _suppressLoad = true;
                 Months = new ObservableCollection<MonthOption>(list);
                 SelectedMonth = list.First(m => m.Number == now.Month);
-
                 Years = new ObservableCollection<int>(Enumerable.Range(2020, Math.Max(1, now.Year - 2020 + 1)).OrderByDescending(y => y));
-                SelectedYear = now.Year;   // triggers loading
+                SelectedYear = now.Year;
+                _suppressLoad = false;
+
+                _ = LoadAsync();
                 return;
             }
 
-            if (_yearCache.TryGetValue(SelectedYear, out var cached) && DateTime.UtcNow - cached.LoadedAt > CacheLifetime)
-                _ = LoadYearAsync(forceReload: true);
+            if (_cache.TryGetValue(CurrentKey, out var cached) && DateTime.UtcNow - cached.LoadedAt > CacheLifetime)
+                _ = LoadAsync(forceReload: true);
+        }
+
+        private (int Year, int Month) CurrentKey => (SelectedYear, SelectedMonth?.Number ?? 0);
+
+        [RelayCommand]
+        private async Task RefreshAsync() => await LoadAsync(forceReload: true);
+
+        [RelayCommand]
+        private async Task ToggleCompetitionAsync(CompetitionGroupItem? group)
+        {
+            if (group == null)
+                return;
+
+            // Only one event - no dropdown, open it straight away
+            if (group.OpensDirectly)
+            {
+                await OpenEventAsync(group.Events[0]);
+                return;
+            }
+
+            CompetitionListBuilder.Toggle(Rows, group);
         }
 
         [RelayCommand]
@@ -86,56 +117,78 @@ namespace RankingApp.Core.ViewModels
             if (item == null)
                 return;
 
+            // The results page uses the ranking of the event's month - start loading it now
+            if (CompetitionListBuilder.ParseDate(item.StartDate) is { } date)
+                _rankingService.Prefetch(date.Year, date.Month);
+
             await _navigation.GoToAsync(NavParams.EventResultsRoute, new Dictionary<string, object>
             {
-                [NavParams.EventId] = item.EventId
+                [NavParams.EventId] = item.EventId,
+                [NavParams.PlayingDate] = item.PlayingDate
             });
         }
 
-        private async Task LoadYearAsync(bool forceReload = false)
+        private async Task LoadAsync(bool forceReload = false)
         {
             int version = ++_loadVersion;
-            int year = SelectedYear;
+            var key = CurrentKey;
 
-            // Already loaded this year - only filter, no new API call
-            if (!forceReload && _yearCache.ContainsKey(year))
+            if (key.Month > 0)
+                _rankingService.Prefetch(key.Year, key.Month);
+
+            // Already loaded this year + month - no new API call
+            if (!forceReload && _cache.TryGetValue(key, out var cached))
             {
                 IsLoading = false;
-                ApplyMonthFilter();
+                Show(key, cached.Groups);
                 return;
             }
 
             try
             {
-                Events.Clear();
+                Rows.Clear();
                 IsLoading = true;
                 StatusText = "Loading events...";
 
-                // "ongoing" gives past and ongoing competitions together
-                var competitions = await _tournamentService.GetCompetitionsAsync(year, "ongoing");
+                var apiEvents = await _tournamentService.GetCompetitionEventsAsync(key.Year, key.Month);
 
                 if (version != _loadVersion)
                     return;
 
-                var items = competitions
-                    .SelectMany(c => (c.Events ?? []).Select(e => new CalendarEventItem
+                var today = DateTime.Today;
+
+                var events = apiEvents
+                    .Select(e =>
                     {
-                        EventId = e.Id,
-                        CompetitionName = c.Name,
-                        EventName = e.Name,
-                        StartDate = e.StartDate,
-                        StartTime = e.StartTime ?? "",
-                        RankingCoef = e.RankingCoef
-                    }))
-                    .OrderByDescending(i => ParseDate(i.StartDate) ?? DateTime.MinValue)
-                    .ThenBy(i => i.StartTime)
+                        // Teams event longer than 3 days (season): this row is one playing date and its results are asked for that date
+                        string playingDate = e.NeedsPlayingDate
+                            ? (string.IsNullOrWhiteSpace(e.EffectiveDate) ? e.StartDate : e.EffectiveDate!)
+                            : "";
+
+                        return new CalendarEventItem
+                        {
+                            EventId = e.Id,
+                            CompetitionId = e.Competition?.Id ?? -e.Id,   // no competition - the event is its own group
+                            CompetitionName = string.IsNullOrWhiteSpace(e.Competition?.Name) ? e.Name : e.Competition.Name,
+                            EventName = e.Name,
+                            StartDate = playingDate.Length > 0 ? playingDate : e.StartDate,
+                            StartTime = e.StartTime ?? "",
+                            RankingCoef = e.RankingCoef,
+                            City = e.Arena?.City ?? "",
+                            PlayingDate = playingDate
+                        };
+                    })
+                    // Results only: events that have started (future ones are in the Calendar)
+                    .Where(e => (CompetitionListBuilder.ParseDate(e.StartDate) ?? DateTime.MinValue) <= today)
                     .ToList();
 
-                // A failed / empty response is not cached, so it is tried again next time
-                if (items.Count > 0)
-                    _yearCache[year] = (DateTime.UtcNow, items);
+                var groups = CompetitionListBuilder.Group(events, newestFirst: true);
 
-                ApplyMonthFilter();
+                foreach (var g in groups)
+                    g.OpensDirectly = g.Events.Count == 1;
+
+                _cache[key] = (DateTime.UtcNow, groups);
+                Show(key, groups);
             }
             catch (Exception ex)
             {
@@ -149,32 +202,18 @@ namespace RankingApp.Core.ViewModels
             }
         }
 
-        /// <summary>Shows the cached events of the selected year that start in the selected month.</summary>
-        private void ApplyMonthFilter()
+        private void Show((int Year, int Month) key, List<CompetitionGroupItem> groups)
         {
-            if (SelectedYear <= 0 || !_yearCache.TryGetValue(SelectedYear, out var cached))
-                return;
+            CompetitionListBuilder.Fill(Rows, groups);
 
-            int month = SelectedMonth?.Number ?? 0;
-
-            var filtered = month == 0
-                ? cached.Events
-                : cached.Events.Where(e => ParseDate(e.StartDate)?.Month == month).ToList();
-
-            Events.Clear();
-
-            foreach (var e in filtered)
-                Events.Add(e);
-
-            StatusText = filtered.Count == 0
-                ? (month == 0 ? $"No events found for {SelectedYear}." : $"No events in {SelectedMonth?.Name} {SelectedYear}.")
-                : "";
+            StatusText = groups.Count > 0
+                ? ""
+                : key.Month == 0
+                    ? $"No events found for {key.Year}."
+                    : $"No events in {SelectedMonth?.Name} {key.Year}.";
         }
 
         private static string Capitalize(string s) =>
             string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0], CultureInfo.CurrentCulture) + s[1..];
-
-        private static DateTime? ParseDate(string? value) =>
-            DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : null;
     }
 }

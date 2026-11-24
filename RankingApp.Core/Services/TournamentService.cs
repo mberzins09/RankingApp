@@ -125,6 +125,27 @@ namespace RankingApp.Core.Services
         }
 
         /// <summary>
+        /// All events of one month (competition-events?year=2026&amp;month=11). month = 0 → the whole year.
+        /// Throws on network / server errors so the caller can show them (and not cache an empty list).
+        /// </summary>
+        public async Task<List<APICompetitionEventListItem>> GetCompetitionEventsAsync(int year, int month)
+        {
+            string url = $"{Data.ApiUrl}competition-events?year={year}";
+
+            if (month is >= 1 and <= 12)
+                url += $"&month={month}";
+
+            var response = await SendWithRetryAsync(url)
+                           ?? throw new HttpRequestException("Too many requests - try again in a minute.");
+
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadFromJsonAsync<APICompetitionEventsResponse>();
+
+            return result?.CompetitionEvents ?? [];
+        }
+
+        /// <summary>
         /// Full results of one event (participants + nets with games).
         /// For season events pass playingDate (yyyy-MM-dd) to get only that round.
         /// </summary>

@@ -37,7 +37,7 @@ public static class EventResultsDrawer
 
     // ══ Group table ══════════════════════════════════════════════════════
 
-    private const double NrWidth = 34, NameWidth = 150, CellWidth = 58, HeaderHeight = 34, RowHeight = 56;
+    private const double NrWidth = 34, NameWidth = 150, CellWidth = 58, HeaderHeight = 34, RowHeight = 64;
 
     public static View DrawGroupTable(GroupTableModel model)
     {
@@ -122,8 +122,15 @@ public static class EventResultsDrawer
         var stack = new VerticalStackLayout { Spacing = 0, VerticalOptions = LayoutOptions.Center };
         stack.Children.Add(MakeLabel(cell.Points, 12, TextFaint));
         stack.Children.Add(MakeLabel(cell.Score, 14, scoreColor, bold: true));
+
+        if (cell.RatingChange is int change)
+            stack.Children.Add(MakeLabel(RatingFormat.Change(change), 11, RatingColor(change), bold: true));
+
         return stack;
     }
+
+    /// <summary>Green for a gain, red for a loss, faint for 0.</summary>
+    private static Color RatingColor(int change) => change > 0 ? Positive : change < 0 ? Negative : TextFaint;
 
     private static void AddCell(Grid grid, View? content, int row, int column, Color background, Thickness? padding = null)
     {
@@ -143,7 +150,7 @@ public static class EventResultsDrawer
 
     // ══ Play-off bracket ═════════════════════════════════════════════════
 
-    private const double MatchWidth = 180, PlayerRowHeight = 26, ColumnGap = 40, WinnerWidth = 150, WinnerHeight = 30, TopOffset = 30;
+    private const double MatchWidth = 210, PlayerRowHeight = 26, ColumnGap = 40, WinnerWidth = 150, WinnerHeight = 30, TopOffset = 30;
     private const double MatchHeight = PlayerRowHeight * 2;
     private const double Slot = MatchHeight + 16;
 
@@ -258,8 +265,8 @@ public static class EventResultsDrawer
         grid.RowDefinitions.Add(new RowDefinition(new GridLength(PlayerRowHeight)));
         grid.RowDefinitions.Add(new RowDefinition(new GridLength(PlayerRowHeight)));
 
-        AddPlayerRow(grid, 0, match.Player1, match.Score1, won: match.Winner == 1, decided: match.Winner != 0);
-        AddPlayerRow(grid, 1, match.Player2, match.Score2, won: match.Winner == 2, decided: match.Winner != 0);
+        AddPlayerRow(grid, 0, match.Player1, match.Score1, match.RatingChange1, won: match.Winner == 1, decided: match.Winner != 0);
+        AddPlayerRow(grid, 1, match.Player2, match.Score2, match.RatingChange2, won: match.Winner == 2, decided: match.Winner != 0);
 
         return new Border
         {
@@ -270,18 +277,27 @@ public static class EventResultsDrawer
         };
     }
 
-    private static void AddPlayerRow(Grid grid, int row, string name, string score, bool won, bool decided)
+    private static void AddPlayerRow(Grid grid, int row, string name, string score, int? ratingChange, bool won, bool decided)
     {
         var line = new Grid { ColumnSpacing = 6, Padding = new Thickness(8, 0), BackgroundColor = won ? Orchid : Glass };
         line.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        line.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
         line.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
 
         Color color = won ? TextMain : decided ? TextFaint : TextSoft;
 
         line.Children.Add(MakeLabel(name, 12, color, bold: won, TextAlignment.Start, LineBreakMode.TailTruncation));
 
+        if (ratingChange is int change)
+        {
+            // On the orchid winner background the green is hard to read - use the main text color there
+            var ratingLabel = MakeLabel(RatingFormat.Change(change), 11, won && change > 0 ? TextMain : RatingColor(change), bold: true);
+            Grid.SetColumn(ratingLabel, 1);
+            line.Children.Add(ratingLabel);
+        }
+
         var scoreLabel = MakeLabel(score, 13, color, bold: true);
-        Grid.SetColumn(scoreLabel, 1);
+        Grid.SetColumn(scoreLabel, 2);
         line.Children.Add(scoreLabel);
 
         Grid.SetRow(line, row);

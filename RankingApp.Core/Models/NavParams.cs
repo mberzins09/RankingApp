@@ -10,11 +10,18 @@
         public const string GameId = "gameId";
         public const string EventId = "eventId";
 
+        /// <summary>yyyy-MM-dd playing date of a multi-day (season) teams event.</summary>
+        public const string PlayingDate = "playingDate";
+
         /// <summary>Shell route of the calendar event page (same as nameof(CalendarEventPage) registered in AppShell).</summary>
         public const string CalendarEventRoute = "CalendarEventPage";
 
         /// <summary>Shell route of the event results page (same as nameof(EventResultsPage) registered in AppShell).</summary>
         public const string EventResultsRoute = "EventResultsPage";
+
+        /// <summary>Reads a string parameter ("" if missing).</summary>
+        public static string GetString(IDictionary<string, object> query, string key) =>
+            query.TryGetValue(key, out var raw) && raw != null ? raw.ToString() ?? "" : "";
 
         /// <summary>Reads an int parameter - accepts int or numeric string, ignores 0 / missing.</summary>
         public static bool TryGetInt(IDictionary<string, object> query, string key, out int value)

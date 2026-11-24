@@ -47,7 +47,8 @@ public partial class EventResultsPage : BaseContentPage
         var option = _viewModel.SelectedOption;
         int token = ++_showToken;
 
-        if (option == null || option.Kind == ResultViewKind.Participants)
+        // Participants and team matches are plain lists bound in XAML - nothing to draw
+        if (option == null || option.Kind is ResultViewKind.Participants or ResultViewKind.TeamMatches)
         {
             DrawingScroll.Content = null;
             BusyIndicator.IsVisible = false;

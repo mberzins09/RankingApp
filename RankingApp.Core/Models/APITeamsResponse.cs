@@ -80,6 +80,9 @@ namespace RankingApp.Core.Models
         [JsonPropertyName("ranking_coef")]
         public string RankingCoef { get; set; } = "0";
 
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
         [JsonPropertyName("competition")]
         public APICompetitionInfo? Competition { get; set; }
     }
@@ -236,6 +239,16 @@ namespace RankingApp.Core.Models
         public APIGamePlayer? Winner { get; set; }
 
         /// <summary>Doubles only, e.g. { "id": 1704, "name": "Nikolajs Golubevs / Anrijs Bergs" }</summary>
+        /// <summary>Teams events: the two teams of a team match.</summary>
+        [JsonPropertyName("player1_team")]
+        public APITeamRef? Player1Team { get; set; }
+
+        [JsonPropertyName("player2_team")]
+        public APITeamRef? Player2Team { get; set; }
+
+        [JsonPropertyName("round_nr")]
+        public int? RoundNr { get; set; }
+
         [JsonPropertyName("player1_doubles_pair")]
         public APIDoublesPair? Player1DoublesPair { get; set; }
 
@@ -260,6 +273,15 @@ namespace RankingApp.Core.Models
 
         [JsonPropertyName("games")]
         public List<APINetGame>? Games { get; set; }
+    }
+
+    public class APITeamRef
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = "";
     }
 
     public class APIDoublesPair

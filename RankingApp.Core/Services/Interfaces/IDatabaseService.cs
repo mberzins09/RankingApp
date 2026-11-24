@@ -20,5 +20,10 @@ namespace RankingApp.Core.Services.Interfaces
         Task DeleteDoublesForTournamentAsync(int tournamentId);
         Task<int> DeleteAllAsync<T>() where T : Entity, new();
         Task<Dictionary<int, int>> GetGamePointSumsAsync();
+
+        Task<List<MonthRankingRow>> GetMonthRankingAsync(int year, int month);
+        Task SaveMonthRankingAsync(int year, int month, List<MonthRankingRow> rows);
+        Task<bool> HasMonthRankingAsync(int year, int month);
+        Task UpdatePointsChangedAsync(Dictionary<string, int> changesByKey);
     }
 }
