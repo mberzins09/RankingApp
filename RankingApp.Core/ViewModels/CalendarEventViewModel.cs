@@ -10,14 +10,19 @@ namespace RankingApp.Core.ViewModels
     /// One event of the calendar: name, date / time / coefficient and registered participants,
     /// numbered by the ranking of the current month (PlayerDB if it holds that month, otherwise downloaded; 0 if not found).
     /// </summary>
-    public partial class CalendarEventViewModel(TournamentService tournamentService, IDatabaseService database, MonthRankingService rankingService) : BaseViewModel, IQueryAttributable
+    public partial class CalendarEventViewModel(TournamentService tournamentService, IDatabaseService database, MonthRankingService rankingService,
+        FriendService friendService) : BaseViewModel, IQueryAttributable
     {
         private readonly TournamentService _tournamentService = tournamentService;
         private readonly IDatabaseService _database = database;
         private readonly MonthRankingService _rankingService = rankingService;
+        private readonly FriendService _friends = friendService;
 
         private int _eventId;
         private int _loadedEventId;
+
+        // Friends / app player version the shown highlights were built with
+        private int _loadedMarksVersion = -1;
         private int _loadVersion;
 
         [ObservableProperty]
@@ -49,7 +54,7 @@ namespace RankingApp.Core.ViewModels
                 return;
 
             // Same event as before (e.g. coming back from another page) - keep what is shown
-            if (_eventId == _loadedEventId && Participants.Count > 0)
+            if (_eventId == _loadedEventId && Participants.Count > 0 && _loadedMarksVersion == _friends.Version)
                 return;
 
             int version = ++_loadVersion;
@@ -88,7 +93,11 @@ namespace RankingApp.Core.ViewModels
                 var now = DateTime.Now;
                 var ranking = await _rankingService.GetAsync(now.Year, now.Month);
 
-                var sorted = await EventResultsBuilder.BuildParticipantsAsync(_database, result.Participants, ranking);
+                // App player (gold) and friends (blue) are highlighted
+                int marksVersion = _friends.Version;
+                var marks = await _friends.GetMarksAsync();
+
+                var sorted = await EventResultsBuilder.BuildParticipantsAsync(_database, result.Participants, ranking, marks: marks);
 
                 if (version != _loadVersion)
                     return;
@@ -97,6 +106,7 @@ namespace RankingApp.Core.ViewModels
                     Participants.Add(item);
 
                 _loadedEventId = eventId;
+                _loadedMarksVersion = marksVersion;
                 ParticipantsHeader = $"Participants ({sorted.Count})";
                 StatusText = sorted.Count == 0 ? "No participants registered yet." : "";
             }

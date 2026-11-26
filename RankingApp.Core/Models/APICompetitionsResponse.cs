@@ -207,6 +207,15 @@ namespace RankingApp.Core.Models
         /// <summary>"Name Surname(age)".</summary>
         public string Display => Age > 0 ? $"{Name} {Surname}({Age})" : $"{Name} {Surname}";
 
+        /// <summary>Highlight in the results: the app player or a friend.</summary>
+        public PlayerMark Mark { get; set; }
+        public bool IsMe => Mark == PlayerMark.Me;
+        public bool IsFriend => Mark == PlayerMark.Friend;
+
+        /// <summary>"T5" while the player is playing at table 5 right now (results of an ongoing event).</summary>
+        public string TableText { get; set; } = "";
+        public bool HasTable => TableText.Length > 0;
+
         public bool HasRatingChange => RatingChange.HasValue;
         public string RatingChangeText => RatingFormat.Change(RatingChange ?? 0);
         public bool IsRatingPositive => RatingChange > 0;

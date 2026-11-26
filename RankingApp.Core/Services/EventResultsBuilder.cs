@@ -14,10 +14,13 @@ namespace RankingApp.Core.Services
 
         /// <summary>
         /// Numbered by the ranking points of the given month (0 if the player is not in that ranking).
-        /// With <paramref name="ratings"/> every participant also gets the sum of his rating changes in this event.
+        /// With <paramref name="ratings"/> every participant also gets the sum of his rating changes in this event,
+        /// with <paramref name="marks"/> the app player / friends are highlighted and with <paramref name="liveTables"/>
+        /// (player key → table) players playing right now show their table.
         /// </summary>
         public static async Task<List<CalendarParticipantItem>> BuildParticipantsAsync(IDatabaseService database,
-            IEnumerable<APIParticipant>? participants, MonthRanking? ranking, EventRatingChanges? ratings = null)
+            IEnumerable<APIParticipant>? participants, MonthRanking? ranking, EventRatingChanges? ratings = null,
+            PlayerMarks? marks = null, Dictionary<string, int>? liveTables = null)
         {
             var items = new List<CalendarParticipantItem>();
 
@@ -39,7 +42,9 @@ namespace RankingApp.Core.Services
                     Age = string.IsNullOrWhiteSpace(birth) ? 0 : AgeCalculator.Calculate(birth),
                     PointsWithBonus = ranked?.PointsWithBonus ?? 0,
                     Points = ranked?.Points ?? 0,
-                    RatingChange = ratings == null ? null : ratings.TotalByKey.GetValueOrDefault(key)
+                    RatingChange = ratings == null ? null : ratings.TotalByKey.GetValueOrDefault(key),
+                    Mark = marks?.OfKey(key) ?? PlayerMark.None,
+                    TableText = liveTables != null && liveTables.TryGetValue(key, out int table) ? $"T{table}" : ""
                 });
             }
 
@@ -113,6 +118,56 @@ namespace RankingApp.Core.Services
             }
         }
 
+        // ── Table numbers (ongoing event) ───────────────────────────────
+
+        /// <summary>True when some game is not finished yet - only then table numbers are worth loading.</summary>
+        public static bool HasOpenGames(IEnumerable<APINet>? nets) =>
+            AllGames(nets).Any(g => g.Status is not ("finished" or "cancelled" or "walkover"));
+
+        /// <summary>Player KeyName → table of the game he is playing right now (also each member of a doubles pair).</summary>
+        public static Dictionary<string, int> LiveTablesByPlayer(IEnumerable<APINet>? nets, EventLiveInfo? live)
+        {
+            var result = new Dictionary<string, int>();
+
+            if (live == null || live.Games.Count == 0)
+                return result;
+
+            foreach (var game in AllGames(nets))
+            {
+                if (live.OpenGame(game.Id) is not { IsLive: true } info)
+                    continue;
+
+                foreach (string key in SideKeys(game.Player1, game.Player1DoublesPair).Concat(SideKeys(game.Player2, game.Player2DoublesPair)))
+                    result[key] = info.Table;
+            }
+
+            return result;
+        }
+
+        private static IEnumerable<string> SideKeys(APIGamePlayer? player, APIDoublesPair? pair)
+        {
+            string[] names = player != null ? [$"{player.Name}{player.Surname}"] : (pair?.Name ?? "").Split('/');
+
+            foreach (var name in names)
+            {
+                string key = NameNormalizer.NormalizeKey(name);
+                if (key.Length > 0)
+                    yield return key;
+            }
+        }
+
+        /// <summary>Table of a game that is still to be played / being played; nothing for a decided game.</summary>
+        private static (int? Table, bool IsLive) TableOf(APINetGame game, EventLiveInfo? live, bool decided)
+        {
+            if (decided || live?.OpenGame(game.Id) is not { } info)
+                return (null, false);
+
+            return (info.Table, info.IsLive);
+        }
+
+        private static string TableText(int? table, bool isLive) =>
+            table is int t ? (isLive ? $"● T{t}" : $"T{t}") : "";
+
         // ── Teams events ────────────────────────────────────────────────
 
         /// <summary>
@@ -126,7 +181,8 @@ namespace RankingApp.Core.Services
         /// stage by stage, inside a stage group by group / tree by tree, then round and start time.
         /// The group "players" lists of teams events are ignored (they are not the real players).
         /// </summary>
-        public static List<TeamMatchItem> BuildTeamMatches(IEnumerable<APINet>? nets, EventRatingChanges? ratings)
+        public static List<TeamMatchItem> BuildTeamMatches(IEnumerable<APINet>? nets, EventRatingChanges? ratings,
+            PlayerMarks? marks = null, EventLiveInfo? live = null)
         {
             var netList = (nets ?? []).OrderBy(n => n.Order).ToList();
             bool severalGroupNets = netList.Count(n => n.Groups is { Count: > 0 }) > 1;
@@ -177,7 +233,7 @@ namespace RankingApp.Core.Services
                 .ThenBy(e => e.Round)
                 .ThenBy(e => StartTime(e.Game) ?? DateTime.MaxValue)
                 .ThenBy(e => e.Game.Id)
-                .Select(e => BuildTeamMatch(e.Game, e.Stage, e.RoundTitle, ratings))
+                .Select(e => BuildTeamMatch(e.Game, e.Stage, e.RoundTitle, ratings, marks ?? PlayerMarks.Empty, live))
                 .ToList();
         }
 
@@ -193,7 +249,8 @@ namespace RankingApp.Core.Services
             return null;
         }
 
-        private static TeamMatchItem BuildTeamMatch(APINetGame match, string stage, string roundTitle, EventRatingChanges? ratings)
+        private static TeamMatchItem BuildTeamMatch(APINetGame match, string stage, string roundTitle, EventRatingChanges? ratings,
+            PlayerMarks marks, EventLiveInfo? live)
         {
             string score1 = match.Player1Score ?? "";
             string score2 = match.Player2Score ?? "";
@@ -212,21 +269,26 @@ namespace RankingApp.Core.Services
             if (StartTime(match) is { } at)
                 parts.Add(at.ToString("ddd HH:mm", CultureInfo.CurrentCulture));
 
+            var (table, isLive) = TableOf(match, live, winner != 0 && match.Status == "finished");
+
             return new TeamMatchItem
             {
+                TableText = TableText(table, isLive),
+                IsLive = isLive,
                 Team1 = match.Player1Team?.Name ?? "",
                 Team2 = match.Player2Team?.Name ?? "",
                 Score1 = score1,
                 Score2 = score2,
                 Winner = winner,
                 Subtitle = string.Join(" · ", parts),
-                Games = (match.Games ?? []).OrderBy(g => g.Id).Select(g => BuildTeamGame(g, ratings)).ToList()
+                Games = (match.Games ?? []).OrderBy(g => g.Id).Select(g => BuildTeamGame(g, ratings, marks, live)).ToList()
             };
         }
 
-        private static TeamGameItem BuildTeamGame(APINetGame game, EventRatingChanges? ratings)
+        private static TeamGameItem BuildTeamGame(APINetGame game, EventRatingChanges? ratings, PlayerMarks marks, EventLiveInfo? live)
         {
             int winner = WinnerOf(game);
+            var (table, isLive) = TableOf(game, live, game.Winner != null || game.Status == "finished");
 
             var item = new TeamGameItem
             {
@@ -234,7 +296,9 @@ namespace RankingApp.Core.Services
                 Player2 = SideName(game.Player2, game.Player2DoublesPair),
                 IsDoubles = game.Player1 == null || game.Player2 == null,
                 Winner = winner,
-                Score = winner == 0 ? "–" : $"{game.Player1Score}:{game.Player2Score}"
+                Score = table != null ? TableText(table, isLive) : winner != 0 ? $"{game.Player1Score}:{game.Player2Score}" : "–",
+                Mark1 = marks.Of(game.Player1, game.Player1DoublesPair),
+                Mark2 = marks.Of(game.Player2, game.Player2DoublesPair)
             };
 
             if (ratings != null && ratings.ByGame.TryGetValue(game.Id, out var change))
@@ -322,14 +386,18 @@ namespace RankingApp.Core.Services
 
         // ── Group table ─────────────────────────────────────────────────
 
-        public static GroupTableModel BuildGroupTable(string title, APINetGroup group, EventRatingChanges? ratings = null)
+        public static GroupTableModel BuildGroupTable(string title, APINetGroup group, EventRatingChanges? ratings = null,
+            PlayerMarks? marks = null, EventLiveInfo? live = null)
         {
+            marks ??= PlayerMarks.Empty;
+
             var games = (group.Games ?? []).Where(g => g.Player1 != null && g.Player2 != null).ToList();
 
             // Order of players = their place in the group; without a players list - from the games
             var players = (group.Players ?? [])
                 .OrderBy(p => p.Position)
-                .Select(p => (p.Id, Name: FullName(p.Name, p.Surname), Points: p.Points?.ToString() ?? "", Place: p.Position > 0 ? p.Position.ToString() : ""))
+                .Select(p => (p.Id, Name: FullName(p.Name, p.Surname), Points: p.Points?.ToString() ?? "", Place: p.Position > 0 ? p.Position.ToString() : "",
+                    Mark: marks.Of(p.Name, p.Surname)))
                 .ToList();
 
             if (players.Count == 0)
@@ -337,7 +405,7 @@ namespace RankingApp.Core.Services
                 players = games
                     .SelectMany(g => new[] { g.Player1!, g.Player2! })
                     .GroupBy(p => p.Id)
-                    .Select(g => (g.Key, Name: FullName(g.First().Name, g.First().Surname), Points: "", Place: ""))
+                    .Select(g => (g.Key, Name: FullName(g.First().Name, g.First().Surname), Points: "", Place: "", Mark: marks.Of(g.First())))
                     .ToList();
             }
 
@@ -350,7 +418,8 @@ namespace RankingApp.Core.Services
                     Number = i + 1,
                     PlayerName = players[i].Name,
                     Points = players[i].Points,
-                    Place = players[i].Place
+                    Place = players[i].Place,
+                    Mark = players[i].Mark
                 };
 
                 for (int j = 0; j < players.Count; j++)
@@ -361,7 +430,10 @@ namespace RankingApp.Core.Services
                         continue;
                     }
 
-                    row.Cells.Add(BuildCell(games, players[i].Id, players[j].Id, ratings));
+                    // Every game of a highlighted player is tinted - his row and his column
+                    var cell = BuildCell(games, players[i].Id, players[j].Id, ratings, live);
+                    cell.Mark = players[i].Mark > players[j].Mark ? players[i].Mark : players[j].Mark;
+                    row.Cells.Add(cell);
                 }
 
                 model.Rows.Add(row);
@@ -371,7 +443,7 @@ namespace RankingApp.Core.Services
         }
 
         /// <summary>Result of the game "me" against "opponent" as seen by "me".</summary>
-        private static GroupTableCell BuildCell(List<APINetGame> games, int me, int opponent, EventRatingChanges? ratings)
+        private static GroupTableCell BuildCell(List<APINetGame> games, int me, int opponent, EventRatingChanges? ratings, EventLiveInfo? live)
         {
             var game = games.FirstOrDefault(g =>
                 (g.Player1!.Id == me && g.Player2!.Id == opponent) ||
@@ -386,15 +458,19 @@ namespace RankingApp.Core.Services
             string oppScore = (meIsFirst ? game.Player2Score : game.Player1Score) ?? "";
             int? myPoints = meIsFirst ? game.Player1Points : game.Player2Points;
 
-            if (string.IsNullOrEmpty(myScore) && string.IsNullOrEmpty(oppScore))
-                return new GroupTableCell();
-
             CellOutcome outcome = CellOutcome.None;
 
             if (game.Winner != null)
                 outcome = game.Winner.Id == me ? CellOutcome.Win : CellOutcome.Loss;
             else if (int.TryParse(myScore, out int a) && int.TryParse(oppScore, out int b) && a != b)
                 outcome = a > b ? CellOutcome.Win : CellOutcome.Loss;
+
+            // Live scores can already show a leader - the game is decided only when it is finished
+            var (table, isLive) = TableOf(game, live, game.Winner != null);
+
+            // Not played yet: only the table (when one is given already)
+            if (string.IsNullOrEmpty(myScore) && string.IsNullOrEmpty(oppScore))
+                return new GroupTableCell { Table = table, IsLive = isLive };
 
             int? ratingChange = null;
 
@@ -406,14 +482,19 @@ namespace RankingApp.Core.Services
                 Outcome = outcome,
                 Points = myPoints?.ToString() ?? "",
                 Score = $"{myScore}:{oppScore}",
-                RatingChange = ratingChange
+                RatingChange = ratingChange,
+                Table = table,
+                IsLive = isLive
             };
         }
 
         // ── Play-off bracket ────────────────────────────────────────────
 
-        public static BracketModel BuildBracket(string title, APIEliminationTree tree, EventRatingChanges? ratings = null)
+        public static BracketModel BuildBracket(string title, APIEliminationTree tree, EventRatingChanges? ratings = null,
+            PlayerMarks? marks = null, EventLiveInfo? live = null)
         {
+            marks ??= PlayerMarks.Empty;
+
             var model = new BracketModel { Title = title };
 
             var rounds = (tree.Rounds ?? []).OrderBy(r => r.Round).ToList();
@@ -427,7 +508,7 @@ namespace RankingApp.Core.Services
 
                 // Games are created in bracket order, so the id order is the drawing order
                 foreach (var game in (rounds[r].Games ?? []).OrderBy(g => g.Id))
-                    round.Matches.Add(BuildMatch(game, ratings));
+                    round.Matches.Add(BuildMatch(game, ratings, marks, live));
 
                 model.Rounds.Add(round);
             }
@@ -440,15 +521,21 @@ namespace RankingApp.Core.Services
             return model;
         }
 
-        private static BracketMatch BuildMatch(APINetGame game, EventRatingChanges? ratings)
+        private static BracketMatch BuildMatch(APINetGame game, EventRatingChanges? ratings, PlayerMarks marks, EventLiveInfo? live)
         {
+            var (table, isLive) = TableOf(game, live, game.Winner != null);
+
             var match = new BracketMatch
             {
                 Player1 = SideName(game.Player1, game.Player1DoublesPair),
                 Player2 = SideName(game.Player2, game.Player2DoublesPair),
                 Score1 = game.Player1Score ?? "",
                 Score2 = game.Player2Score ?? "",
-                Winner = WinnerOf(game)
+                Winner = WinnerOf(game),
+                Mark1 = marks.Of(game.Player1, game.Player1DoublesPair),
+                Mark2 = marks.Of(game.Player2, game.Player2DoublesPair),
+                Table = table,
+                IsLive = isLive
             };
 
             if (ratings != null && ratings.ByGame.TryGetValue(game.Id, out var change))

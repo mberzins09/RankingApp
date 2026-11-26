@@ -30,8 +30,8 @@
 		<!-- <ApplicationId>com.mberzins.rankingapp</ApplicationId> -->
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>4.1</ApplicationDisplayVersion>
-		<ApplicationVersion>32</ApplicationVersion>
+		<ApplicationDisplayVersion>4.3</ApplicationDisplayVersion>
+		<ApplicationVersion>34</ApplicationVersion>
 		<Version>$(ApplicationDisplayVersion)</Version>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
@@ -44,7 +44,41 @@
 
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-	
+
+	<!--
+		Android Release: shrink the Java (DEX) code with R8 - Google Play "DEX code optimization".
+		DEX goes from ~15.6 MB to ~8.6 MB, under Play's 10 MB size where the optimization scores are enforced.
+		Class names are not obfuscated (.NET for Android always adds -dontobfuscate). Do not add obfuscation rules.
+	-->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<AndroidLinkTool>r8</AndroidLinkTool>
+	</PropertyGroup>
+
+	<!--
+		Workaround for an SDK bug (36.1.69) that crashed version 32 (4.1) on start:
+		  ClassNotFoundException androidx.appcompat.widget.FitWindowsFrameLayout
+		aapt2 writes obj/.../aapt_rules.txt - R8 keep rules for classes used only from layout XML / the manifest.
+		The SDK passes it to R8 only when the resources are re-linked. On the next build the resources are up to
+		date, the file is not listed as a build output any more, IncrementalClean deletes it, and the following
+		R8 run removes those classes. So: re-link when the file is missing, always pass it to R8, keep it from being
+		deleted, and stop the build if R8 would still run without it.
+	-->
+	<Target Name="_RankingAppRelinkWhenAaptRulesMissing" BeforeTargets="_CreateBaseApk"
+	        Condition="'$(AndroidLinkTool)' == 'r8' And !Exists('$(IntermediateOutputPath)aapt_rules.txt')">
+		<Delete Files="$(_PackagedResources)" />
+	</Target>
+
+	<Target Name="_RankingAppUseAaptRules" AfterTargets="_CalculateProguardConfigurationFiles"
+	        Condition="'$(AndroidLinkTool)' == 'r8'">
+		<Error Condition="!Exists('$(IntermediateOutputPath)aapt_rules.txt')"
+		       Text="aapt_rules.txt is missing - R8 would remove classes used by layouts and the app would crash on start. Delete the bin and obj folders and build again." />
+		<ItemGroup>
+			<_ProguardConfiguration Remove="$(IntermediateOutputPath)aapt_rules.txt" />
+			<_ProguardConfiguration Include="$(IntermediateOutputPath)aapt_rules.txt" />
+			<FileWrites Include="$(IntermediateOutputPath)aapt_rules.txt" />
+		</ItemGroup>
+	</Target>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" />

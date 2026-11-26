@@ -55,6 +55,54 @@ namespace RankingApp.Core.Services
             return (await _database.GetAllRecordsAsync<PlayerDB>()).OrderByDescending(x => x.PointsWithBonus).ToList();
         }
 
+        private static readonly TimeSpan LatestCheckInterval = TimeSpan.FromMinutes(30);
+        private readonly SemaphoreSlim _latestLock = new(1, 1);
+        private DateTime _lastLatestCheck = DateTime.MinValue;
+
+        public async Task<bool> UpdateToLatestRankingAsync(DateTime now, Action<string>? progressCallback = null)
+        {
+            // Home page and rankings page may both ask at the same time - one check is enough
+            if (!await _latestLock.WaitAsync(0))
+                return false;
+
+            try
+            {
+                var appData = await _database.GetAppDataAsync();
+                var systemMonth = new DateTime(now.Year, now.Month, 1);
+                var storedMonth = StoredMonth(appData);
+
+                if (storedMonth >= systemMonth || DateTime.UtcNow - _lastLatestCheck < LatestCheckInterval)
+                    return false;
+
+                _lastLatestCheck = DateTime.UtcNow;
+
+                // Something newer than the stored month published? The system month, else the month before it
+                // (this month's ranking usually comes out a few days after the month starts).
+                if (!HasRankedPlayers(await _repositoryWithDate.GetPlayersAsync(systemMonth.ToString("yyyy-MM"), false)))
+                {
+                    var previous = systemMonth.AddMonths(-1);
+
+                    if (previous <= storedMonth ||
+                        !HasRankedPlayers(await _repositoryWithDate.GetPlayersAsync(previous.ToString("yyyy-MM"), false)))
+                        return false;
+                }
+
+                // Same months again - now from memory, no new download
+                await LoadPlayersFromApiOrDbAsync(now, progressCallback);
+
+                return StoredMonth(await _database.GetAppDataAsync()) > storedMonth;
+            }
+            finally
+            {
+                _latestLock.Release();
+            }
+        }
+
+        private static DateTime StoredMonth(AppData appData) =>
+            appData.CurrentYear > 0 && appData.CurrentMonth is >= 1 and <= 12
+                ? new DateTime(appData.CurrentYear, appData.CurrentMonth, 1)
+                : DateTime.MinValue;
+
         public async Task<List<PlayerDB>> GetMonthRankingViewAsync(DateTime month, Action<string>? progressCallback = null)
         {
             string monthString = month.ToString("yyyy-MM");

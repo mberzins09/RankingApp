@@ -21,6 +21,41 @@ public static class EventResultsDrawer
     private static Color GlassStrong => C("GlassStrong", Color.FromArgb("#33FFFFFF"));
     private static Color Divider => C("Divider", Color.FromArgb("#26FFFFFF"));
     private static Color Orchid => C("Orchid", Colors.MediumPurple);
+    private static Color Accent => C("Accent", Colors.Orange);
+    private static Color OnAccent => C("OnAccent", Colors.Black);
+
+    // ── App player / friend highlight ───────────────────────────────────
+
+    /// <summary>Strong color for a highlighted player's name / bar; null = not highlighted.</summary>
+    private static Color? MarkColor(PlayerMark mark) => mark switch
+    {
+        PlayerMark.Me => C("HighlightMe", Colors.Gold),
+        PlayerMark.Friend => C("HighlightFriend", Colors.DeepSkyBlue),
+        _ => null
+    };
+
+    /// <summary>Background tint of a highlighted player's row / games; null = not highlighted.</summary>
+    private static Color? MarkTint(PlayerMark mark) => mark switch
+    {
+        PlayerMark.Me => C("HighlightMeTint", Color.FromArgb("#4DFFD166")),
+        PlayerMark.Friend => C("HighlightFriendTint", Color.FromArgb("#4062D2FF")),
+        _ => null
+    };
+
+    /// <summary>
+    /// "T5" of a game still to be played: orange text; while it is being played a filled orange "● T5".
+    /// </summary>
+    private static View TableBadge(int table, bool isLive, double size = 12) => new Border
+    {
+        StrokeThickness = isLive ? 0 : 1,
+        Stroke = Accent,
+        BackgroundColor = isLive ? Accent : Colors.Transparent,
+        StrokeShape = new RoundRectangle { CornerRadius = 6 },
+        Padding = new Thickness(4, 1),
+        HorizontalOptions = LayoutOptions.Center,
+        VerticalOptions = LayoutOptions.Center,
+        Content = MakeLabel(isLive ? $"● T{table}" : $"T{table}", size, isLive ? OnAccent : Accent, bold: true)
+    };
 
     private static Label MakeLabel(string text, double size, Color color, bool bold = false,
         TextAlignment horizontal = TextAlignment.Center, LineBreakMode lineBreak = LineBreakMode.NoWrap) => new()
@@ -80,16 +115,19 @@ public static class EventResultsDrawer
             int gridRow = r + 1;
             int col = 0;
 
-            AddCell(grid, MakeLabel($"{row.Number}.", 12, TextFaint), gridRow, col++, Glass);
+            // App player / friend: his whole row tinted and his name colored; his column is tinted through cell.Mark
+            Color rowBackground = MarkTint(row.Mark) ?? Glass;
 
-            AddCell(grid, MakeLabel(row.PlayerName, 13, TextMain, bold: true, TextAlignment.Start, LineBreakMode.TailTruncation),
-                gridRow, col++, Glass, new Thickness(10, 0));
+            AddCell(grid, MakeLabel($"{row.Number}.", 12, TextFaint), gridRow, col++, rowBackground);
+
+            AddCell(grid, MakeLabel(row.PlayerName, 13, MarkColor(row.Mark) ?? TextMain, bold: true, TextAlignment.Start, LineBreakMode.TailTruncation),
+                gridRow, col++, rowBackground, new Thickness(10, 0));
 
             foreach (var cell in row.Cells)
-                AddCell(grid, BuildCellContent(cell), gridRow, col++, cell.IsSelf ? GlassStrong : Glass);
+                AddCell(grid, BuildCellContent(cell), gridRow, col++, cell.IsSelf ? GlassStrong : MarkTint(cell.Mark) ?? Glass);
 
-            AddCell(grid, MakeLabel(row.Points, 15, TextMain, bold: true), gridRow, col++, Glass);
-            AddCell(grid, MakeLabel(row.Place, 15, TextMain, bold: true), gridRow, col, Glass);
+            AddCell(grid, MakeLabel(row.Points, 15, TextMain, bold: true), gridRow, col++, rowBackground);
+            AddCell(grid, MakeLabel(row.Place, 15, TextMain, bold: true), gridRow, col, rowBackground);
         }
 
         var stack = new VerticalStackLayout { Spacing = 8, Padding = new Thickness(4, 6, 14, 20) };
@@ -109,8 +147,12 @@ public static class EventResultsDrawer
 
     private static View? BuildCellContent(GroupTableCell cell)
     {
-        if (cell.IsSelf || string.IsNullOrEmpty(cell.Score))
+        if (cell.IsSelf)
             return null;
+
+        // Not played yet - the table it is (being) played at
+        if (string.IsNullOrEmpty(cell.Score))
+            return cell.Table is int table ? TableBadge(table, cell.IsLive) : null;
 
         Color scoreColor = cell.Outcome switch
         {
@@ -123,7 +165,10 @@ public static class EventResultsDrawer
         stack.Children.Add(MakeLabel(cell.Points, 12, TextFaint));
         stack.Children.Add(MakeLabel(cell.Score, 14, scoreColor, bold: true));
 
-        if (cell.RatingChange is int change)
+        // Live score: the table under it
+        if (cell.Table is int liveTable)
+            stack.Children.Add(TableBadge(liveTable, cell.IsLive, 10));
+        else if (cell.RatingChange is int change)
             stack.Children.Add(MakeLabel(RatingFormat.Change(change), 11, RatingColor(change), bold: true));
 
         return stack;
@@ -261,43 +306,66 @@ public static class EventResultsDrawer
 
     private static View BuildMatchCard(BracketMatch match)
     {
-        var grid = new Grid { RowSpacing = 0 };
+        var grid = new Grid { RowSpacing = 0, ColumnSpacing = 0 };
         grid.RowDefinitions.Add(new RowDefinition(new GridLength(PlayerRowHeight)));
         grid.RowDefinitions.Add(new RowDefinition(new GridLength(PlayerRowHeight)));
+        grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
 
-        AddPlayerRow(grid, 0, match.Player1, match.Score1, match.RatingChange1, won: match.Winner == 1, decided: match.Winner != 0);
-        AddPlayerRow(grid, 1, match.Player2, match.Score2, match.RatingChange2, won: match.Winner == 2, decided: match.Winner != 0);
+        AddPlayerRow(grid, 0, match.Player1, match.Score1, match.RatingChange1, match.Mark1, won: match.Winner == 1, decided: match.Winner != 0);
+        AddPlayerRow(grid, 1, match.Player2, match.Score2, match.RatingChange2, match.Mark2, won: match.Winner == 2, decided: match.Winner != 0);
+
+        // Not finished yet and a table is given: "T5" on the right, over both players
+        if (match.Table is int table)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+
+            var badge = new Grid { BackgroundColor = GlassStrong, Padding = new Thickness(4, 0), Children = { TableBadge(table, match.IsLive, 11) } };
+            Grid.SetColumn(badge, 1);
+            Grid.SetRowSpan(badge, 2);
+            grid.Children.Add(badge);
+        }
+
+        // A highlighted player's game gets a frame in his color (the app player's wins over a friend's)
+        var frame = MarkColor(match.Mark1 > match.Mark2 ? match.Mark1 : match.Mark2);
 
         return new Border
         {
-            StrokeThickness = 0,
+            StrokeThickness = frame == null ? 0 : 1.5,
+            Stroke = frame ?? Colors.Transparent,
             StrokeShape = new RoundRectangle { CornerRadius = 6 },
             Padding = 0,
             Content = grid
         };
     }
 
-    private static void AddPlayerRow(Grid grid, int row, string name, string score, int? ratingChange, bool won, bool decided)
+    private static void AddPlayerRow(Grid grid, int row, string name, string score, int? ratingChange, PlayerMark mark, bool won, bool decided)
     {
-        var line = new Grid { ColumnSpacing = 6, Padding = new Thickness(8, 0), BackgroundColor = won ? Orchid : Glass };
+        var line = new Grid { ColumnSpacing = 6, Padding = new Thickness(0, 0, 8, 0), BackgroundColor = won ? Orchid : MarkTint(mark) ?? Glass };
+        line.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(4)));   // highlight bar
         line.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
         line.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
         line.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
 
         Color color = won ? TextMain : decided ? TextFaint : TextSoft;
+        Color? markColor = MarkColor(mark);
 
-        line.Children.Add(MakeLabel(name, 12, color, bold: won, TextAlignment.Start, LineBreakMode.TailTruncation));
+        if (markColor != null)
+            line.Children.Add(new BoxView { Color = markColor });
+
+        var nameLabel = MakeLabel(name, 12, markColor ?? color, bold: won || markColor != null, TextAlignment.Start, LineBreakMode.TailTruncation);
+        Grid.SetColumn(nameLabel, 1);
+        line.Children.Add(nameLabel);
 
         if (ratingChange is int change)
         {
             // On the orchid winner background the green is hard to read - use the main text color there
             var ratingLabel = MakeLabel(RatingFormat.Change(change), 11, won && change > 0 ? TextMain : RatingColor(change), bold: true);
-            Grid.SetColumn(ratingLabel, 1);
+            Grid.SetColumn(ratingLabel, 2);
             line.Children.Add(ratingLabel);
         }
 
         var scoreLabel = MakeLabel(score, 13, color, bold: true);
-        Grid.SetColumn(scoreLabel, 2);
+        Grid.SetColumn(scoreLabel, 3);
         line.Children.Add(scoreLabel);
 
         Grid.SetRow(line, row);

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace RankingApp.Core.Models
 {
-    public class PlayerListItem
+    public partial class PlayerListItem : ObservableObject
     {
         public PlayerDB Player { get; set; }
 
@@ -23,5 +19,13 @@ namespace RankingApp.Core.Models
         public int Points => Player.Points;
         public int PointsWithBonus => Player.PointsWithBonus;
         public int PointsChanged => Player.PointsChanged;
+
+        /// <summary>Long-press menu shows "Set as friend" or "Remove friend".</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FriendMenuText), nameof(FriendIcon))]
+        private bool isFriend;
+
+        public string FriendMenuText => IsFriend ? "Remove friend" : "Set as friend";
+        public string FriendIcon => IsFriend ? "★" : "";
     }
 }

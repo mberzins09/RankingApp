@@ -13,6 +13,15 @@
         <DataTemplate x:Key="TeamMatchRow" x:DataType="model:TeamMatchItem">
             <Grid Padding="6,3">
                 <Border Style="{StaticResource Card}" Margin="0">
+                    <!-- The app player (gold) / a friend (blue) plays in this match -->
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsMe}" Value="True">
+                            <Setter Property="Stroke" Value="{StaticResource HighlightMe}"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsFriend}" Value="True">
+                            <Setter Property="Stroke" Value="{StaticResource HighlightFriend}"/>
+                        </DataTrigger>
+                    </Border.Triggers>
                     <VerticalStackLayout Spacing="3">
                         <Grid ColumnDefinitions="*, Auto, *, 18" ColumnSpacing="8">
                             <Label Text="{Binding Team1}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
@@ -38,8 +47,13 @@
                             <Label Grid.Column="3" Text="{Binding Chevron}" TextColor="{StaticResource Accent}" FontSize="18"
                                    HorizontalOptions="End" VerticalOptions="Center"/>
                         </Grid>
-                        <Label Text="{Binding Subtitle}" Style="{StaticResource ListItemSubLabel}" FontSize="11" TextColor="{StaticResource TextFaint}"
-                               HorizontalOptions="Center"/>
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <Label Text="{Binding Subtitle}" Style="{StaticResource ListItemSubLabel}" FontSize="11" TextColor="{StaticResource TextFaint}"
+                                   VerticalOptions="Center"/>
+                            <!-- Table of a match not finished yet: "T5", while being played "● T5" -->
+                            <Label Text="{Binding TableText}" IsVisible="{Binding HasTable}" FontSize="11" FontFamily="OpenSansSemibold"
+                                   TextColor="{StaticResource Accent}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
                     </VerticalStackLayout>
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleTeamMatchCommand}"
@@ -53,6 +67,14 @@
         <DataTemplate x:Key="TeamGameRow" x:DataType="model:TeamGameItem">
             <Grid Padding="20,1,6,1">
                 <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource GlassStrong}" Padding="8,6">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsMe}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource HighlightMeTint}"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsFriend}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource HighlightFriendTint}"/>
+                        </DataTrigger>
+                    </Border.Triggers>
                     <Grid ColumnDefinitions="30, *, Auto, *, 30, 36" ColumnSpacing="4">
                         <Label Text="{Binding Rating1Text}" IsVisible="{Binding HasRating}" Style="{StaticResource ListItemSubLabel}"
                                FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextFaint}" HorizontalOptions="Start">
@@ -144,28 +166,57 @@
             <CollectionView Margin="-6,0" ItemsSource="{Binding Participants}" SelectionMode="None" IsVisible="{Binding IsParticipantsSelected}">
                 <!-- Columns: ranking points with bonus | points (rating is calculated from these) | sum of this event's rating changes -->
                 <CollectionView.Header>
-                    <Grid Padding="18,2,18,2" ColumnDefinitions="34, *, 50, 50, 42" ColumnSpacing="6">
-                        <Label Grid.Column="1" Grid.ColumnSpan="2" Text="PointsWithBonus" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
-                        <Label Grid.Column="3" Text="Points" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
-                        <Label Grid.Column="4" Text="+/-" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                    <!-- Same columns as the rows (the Auto column holds the "● T5" badge there) -->
+                    <Grid Padding="18,2,18,2" ColumnDefinitions="34, *, Auto, 50, 50, 42" ColumnSpacing="6">
+                        <Label Grid.Column="1" Grid.ColumnSpan="3" Text="PointsWithBonus" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                        <Label Grid.Column="4" Text="Points" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                        <Label Grid.Column="5" Text="+/-" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
                     </Grid>
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:CalendarParticipantItem">
                         <Grid Padding="6,2">
                             <Border Style="{StaticResource Card}" Margin="0" Padding="12,8">
-                                <Grid ColumnDefinitions="34, *, 50, 50, 42" ColumnSpacing="6">
+                                <!-- App player (gold) / friend (blue) -->
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsMe}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource HighlightMe}"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource HighlightMeTint}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsFriend}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource HighlightFriend}"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource HighlightFriendTint}"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Grid ColumnDefinitions="34, *, Auto, 50, 50, 42" ColumnSpacing="6">
                                     <Label Text="{Binding Position, StringFormat='{0}.'}" Style="{StaticResource ListItemSubLabel}"
                                            HorizontalOptions="Start" VerticalOptions="Center"/>
                                     <Label Grid.Column="1" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" FontSize="14"
                                            HorizontalOptions="Start" HorizontalTextAlignment="Start" VerticalOptions="Center"
-                                           LineBreakMode="TailTruncation" MaxLines="1"/>
-                                    <Label Grid.Column="2" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontSize="14"
+                                           LineBreakMode="TailTruncation" MaxLines="1">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsMe}" Value="True">
+                                                <Setter Property="TextColor" Value="{StaticResource HighlightMe}"/>
+                                                <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsFriend}" Value="True">
+                                                <Setter Property="TextColor" Value="{StaticResource HighlightFriend}"/>
+                                                <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <!-- Playing right now: "● T5" -->
+                                    <Border Grid.Column="2" IsVisible="{Binding HasTable}" BackgroundColor="{StaticResource Accent}" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6" Padding="5,1" VerticalOptions="Center">
+                                        <Label Text="{Binding TableText, StringFormat='● {0}'}" FontSize="11" FontFamily="OpenSansSemibold"
+                                               TextColor="{StaticResource OnAccent}"/>
+                                    </Border>
+                                    <Label Grid.Column="3" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontSize="14"
                                            FontFamily="OpenSansSemibold" TextColor="{StaticResource Accent}"
                                            HorizontalOptions="End" VerticalOptions="Center"/>
-                                    <Label Grid.Column="3" Text="{Binding Points}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
+                                    <Label Grid.Column="4" Text="{Binding Points}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
                                            HorizontalOptions="End" VerticalOptions="Center"/>
-                                    <Label Grid.Column="4" Text="{Binding RatingChangeText}" IsVisible="{Binding HasRatingChange}"
+                                    <Label Grid.Column="5" Text="{Binding RatingChangeText}" IsVisible="{Binding HasRatingChange}"
                                            Style="{StaticResource ListItemSubLabel}" FontSize="13" FontFamily="OpenSansSemibold"
                                            HorizontalOptions="End" VerticalOptions="Center">
                                         <Label.Triggers>

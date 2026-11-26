@@ -11,11 +11,14 @@ namespace RankingApp.Core.ViewModels
     /// Results of one event. The response is loaded once and turned into ready models (participants, group
     /// tables, brackets); the picker only switches between them, so switching needs no work and no API call.
     /// </summary>
-    public partial class EventResultsViewModel(TournamentService tournamentService, IDatabaseService database, MonthRankingService rankingService) : BaseViewModel, IQueryAttributable
+    public partial class EventResultsViewModel(TournamentService tournamentService, IDatabaseService database, MonthRankingService rankingService,
+        FriendService friendService, LgtfWebSiteService webSite) : BaseViewModel, IQueryAttributable
     {
         private readonly TournamentService _tournamentService = tournamentService;
         private readonly IDatabaseService _database = database;
         private readonly MonthRankingService _rankingService = rankingService;
+        private readonly FriendService _friends = friendService;
+        private readonly LgtfWebSiteService _webSite = webSite;
 
         // Everything built for an event (+ playing date for season teams events) - kept for the whole app session
         private readonly Dictionary<string, EventResultsData> _cache = [];
@@ -38,6 +41,11 @@ namespace RankingApp.Core.ViewModels
             public Dictionary<string, BracketModel> Brackets { get; init; } = [];
             public bool IsTeams { get; init; }
             public List<TeamMatchItem> TeamMatches { get; init; } = [];
+
+            // Kept to rebuild the highlights without a new download when friends / the app player change
+            public APIEventResultsResponse Response { get; init; } = new();
+            public EventLiveInfo Live { get; init; } = EventLiveInfo.Empty;
+            public int MarksVersion { get; init; }
         }
 
         private EventResultsData? _current;
@@ -158,7 +166,7 @@ namespace RankingApp.Core.ViewModels
                 return;
 
             // Same event as before (coming back to the page) - keep what is shown, including the picker choice
-            if (CurrentKey == _loadedKey && Options.Count > 0)
+            if (CurrentKey == _loadedKey && Options.Count > 0 && _current?.MarksVersion == _friends.Version)
                 return;
 
             int version = ++_loadVersion;
@@ -168,7 +176,20 @@ namespace RankingApp.Core.ViewModels
 
             try
             {
-                if (!_cache.TryGetValue(key, out var data))
+                var keepOption = key == _loadedKey ? SelectedOption : null;
+
+                if (_cache.TryGetValue(key, out var data) && data.MarksVersion != _friends.Version)
+                {
+                    // Friends or the app player changed - same results, new highlights (no download)
+                    data = await BuildAsync(data.Response, playingDate, data.Live);
+
+                    if (version != _loadVersion)
+                        return;
+
+                    _cache[key] = data;
+                }
+
+                if (data == null)
                 {
                     Clear();
                     IsLoading = true;
@@ -185,7 +206,12 @@ namespace RankingApp.Core.ViewModels
                         return;
                     }
 
-                    data = await BuildAsync(result, playingDate);
+                    var live = await LoadLiveInfoAsync(eventId, result);
+
+                    if (version != _loadVersion)
+                        return;
+
+                    data = await BuildAsync(result, playingDate, live);
 
                     if (version != _loadVersion)
                         return;
@@ -193,7 +219,7 @@ namespace RankingApp.Core.ViewModels
                     _cache[key] = data;
                 }
 
-                Apply(eventId, key, data);
+                Apply(eventId, key, data, keepOption);
             }
             catch (Exception ex)
             {
@@ -236,7 +262,12 @@ namespace RankingApp.Core.ViewModels
                     return;
                 }
 
-                var data = await BuildAsync(result, playingDate);
+                var live = await LoadLiveInfoAsync(eventId, result);
+
+                if (version != _loadVersion)
+                    return;
+
+                var data = await BuildAsync(result, playingDate, live);
 
                 if (version != _loadVersion)
                     return;
@@ -256,9 +287,30 @@ namespace RankingApp.Core.ViewModels
             }
         }
 
-        private async Task<EventResultsData> BuildAsync(APIEventResultsResponse result, string playingDate)
+        /// <summary>
+        /// Table numbers from the tournament website - only while some game is not finished (a finished event needs none,
+        /// and it saves the download). Not available -> empty, the results are shown without tables.
+        /// </summary>
+        private async Task<EventLiveInfo> LoadLiveInfoAsync(int eventId, APIEventResultsResponse result)
+        {
+            // Only stages still being played (a finished group stage needs no download)
+            var openNets = (result.Nets ?? []).Where(n => EventResultsBuilder.HasOpenGames([n])).Select(n => n.Id).ToList();
+
+            if (openNets.Count == 0)
+                return EventLiveInfo.Empty;
+
+            StatusText = "Loading table numbers...";
+
+            return await _webSite.GetLiveInfoAsync(eventId, openNets);
+        }
+
+        private async Task<EventResultsData> BuildAsync(APIEventResultsResponse result, string playingDate, EventLiveInfo live)
         {
             var ev = result.CompetitionEvent!;
+
+            // Version first: a change made while building is noticed next time
+            int marksVersion = _friends.Version;
+            var marks = await _friends.GetMarksAsync();
 
             // Season event loaded for one playing date - that date is what was played
             string date = string.IsNullOrWhiteSpace(playingDate) ? ev.StartDate : playingDate;
@@ -277,7 +329,8 @@ namespace RankingApp.Core.ViewModels
             string rankingInfo = ranking == null ? "ranking not available" : $"ranking {ranking.Label}";
             string title = string.IsNullOrWhiteSpace(ev.Competition?.Name) ? ev.Name : $"{ev.Competition.Name}({ev.Name})";
             string info = $"{dateTime} - {ev.RankingCoef} · {rankingInfo}";
-            var participants = await EventResultsBuilder.BuildParticipantsAsync(_database, result.Participants, ranking, ratings);
+            var participants = await EventResultsBuilder.BuildParticipantsAsync(_database, result.Participants, ranking, ratings,
+                marks, EventResultsBuilder.LiveTablesByPlayer(result.Nets, live));
 
             // Teams event: groups hold team matches (the group "players" are not real players) -
             // show Participants + a list of team matches instead of cross tables
@@ -297,7 +350,10 @@ namespace RankingApp.Core.ViewModels
                     Options = teamOptions,
                     StageOptions = teamOptions,
                     IsTeams = true,
-                    TeamMatches = EventResultsBuilder.BuildTeamMatches(result.Nets, ratings)
+                    TeamMatches = EventResultsBuilder.BuildTeamMatches(result.Nets, ratings, marks, live),
+                    Response = result,
+                    Live = live,
+                    MarksVersion = marksVersion
                 };
             }
 
@@ -319,7 +375,7 @@ namespace RankingApp.Core.ViewModels
                     string key = EventResultsBuilder.GroupKey(net, group);
                     string groupTitle = EventResultsBuilder.GroupTitle(net, group, severalGroupNets);
 
-                    groups[key] = EventResultsBuilder.BuildGroupTable(groupTitle, group, ratings);
+                    groups[key] = EventResultsBuilder.BuildGroupTable(groupTitle, group, ratings, marks, live);
                     options.Add(new ResultViewOption { Key = key, Title = groupTitle, Kind = ResultViewKind.Group });
                 }
 
@@ -328,7 +384,7 @@ namespace RankingApp.Core.ViewModels
                     string key = EventResultsBuilder.TreeKey(net, tree);
                     string treeTitle = EventResultsBuilder.TreeTitle(tree);
 
-                    brackets[key] = EventResultsBuilder.BuildBracket(treeTitle, tree, ratings);
+                    brackets[key] = EventResultsBuilder.BuildBracket(treeTitle, tree, ratings, marks, live);
                     options.Add(new ResultViewOption { Key = key, Title = treeTitle, Kind = ResultViewKind.Bracket });
                 }
             }
@@ -371,7 +427,10 @@ namespace RankingApp.Core.ViewModels
                 Participants = participants,
                 Options = options,
                 Groups = groups,
-                Brackets = brackets
+                Brackets = brackets,
+                Response = result,
+                Live = live,
+                MarksVersion = marksVersion
             };
         }
 

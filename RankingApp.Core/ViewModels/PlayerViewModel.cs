@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RankingApp.Core.Interfaces;
 using RankingApp.Core.Models;
+using RankingApp.Core.Services;
 using RankingApp.Core.Services.Interfaces;
 using RankingApp.Core.ViewModels.HelperClasses;
 using System.Collections.ObjectModel;
@@ -10,11 +11,17 @@ using System.Globalization;
 
 namespace RankingApp.Core.ViewModels
 {
-    public partial class PlayerViewModel(IPlayerService playerService, INavigationService navigation, IProgressDialogService progressDialog) : BaseViewModel
+    public partial class PlayerViewModel(IPlayerService playerService, INavigationService navigation, IProgressDialogService progressDialog,
+        FriendService friendService, AllTournamentsViewModel tournamentsViewModel) : BaseViewModel
     {
+        private const int FirstRankingYear = 2014;
+
         private readonly IProgressDialogService _progressDialog = progressDialog;
         private readonly INavigationService _navigation = navigation;
         private readonly IPlayerService _playerService = playerService;
+        private readonly FriendService _friends = friendService;
+        private readonly AllTournamentsViewModel _tournamentsViewModel = tournamentsViewModel;
+        private HashSet<string> _friendKeys = [];
         private List<PlayerDB>? _allPlayers = [];
         private List<PlayerDB>? _filteredPlayers = [];
         private List<PlayerListItem>? _sortedPlayers = [];
@@ -43,19 +50,25 @@ namespace RankingApp.Core.ViewModels
         private PlayerDB? selectedPlayer;
 
         [ObservableProperty]
-        private DateTime minDate = new(2014, 1, 1);
-
-        [ObservableProperty]
-        private DateTime maxDate = DateTime.Today.AddDays(10);
-
-        [ObservableProperty]
         private ObservableCollection<PlayerListItem>? players;
 
         [ObservableProperty]
         private string selectedFilter = "Men";
 
+        // ── Shown ranking month: year + month pickers ────────────────────
+        // Set from code (first open, newest month downloaded) without loading - only a user pick loads a month
+        private bool _settingPickers;
+
+        public ObservableCollection<int> Years { get; } = [];
+
         [ObservableProperty]
-        private DateTime selectedDate = DateTime.UtcNow;
+        private ObservableCollection<MonthOption> months = [];
+
+        [ObservableProperty]
+        private int selectedYear;
+
+        [ObservableProperty]
+        private MonthOption? selectedMonth;
 
         /// <summary>Month shown in the list, e.g. "2026 October".</summary>
         [ObservableProperty]
@@ -71,11 +84,24 @@ namespace RankingApp.Core.ViewModels
         [ObservableProperty]
         private PlayerDB? appDefaultPlayer;
 
+        /// <summary>App player in the shown month's ranking: "12. Name Surname 1520(1610)".</summary>
+        [ObservableProperty]
+        private string appPlayerLabel = "";
+
         [ObservableProperty]
         private string selectedSort = "PointsWithBonus";
 
+        // ── Friends popup ────────────────────────────────────────────────
         [ObservableProperty]
-        private bool remindRankingUpdate;
+        private bool isFriendsOverlayVisible;
+
+        [ObservableProperty]
+        private string friendsTitle = "";
+
+        [ObservableProperty]
+        private string friendsEmptyText = "";
+
+        public ObservableCollection<FriendRankingRow> FriendRows { get; } = [];
 
         public List<string> FilterOptions { get; } = ["Men", "Women", "AllActive", "Inactive", "All"];
         public List<string> SortOptions { get; } = ["PointsWithBonus", "Points", "PointsChanged", "Age"];
@@ -158,7 +184,124 @@ namespace RankingApp.Core.ViewModels
             appData.AppUserNewId = player.NewId;
             appData.AppUserKeyName = player.KeyName;
             await _playerService.SaveAppDataAsync(appData);
+            _cachedAppData = appData;
             AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(appData);
+            _friends.NotifyAppPlayerChanged();
+            UpdateAppPlayerLabel();
+        }
+
+        // ── Friends ───────────────────────────────────────────────────────
+
+        /// <summary>Long press → "Set as friend" / "Remove friend".</summary>
+        [RelayCommand]
+        private async Task ToggleFriendAsync(PlayerListItem? item)
+        {
+            if (item?.Player == null || string.IsNullOrEmpty(item.Player.KeyName))
+                return;
+
+            string key = item.Player.KeyName;
+
+            if (_friendKeys.Contains(key))
+            {
+                await _friends.RemoveAsync(key);
+                _friendKeys.Remove(key);
+            }
+            else
+            {
+                await _friends.AddAsync(item.Player);
+                _friendKeys.Add(key);
+            }
+
+            // The same player can be on the list once only, but keep every row of that key in sync
+            foreach (var row in _sortedPlayers ?? [])
+            {
+                if (row.Player.KeyName == key)
+                    row.IsFriend = _friendKeys.Contains(key);
+            }
+        }
+
+        [RelayCommand]
+        private async Task ShowFriendsAsync()
+        {
+            BuildFriendRows(await _friends.GetAllAsync());
+            IsFriendsOverlayVisible = true;
+        }
+
+        [RelayCommand]
+        private void CloseFriends() => IsFriendsOverlayVisible = false;
+
+        /// <summary>App player and friends in the shown month's ranking, best first; not ranked ones at the end.</summary>
+        private void BuildFriendRows(List<Friend> friends)
+        {
+            var byKey = ShownPlayersByKey();
+            string meKey = AppPlayerKey();
+            var rows = new List<FriendRankingRow>();
+
+            void Add(string key, string fallbackName, bool isMe)
+            {
+                if (string.IsNullOrEmpty(key) || rows.Any(r => r.KeyName == key))
+                    return;
+
+                var row = new FriendRankingRow { KeyName = key, IsMe = isMe, FullName = fallbackName };
+
+                if (byKey.TryGetValue(key, out var p) && p.IsActive)
+                {
+                    row.IsRanked = true;
+                    row.FullName = $"{p.Name} {p.Surname}".Trim();
+                    row.Place = p.Place;
+                    row.Points = p.Points;
+                    row.PointsWithBonus = p.PointsWithBonus;
+                    row.PointsChanged = p.PointsChanged;
+                }
+
+                rows.Add(row);
+            }
+
+            if (AppDefaultPlayer != null)
+                Add(meKey, $"{AppDefaultPlayer.Name} {AppDefaultPlayer.Surname}".Trim(), true);
+
+            foreach (var friend in friends)
+                Add(friend.KeyName, $"{friend.Name} {friend.Surname}".Trim(), false);
+
+            FriendRows.Clear();
+
+            foreach (var row in rows.OrderByDescending(r => r.IsRanked).ThenByDescending(r => r.PointsWithBonus).ThenBy(r => r.FullName))
+                FriendRows.Add(row);
+
+            FriendsTitle = string.IsNullOrEmpty(AppDataLabel) ? "Friends" : $"Friends · {AppDataLabel}";
+            FriendsEmptyText = friends.Count == 0 ? "No friends yet - long press a player → Set as friend" : "";
+        }
+
+        private string AppPlayerKey() =>
+            !string.IsNullOrEmpty(AppDefaultPlayer?.KeyName) ? AppDefaultPlayer.KeyName : _cachedAppData?.AppUserKeyName ?? "";
+
+        private Dictionary<string, PlayerDB> ShownPlayersByKey()
+        {
+            var byKey = new Dictionary<string, PlayerDB>();
+
+            foreach (var p in _allPlayers ?? [])
+            {
+                if (!string.IsNullOrEmpty(p.KeyName))
+                    byKey.TryAdd(p.KeyName, p);
+            }
+
+            return byKey;
+        }
+
+        /// <summary>The app player's place and points in the shown month (PlayerDB for the latest month, else that month's ranking).</summary>
+        private void UpdateAppPlayerLabel()
+        {
+            if (AppDefaultPlayer == null)
+            {
+                AppPlayerLabel = "Not set - long press a player → Set as default player";
+                return;
+            }
+
+            string name = $"{AppDefaultPlayer.Name} {AppDefaultPlayer.Surname}".Trim();
+
+            AppPlayerLabel = ShownPlayersByKey().TryGetValue(AppPlayerKey(), out var p) && p.IsActive
+                ? $"{p.Place}. {name} {p.Points}({p.PointsWithBonus})"
+                : $"{name} · not ranked";
         }
 
         [RelayCommand]
@@ -211,22 +354,88 @@ namespace RankingApp.Core.ViewModels
             FilteredGames?.Clear();
         }
 
-        partial void OnRemindRankingUpdateChanged(bool value)
-        {
-            if (_cachedAppData == null)
-                return;
-
-            _cachedAppData.RemindRankingUpdate = value;
-
-            _ = _playerService.SaveAppDataAsync(_cachedAppData);
-        }
-
         partial void OnSelectedFilterChanged(string value)
         {
             FilterPlayers();
         }
 
-        partial void OnSelectedDateChanged(DateTime value) => _ = ShowMonthAsync(value);
+        // ── Year / month pickers ──────────────────────────────────────────
+
+        partial void OnSelectedYearChanged(int value)
+        {
+            if (value <= 0)
+                return;
+
+            int keepMonth = SelectedMonth?.Number ?? 1;
+            bool setting = _settingPickers;
+
+            _settingPickers = true;
+            try
+            {
+                FillMonths(value);
+                SelectedMonth = Months.FirstOrDefault(m => m.Number == keepMonth) ?? Months.LastOrDefault();
+            }
+            finally
+            {
+                _settingPickers = setting;
+            }
+
+            if (!_settingPickers)
+                ShowPickedMonth();
+        }
+
+        partial void OnSelectedMonthChanged(MonthOption? value)
+        {
+            if (!_settingPickers)
+                ShowPickedMonth();
+        }
+
+        private void ShowPickedMonth()
+        {
+            if (SelectedYear > 0 && SelectedMonth is { Number: >= 1 and <= 12 } month)
+                _ = ShowMonthAsync(new DateTime(SelectedYear, month.Number, 1));
+        }
+
+        /// <summary>Months of the year; in the current year only up to the current month (later ones have no ranking).</summary>
+        private void FillMonths(int year)
+        {
+            var now = DateTime.Now;
+            int last = year >= now.Year ? now.Month : 12;
+            var names = CultureInfo.CurrentCulture.DateTimeFormat;
+
+            if (Months.Count == last && Months.Count > 0)
+                return;
+
+            Months = new ObservableCollection<MonthOption>(
+                Enumerable.Range(1, last).Select(m => new MonthOption { Number = m, Name = names.GetMonthName(m) }));
+        }
+
+        /// <summary>Shows the given month in the pickers without loading it (the list already shows it).</summary>
+        private void SetPickers(int year, int month)
+        {
+            if (year <= 0 || month is < 1 or > 12)
+                return;
+
+            _settingPickers = true;
+            try
+            {
+                if (Years.Count == 0 || Years[0] != DateTime.Now.Year)
+                {
+                    Years.Clear();
+
+                    for (int y = DateTime.Now.Year; y >= FirstRankingYear; y--)
+                        Years.Add(y);
+                }
+
+                FillMonths(year);
+                SelectedYear = year;
+                SelectedMonth = Months.FirstOrDefault(m => m.Number == month) ?? Months.LastOrDefault();
+            }
+            finally
+            {
+                _settingPickers = false;
+            }
+        }
 
         partial void OnSearchTextChanged(string? value)
         {
@@ -253,8 +462,8 @@ namespace RankingApp.Core.ViewModels
 
             _allGames = await _playerService.GetGamesFromDbAsync();
             _cachedAppData = await _playerService.GetAppDataAsync();
-            RemindRankingUpdate = _cachedAppData.RemindRankingUpdate;
             AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(_cachedAppData);
+            _friendKeys = await _friends.GetKeysAsync();
 
             // Filter, sort and search are kept in this view model; also stay on the same page
             int keepPage = CurrentPage;
@@ -263,7 +472,62 @@ namespace RankingApp.Core.ViewModels
 
             await UpdateAppDataLabel();
 
+            // First open: the pickers show the latest stored month (or this month if nothing is stored yet)
+            if (SelectedYear == 0)
+            {
+                bool hasMonth = _cachedAppData.CurrentYear > 0 && _cachedAppData.CurrentMonth is >= 1 and <= 12;
+                SetPickers(hasMonth ? _cachedAppData.CurrentYear : DateTime.Now.Year, hasMonth ? _cachedAppData.CurrentMonth : DateTime.Now.Month);
+            }
+
             await EnsureStoredRankingsAsync();
+            await UpdateToLatestRankingAsync();
+        }
+
+        /// <summary>
+        /// The latest stored ranking is compared with the system month - a newer published month is downloaded
+        /// (at most every 30 minutes, see IPlayerService.UpdateToLatestRankingAsync) and shown if the latest month was shown.
+        /// </summary>
+        private async Task UpdateToLatestRankingAsync()
+        {
+            if (_isLoadingPlayers)
+                return;
+
+            bool updated;
+            _isLoadingPlayers = true;
+
+            try
+            {
+                updated = await _tournamentsViewModel.CheckRankingUpdateAsync(DateTime.Now);
+            }
+            finally
+            {
+                _isLoadingPlayers = false;
+            }
+
+            if (updated)
+            {
+                _cachedAppData = await _playerService.GetAppDataAsync();
+                AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(_cachedAppData);
+
+                bool viewingNewLatest = _viewMonth is DateTime v && v.Year == _cachedAppData.CurrentYear && v.Month == _cachedAppData.CurrentMonth;
+
+                if (_viewMonth == null || viewingNewLatest)
+                {
+                    _viewMonth = null;
+                    _allPlayers = await _playerService.GetPlayersFromDbAsync();
+                    FilterPlayers();
+                    SetPickers(_cachedAppData.CurrentYear, _cachedAppData.CurrentMonth);
+                }
+
+                await UpdateAppDataLabel();
+            }
+
+            // A month picked while the update ran
+            if (_pendingLoadDate is DateTime next)
+            {
+                _pendingLoadDate = null;
+                await ShowMonthAsync(next);
+            }
         }
 
         // Checked once per app session (an offline attempt is tried again on the next start)
@@ -393,6 +657,10 @@ namespace RankingApp.Core.ViewModels
                 return;
 
             _sortedPlayers = PlayerLogic.Sort(_filteredPlayers, SelectedSort, SortDescending);
+
+            foreach (var item in _sortedPlayers)
+                item.IsFriend = !string.IsNullOrEmpty(item.Player.KeyName) && _friendKeys.Contains(item.Player.KeyName);
+
             ApplySearch();
         }
 
@@ -426,6 +694,8 @@ namespace RankingApp.Core.ViewModels
                 AppDataLabel = latest;
                 RankingCaption = "Latest ranking";
             }
+
+            UpdateAppPlayerLabel();
         }
 
         private static string MonthLabel(int year, int month) =>

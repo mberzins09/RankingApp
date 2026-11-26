@@ -39,6 +39,15 @@ namespace RankingApp.Core.Models
 
         /// <summary>Ranking change of the row player in this game (null = no ranking data).</summary>
         public int? RatingChange { get; set; }
+
+        /// <summary>Table of a game that is not finished yet (null = finished / not known).</summary>
+        public int? Table { get; set; }
+
+        /// <summary>The game is being played right now.</summary>
+        public bool IsLive { get; set; }
+
+        /// <summary>Strongest highlight of the two players of this game (the row and the column player).</summary>
+        public PlayerMark Mark { get; set; }
     }
 
     public class GroupTableRow
@@ -47,6 +56,7 @@ namespace RankingApp.Core.Models
         public string PlayerName { get; set; } = "";
         public string Points { get; set; } = "";
         public string Place { get; set; } = "";
+        public PlayerMark Mark { get; set; }
         public List<GroupTableCell> Cells { get; set; } = [];
     }
 
@@ -71,6 +81,15 @@ namespace RankingApp.Core.Models
         /// <summary>Ranking change of each player in this game (null = not decided / no ranking data / doubles).</summary>
         public int? RatingChange1 { get; set; }
         public int? RatingChange2 { get; set; }
+
+        public PlayerMark Mark1 { get; set; }
+        public PlayerMark Mark2 { get; set; }
+
+        /// <summary>Table of a game that is not finished yet (null = finished / not known).</summary>
+        public int? Table { get; set; }
+
+        /// <summary>The game is being played right now.</summary>
+        public bool IsLive { get; set; }
     }
 
     public class BracketRound
@@ -115,6 +134,16 @@ namespace RankingApp.Core.Models
 
         public List<TeamGameItem> Games { get; set; } = [];
 
+        /// <summary>Highlight: the app player / a friend plays in one of its games.</summary>
+        public PlayerMark Mark => Games.Count == 0 ? PlayerMark.None : Games.Max(g => g.Mark);
+        public bool IsMe => Mark == PlayerMark.Me;
+        public bool IsFriend => Mark == PlayerMark.Friend;
+
+        /// <summary>"T5" / "● T5" while the match is not finished.</summary>
+        public string TableText { get; set; } = "";
+        public bool HasTable => TableText.Length > 0;
+        public bool IsLive { get; set; }
+
         [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty]
         [CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedFor(nameof(Chevron))]
         private bool isExpanded;
@@ -139,6 +168,12 @@ namespace RankingApp.Core.Models
 
         public int? RatingChange1 { get; set; }
         public int? RatingChange2 { get; set; }
+
+        public PlayerMark Mark1 { get; set; }
+        public PlayerMark Mark2 { get; set; }
+        public PlayerMark Mark => Mark1 > Mark2 ? Mark1 : Mark2;
+        public bool IsMe => Mark == PlayerMark.Me;
+        public bool IsFriend => Mark == PlayerMark.Friend;
 
         public bool IsPlayer1Winner => Winner == 1;
         public bool IsPlayer2Winner => Winner == 2;

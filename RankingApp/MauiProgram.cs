@@ -42,6 +42,8 @@ namespace RankingApp
             builder.Services.AddSingleton<TournamentImportService>();
             builder.Services.AddSingleton<TournamentService>();
             builder.Services.AddSingleton<ApiGameImporterService>();
+            builder.Services.AddSingleton<FriendService>();
+            builder.Services.AddSingleton<LgtfWebSiteService>();
 
             builder.Services.AddSingleton<PlayerViewModel>();
             builder.Services.AddSingleton<GameViewModel>();

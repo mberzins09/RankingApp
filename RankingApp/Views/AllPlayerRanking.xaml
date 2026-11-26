@@ -18,22 +18,25 @@
             <converters:NumericToColorConverter x:Key="NumericToColorConverter" />
         </ResourceDictionary>
     </views:BaseContentPage.Resources>
-    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="6, 48, 48, 40, *, 44, 4" ColumnDefinitions="10, 50, 50, *, 90, 40, 10" ColumnSpacing="0">
-        <!-- Row 1: shown ranking month + date picker (another month is view only, PlayerDB is not changed) -->
-        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="*, Auto" ColumnSpacing="8">
-            <VerticalStackLayout Spacing="0" VerticalOptions="Center">
-                <Label Text="{Binding RankingCaption}" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
-                <Label FontSize="17" FontFamily="OpenSansSemibold" Style="{StaticResource PrimaryLabel}"
-                       HorizontalOptions="Start" Text="{Binding AppDataLabel}"/>
-            </VerticalStackLayout>
-            <Border Grid.Column="1" Style="{StaticResource PickerChip}" Padding="12,0">
-                <HorizontalStackLayout Spacing="6">
+    <Grid Style="{StaticResource PrimaryGrid}" RowDefinitions="6, 48, 48, 40, *, 4" ColumnDefinitions="10, 50, 50, *, 90, 40, 10" ColumnSpacing="0">
+        <!-- Row 1: shown ranking - year + month (a month other than the latest is view only, PlayerDB is not changed), friends -->
+        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" ColumnDefinitions="*, 1.4*, 44" ColumnSpacing="8">
+            <Border Style="{StaticResource PickerChip}">
+                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="4">
                     <Label Text="📅" FontSize="14" VerticalOptions="Center" InputTransparent="True"/>
-                    <rankingApp:FormDatePicker Date="{Binding SelectedDate, Mode=TwoWay}"
-                                               MinimumDate="{Binding MinDate}" MaximumDate="{Binding MaxDate}" Format="d MMM yyyy"
-                                               Style="{StaticResource PrimaryDatePicker}"/>
-                </HorizontalStackLayout>
+                    <Picker Grid.Column="1" Title="Year" Style="{StaticResource ChipPicker}" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}"/>
+                    <Label Grid.Column="2" Style="{StaticResource ChipChevron}"/>
+                </Grid>
             </Border>
+            <Border Grid.Column="1" Style="{StaticResource PickerChip}">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Picker Title="Month" Style="{StaticResource ChipPicker}" ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}"/>
+                    <Label Grid.Column="1" Style="{StaticResource ChipChevron}"/>
+                </Grid>
+            </Border>
+            <!-- App player + friends in the shown ranking -->
+            <Button Grid.Column="2" Text="👥" Command="{Binding ShowFriendsCommand}" Style="{StaticResource PrimaryButton}"
+                    Padding="0" WidthRequest="44" HeightRequest="36" CornerRadius="18" FontSize="17" VerticalOptions="Center"/>
         </Grid>
 
         <!-- Row 2: filter, sort, sort direction -->
@@ -56,21 +59,10 @@
                     CornerRadius="18" FontSize="18" VerticalOptions="Center"/>
         </Grid>
 
-        <!-- Row 3: app player -->
+        <!-- Row 3: app player in the shown month: "12. Name Surname 1520(1610)" -->
         <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="App player" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start"/>
-        <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3" Style="{StaticResource PrimaryLabel}" FontSize="15" HorizontalOptions="Start"
-               LineBreakMode="TailTruncation" MaxLines="1">
-            <Label.Text>
-                <MultiBinding StringFormat="{}{0}({1}). {2} {3} {4}({5})">
-                    <Binding Path="AppDefaultPlayer.Place"/>
-                    <Binding Path="AppDefaultPlayer.OverallPlace"/>
-                    <Binding Path="AppDefaultPlayer.Name"/>
-                    <Binding Path="AppDefaultPlayer.Surname"/>
-                    <Binding Path="AppDefaultPlayer.Points"/>
-                    <Binding Path="AppDefaultPlayer.PointsWithBonus"/>
-                </MultiBinding>
-            </Label.Text>
-        </Label>
+        <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3" Text="{Binding AppPlayerLabel}" Style="{StaticResource PrimaryLabel}" FontSize="15"
+               HorizontalOptions="Start" LineBreakMode="TailTruncation" MaxLines="1"/>
 
         <!-- Row 4: search, count, player cards, pages -->
         <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" RowDefinitions="48, 24, *, 46" Style="{StaticResource PrimaryGrid}">
@@ -78,6 +70,8 @@
                 <SearchBar Style="{StaticResource PrimarySearchBar}" Placeholder="Search name or place (e.g. 2400-2500)" Text="{Binding SearchText, Mode=TwoWay}"/>
             </Border>
             <Label Grid.Row="1" Text="{Binding PlayerCountLabel}" Style="{StaticResource CaptionLabel}" HorizontalOptions="Start" Margin="4,0"/>
+            <!-- "Latest ranking" / "Viewing · latest 2026 November" -->
+            <Label Grid.Row="1" Text="{Binding RankingCaption}" Style="{StaticResource CaptionLabel}" HorizontalOptions="End" Margin="4,0"/>
 
             <ListView Grid.Row="2" Style="{StaticResource PrimaryListView}" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}"
                       SelectionMode="Single" ItemTapped="ListView_ItemTapped" HasUnevenRows="True" SeparatorVisibility="None" Margin="-6,0">
@@ -98,6 +92,8 @@
                                                 <Span Text="{Binding PlaceDisplay}" FontSize="13" TextColor="{StaticResource TextSoft}"/>
                                                 <Span Text=" "/>
                                                 <Span Text="{Binding FullName}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextMain}"/>
+                                                <Span Text=" "/>
+                                                <Span Text="{Binding FriendIcon}" FontSize="13" TextColor="{StaticResource HighlightFriend}"/>
                                                 <Span Text="  "/>
                                                 <Span Text="{Binding AgeDisplay}" FontSize="12" TextColor="{StaticResource TextFaint}"/>
                                             </FormattedString>
@@ -120,6 +116,10 @@
                                 <MenuItem Text="Set as default player"
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetAsDefaultPlayerCommand}"
                                 CommandParameter="{Binding Player}"/>
+                                <!-- "Set as friend" or, for a friend, "Remove friend" -->
+                                <MenuItem Text="{Binding FriendMenuText}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleFriendCommand}"
+                                CommandParameter="{Binding .}"/>
                             </ViewCell.ContextActions>
                         </ViewCell>
                     </DataTemplate>
@@ -137,16 +137,8 @@
             </HorizontalStackLayout>
         </Grid>
 
-        <!-- Row 5: reminder -->
-        <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" Style="{StaticResource GlassField}" Padding="14,0" HeightRequest="40">
-            <Grid ColumnDefinitions="*, Auto">
-                <Label Text="🔔  Remind me to update the ranking" Style="{StaticResource PrimaryLabel}" FontSize="14" HorizontalOptions="Start"/>
-                <Switch Grid.Column="1" IsToggled="{Binding RemindRankingUpdate, Mode=TwoWay}" VerticalOptions="Center"/>
-            </Grid>
-        </Border>
-
         <!-- After player clicked -->
-        <Grid IsVisible="{Binding IsGamesOverlayVisible}" InputTransparent="False" Grid.RowSpan="7" Grid.ColumnSpan="7">
+        <Grid IsVisible="{Binding IsGamesOverlayVisible}" InputTransparent="False" Grid.RowSpan="6" Grid.ColumnSpan="7">
             <BoxView Style="{StaticResource PrimaryBoxView}">
                 <BoxView.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CloseGamesOverlayCommand}" />
@@ -159,6 +151,56 @@
                     <views:GameListViewPart ItemsSource="{Binding FilteredGames}" Grid.Row="2" Grid.ColumnSpan="2"
                                             RightPrimaryCommand="{Binding GoToGameCommand}" Swipe1Text="Game" Swipe1Color="{StaticResource SwipeGame}"
                                             RightSecondaryCommand="{Binding GoToTournamentCommand}" Swipe2Text="Tournament" Swipe2Color="{StaticResource SwipeTournament}"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 👥 Friends: app player + friends in the shown ranking - Place. Name Surname Points (PointsWithBonus) +/- -->
+        <Grid IsVisible="{Binding IsFriendsOverlayVisible}" InputTransparent="False" Grid.RowSpan="6" Grid.ColumnSpan="7">
+            <BoxView Style="{StaticResource PrimaryBoxView}">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseFriendsCommand}" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <Border Style="{StaticResource BoxContainer}" HorizontalOptions="Fill" VerticalOptions="Fill" Margin="12,40">
+                <Grid RowDefinitions="40, Auto, *" ColumnDefinitions="*, 80" RowSpacing="6">
+                    <Label Text="{Binding FriendsTitle}" Style="{StaticResource PrimaryLabel}" FontSize="17" FontFamily="OpenSansSemibold"
+                           HorizontalOptions="Start" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+                    <Button Grid.Column="1" Text="Close" Command="{Binding CloseFriendsCommand}" Style="{StaticResource PrimaryButton}" HeightRequest="34"/>
+                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding FriendsEmptyText}" Style="{StaticResource CaptionLabel}"
+                           HorizontalOptions="Start" LineBreakMode="WordWrap">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding FriendsEmptyText}" Value="">
+                                <Setter Property="IsVisible" Value="False"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <CollectionView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding FriendRows}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:FriendRankingRow">
+                                <Grid Padding="0,3">
+                                    <Border Style="{StaticResource Card}" Margin="0" Padding="10,8">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsMe}" Value="True">
+                                                <Setter Property="Stroke" Value="{StaticResource HighlightMe}"/>
+                                                <Setter Property="BackgroundColor" Value="{StaticResource HighlightMeTint}"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Grid ColumnDefinitions="40, *, Auto, 44" ColumnSpacing="6">
+                                            <Label Text="{Binding PlaceDisplay}" FontSize="13" TextColor="{StaticResource TextSoft}" VerticalOptions="Center"/>
+                                            <Label Grid.Column="1" Text="{Binding FullName}" FontSize="15" FontFamily="OpenSansSemibold"
+                                                   TextColor="{StaticResource TextMain}" VerticalOptions="Center" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                            <Label Grid.Column="2" Text="{Binding PointsDisplay}" FontSize="14" TextColor="{StaticResource TextMain}"
+                                                   VerticalOptions="Center" HorizontalTextAlignment="End"/>
+                                            <Label Grid.Column="3" Text="{Binding ChangeDisplay}" FontSize="14" FontFamily="OpenSansSemibold"
+                                                   VerticalOptions="Center" HorizontalTextAlignment="End"
+                                                   TextColor="{Binding PointsChanged, Converter={StaticResource NumericToColorConverter}}"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </Grid>
             </Border>
         </Grid>

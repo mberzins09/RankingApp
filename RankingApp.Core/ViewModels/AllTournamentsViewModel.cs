@@ -242,41 +242,47 @@ public partial class AllTournamentsViewModel(IDatabaseService database, IPlayerS
         await _navigation.GoToTournamentAsync(Data.TournamentId);
     }
 
-    public async Task CheckRankingUpdateAsync(DateTime systemDate)
+    /// <summary>
+    /// The stored ranking is compared with the system month; a newer published month is downloaded without asking.
+    /// The progress dialog appears only when something is really downloaded into PlayerDB. True = PlayerDB was updated.
+    /// </summary>
+    public async Task<bool> CheckRankingUpdateAsync(DateTime systemDate)
     {
-        var appData = await _database.GetAppDataAsync();
+        bool dialogShown = false;
 
-        if (appData == null)
-            return;
-
-        if (!appData.RemindRankingUpdate)
-            return;
-
-        if (appData.CurrentYear < systemDate.Year || (appData.CurrentYear == systemDate.Year && appData.CurrentMonth < systemDate.Month))
+        void Progress(string status)
         {
-            bool confirm = await Shell.Current.DisplayAlert("Update Rankings","You haven't updated to the newest ranking. Would you like to update it?","Yes","No");
-
-            if (!confirm)
-                return;
-
-            _progressDialog.Show("Loading players...");
-
-            try
+            if (!dialogShown)
             {
-                // LoadPlayersFromApiOrDbAsync stores the month it really downloaded (the previous one
-                // if this month is not published yet) and may fix AppUserNewId - so do not save the
-                // AppData copy read above over it.
-                await _playerService.LoadPlayersFromApiOrDbAsync(systemDate, status => _progressDialog.Update(status));
-
-                _progressDialog.Update("✅ Rankings updated successfully!");
+                _progressDialog.Show("Updating to the newest ranking...");
+                dialogShown = true;
             }
-            catch (Exception ex)
-            {
+
+            _progressDialog.Update(status);
+        }
+
+        try
+        {
+            bool updated = await _playerService.UpdateToLatestRankingAsync(systemDate, Progress);
+
+            if (updated)
+                Progress("✅ Ranking updated to the newest month");
+
+            return updated;
+        }
+        catch (Exception ex)
+        {
+            // No internet etc. - tried again later
+            if (dialogShown)
                 _progressDialog.Update($"❌ Error: {ex.Message}");
-            }
-            finally
+
+            return false;
+        }
+        finally
+        {
+            if (dialogShown)
             {
-                await Task.Delay(400);
+                await Task.Delay(600);
                 await _progressDialog.HideAsync();
             }
         }

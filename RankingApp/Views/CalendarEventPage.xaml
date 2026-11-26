@@ -36,12 +36,34 @@
                 <DataTemplate x:DataType="model:CalendarParticipantItem">
                     <Grid Padding="6,2">
                         <Border Style="{StaticResource Card}" Margin="0" Padding="12,8">
+                            <!-- App player (gold) / friend (blue) -->
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsMe}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource HighlightMe}"/>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource HighlightMeTint}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFriend}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource HighlightFriend}"/>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource HighlightFriendTint}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
                             <Grid ColumnDefinitions="34, *, Auto" ColumnSpacing="6">
                                 <Label Text="{Binding Position, StringFormat='{0}.'}" Style="{StaticResource ListItemSubLabel}"
                                        HorizontalOptions="Start" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" FontSize="14"
                                        HorizontalOptions="Start" HorizontalTextAlignment="Start" VerticalOptions="Center"
-                                       LineBreakMode="TailTruncation" MaxLines="1"/>
+                                       LineBreakMode="TailTruncation" MaxLines="1">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsMe}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource HighlightMe}"/>
+                                            <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFriend}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource HighlightFriend}"/>
+                                            <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
                                 <Label Grid.Column="2" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontSize="14"
                                        FontFamily="OpenSansSemibold" TextColor="{StaticResource Accent}"
                                        HorizontalOptions="End" VerticalOptions="Center"/>

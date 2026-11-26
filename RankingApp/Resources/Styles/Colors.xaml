@@ -51,6 +51,12 @@
     <Color x:Key="Positive">#6EE7B7</Color>
     <Color x:Key="Negative">#FF7A8A</Color>
 
+    <!-- Event results: the app player (gold) and friends (sky blue) - strong color for text / bars, tint for backgrounds -->
+    <Color x:Key="HighlightMe">#FFD166</Color>
+    <Color x:Key="HighlightMeTint">#4DFFD166</Color>
+    <Color x:Key="HighlightFriend">#62D2FF</Color>
+    <Color x:Key="HighlightFriendTint">#4062D2FF</Color>
+
     <!-- Glass surfaces -->
     <Color x:Key="Glass">#1FFFFFFF</Color>
     <Color x:Key="GlassStrong">#33FFFFFF</Color>

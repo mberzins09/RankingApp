@@ -5,6 +5,13 @@ namespace RankingApp.Core.Services.Interfaces
     public interface IPlayerService
     {
         Task<List<PlayerDB>> LoadPlayersFromApiOrDbAsync(DateTime? date = null, Action<string>? progressCallback = null);
+
+        /// <summary>
+        /// When the stored ranking (AppData month) is older than the system month and a newer month is published,
+        /// downloads it into PlayerDB. True when PlayerDB got a newer month. Checked at most every 30 minutes;
+        /// <paramref name="progressCallback"/> is called only when something is really downloaded into PlayerDB.
+        /// </summary>
+        Task<bool> UpdateToLatestRankingAsync(DateTime now, Action<string>? progressCallback = null);
         Task GetOldTournamentsAsync(IProgress<string> progress);
 
         /// <summary>

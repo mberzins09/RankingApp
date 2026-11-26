@@ -19,6 +19,7 @@ namespace RankingApp.Core.Services
             _database.CreateTableAsync<AppData>().Wait();
             _database.CreateTableAsync<DoublesGame>().Wait();
             _database.CreateTableAsync<MonthRankingRow>().Wait();
+            _database.CreateTableAsync<Friend>().Wait();
         }
 
         // ── Stored monthly rankings ───────────────────────────────────────
