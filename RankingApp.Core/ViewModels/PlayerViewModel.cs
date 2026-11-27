@@ -12,8 +12,9 @@ using System.Globalization;
 namespace RankingApp.Core.ViewModels
 {
     public partial class PlayerViewModel(IPlayerService playerService, INavigationService navigation, IProgressDialogService progressDialog,
-        FriendService friendService, AllTournamentsViewModel tournamentsViewModel) : BaseViewModel
+        FriendService friendService, AllTournamentsViewModel tournamentsViewModel, PlayerEventsService playerEvents) : BaseViewModel
     {
+        private readonly PlayerEventsService _playerEvents = playerEvents;
         private const int FirstRankingYear = 2014;
 
         private readonly IProgressDialogService _progressDialog = progressDialog;
@@ -187,6 +188,7 @@ namespace RankingApp.Core.ViewModels
             _cachedAppData = appData;
             AppDefaultPlayer = await _playerService.GetAppDefaultPlayerAsync(appData);
             _friends.NotifyAppPlayerChanged();
+            _playerEvents.SyncAfterChange();
             UpdateAppPlayerLabel();
         }
 
@@ -211,6 +213,9 @@ namespace RankingApp.Core.ViewModels
                 await _friends.AddAsync(item.Player);
                 _friendKeys.Add(key);
             }
+
+            // Calendar / Results marks: download the new friend's events, or drop the removed one's
+            _playerEvents.SyncAfterChange();
 
             // The same player can be on the list once only, but keep every row of that key in sync
             foreach (var row in _sortedPlayers ?? [])

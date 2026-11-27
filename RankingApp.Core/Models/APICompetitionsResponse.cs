@@ -18,6 +18,13 @@ namespace RankingApp.Core.Models
         [JsonPropertyName("name")]
         public string Name { get; set; } = "";
 
+        [JsonPropertyName("arena")]
+        public APIArena? Arena { get; set; }
+
+        /// <summary>"past" or "planned".</summary>
+        [JsonPropertyName("status")]
+        public string? Status { get; set; }
+
         [JsonPropertyName("events")]
         public List<APICompetitionEvent>? Events { get; set; }
     }
@@ -36,86 +43,14 @@ namespace RankingApp.Core.Models
         [JsonPropertyName("start_date")]
         public string StartDate { get; set; } = "";
 
-        [JsonPropertyName("start_time")]
-        public string? StartTime { get; set; }
-
-        [JsonPropertyName("ranking_coef")]
-        public string RankingCoef { get; set; } = "";
-    }
-
-    // ── competition-events?year=2026&month=11 ────────────────────────────────
-
-    public class APICompetitionEventsResponse
-    {
-        [JsonPropertyName("competition_events")]
-        public List<APICompetitionEventListItem>? CompetitionEvents { get; set; }
-    }
-
-    public class APICompetitionEventListItem
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = "";
-
-        [JsonPropertyName("type")]
-        public string? Type { get; set; }
-
-        [JsonPropertyName("start_date")]
-        public string StartDate { get; set; } = "";
-
         [JsonPropertyName("end_date")]
         public string? EndDate { get; set; }
-
-        /// <summary>Playing date of this instance (season events are listed once per playing date).</summary>
-        [JsonPropertyName("effective_date")]
-        public string? EffectiveDate { get; set; }
 
         [JsonPropertyName("start_time")]
         public string? StartTime { get; set; }
 
         [JsonPropertyName("ranking_coef")]
         public string RankingCoef { get; set; } = "";
-
-        [JsonPropertyName("competition")]
-        public APICompetitionRef? Competition { get; set; }
-
-        /// <summary>
-        /// Teams event spread over more than 3 days (a season) - its results must be asked per playing date.
-        /// Shorter teams events (1-3 day tournaments) are loaded whole, without playing_date.
-        /// </summary>
-        public bool NeedsPlayingDate
-        {
-            get
-            {
-                if (Type != "teams")
-                    return false;
-
-                var start = Services.CompetitionListBuilder.ParseDate(StartDate);
-                var end = Services.CompetitionListBuilder.ParseDate(EndDate);
-
-                return start != null && end != null && (end.Value - start.Value).TotalDays > 3;
-            }
-        }
-
-        [JsonPropertyName("arena")]
-        public APIArena? Arena { get; set; }
-    }
-
-    public class APICompetitionRef
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = "";
-
-        [JsonPropertyName("start_date")]
-        public string? StartDate { get; set; }
-
-        [JsonPropertyName("end_date")]
-        public string? EndDate { get; set; }
     }
 
     public class APIArena
@@ -130,9 +65,18 @@ namespace RankingApp.Core.Models
     // ── List rows (not API contracts) ────────────────────────────────────────
 
     /// <summary>One event (sub-event of a competition) in the Calendar / Results list.</summary>
-    public class CalendarEventItem
+    public partial class CalendarEventItem : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
     {
         public int EventId { get; set; }
+
+        /// <summary>The app player (gold) / a friend (blue) takes part in this event.</summary>
+        [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty]
+        [CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedFor(nameof(IsMe), nameof(IsFriend))]
+        private PlayerMark mark;
+
+        public bool IsMe => Mark == PlayerMark.Me;
+        public bool IsFriend => Mark == PlayerMark.Friend;
+
         public int CompetitionId { get; set; }
         public string CompetitionName { get; set; } = "";
         public string EventName { get; set; } = "";
@@ -170,6 +114,14 @@ namespace RankingApp.Core.Models
         [CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedFor(nameof(Chevron))]
         private bool isExpanded;
 
+        /// <summary>Strongest mark of its events: the app player (gold) / a friend (blue) plays in this competition.</summary>
+        [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty]
+        [CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedFor(nameof(IsMe), nameof(IsFriend))]
+        private PlayerMark mark;
+
+        public bool IsMe => Mark == PlayerMark.Me;
+        public bool IsFriend => Mark == PlayerMark.Friend;
+
         /// <summary>Results list: a competition with a single event opens that event directly (no dropdown).</summary>
         public bool OpensDirectly { get; set; }
 
@@ -204,8 +156,11 @@ namespace RankingApp.Core.Models
         /// <summary>Sum of the rating changes of all this player's games in the event. Null = not calculated (Calendar).</summary>
         public int? RatingChange { get; set; }
 
-        /// <summary>"Name Surname(age)".</summary>
-        public string Display => Age > 0 ? $"{Name} {Surname}({Age})" : $"{Name} {Surname}";
+        /// <summary>Doubles: "Pavāre Laura / Bokāne Kate" (Name / Surname are empty then).</summary>
+        public string PairName { get; set; } = "";
+
+        /// <summary>"Name Surname(age)", or the pair name for doubles.</summary>
+        public string Display => PairName.Length > 0 ? PairName : Age > 0 ? $"{Name} {Surname}({Age})" : $"{Name} {Surname}";
 
         /// <summary>Highlight in the results: the app player or a friend.</summary>
         public PlayerMark Mark { get; set; }

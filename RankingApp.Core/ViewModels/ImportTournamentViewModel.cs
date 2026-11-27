@@ -172,7 +172,7 @@ namespace RankingApp.Core.ViewModels
         {
             Id = e.Id,
             Date = e.StartDate,
-            EndDate = e.EndDate,
+            EndDate = e.EndDate ?? "",
             Competition = e.Competition?.Name is { } compName && !string.IsNullOrWhiteSpace(compName) ? compName : e.Name,
             EventName = e.Name,
             Coefficient = e.RankingCoef,

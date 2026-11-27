@@ -20,7 +20,25 @@ namespace RankingApp.Core.Services
             _database.CreateTableAsync<DoublesGame>().Wait();
             _database.CreateTableAsync<MonthRankingRow>().Wait();
             _database.CreateTableAsync<Friend>().Wait();
+            _database.CreateTableAsync<PlayerEvent>().Wait();
         }
+
+        // ── Events of the app player and friends ──────────────────────────
+
+        /// <summary>Replaces the stored event ids of one player, in one transaction.</summary>
+        public Task ReplacePlayerEventsAsync(string keyName, IEnumerable<int> eventIds)
+        {
+            var rows = eventIds.Distinct().Select(id => new PlayerEvent { KeyName = keyName, EventId = id }).ToList();
+
+            return _database.RunInTransactionAsync(conn =>
+            {
+                conn.Execute("DELETE FROM PlayerEvent WHERE KeyName = ?", keyName);
+                conn.InsertAll(rows);
+            });
+        }
+
+        public Task DeletePlayerEventsAsync(string keyName) =>
+            _database.ExecuteAsync("DELETE FROM PlayerEvent WHERE KeyName = ?", keyName);
 
         // ── Stored monthly rankings ───────────────────────────────────────
 

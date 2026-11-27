@@ -36,6 +36,27 @@ namespace RankingApp.Core.Services
             }
         }
 
+        /// <summary>
+        /// Ids of all events of the player (competition-events-for-player).
+        /// Throws on network / server errors, so the caller keeps the ids it already has.
+        /// </summary>
+        public async Task<List<int>> GetPlayerEventIdsAsync(int playerId, CancellationToken ct = default)
+        {
+            string url = $"{Data.ApiUrl}competition-events-for-player?player_id={playerId}";
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("x-api-key", Data.ApiKey);
+            request.Headers.Add("Accept", "application/json");
+
+            using var response = await _httpClient.SendAsync(request, ct);
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadFromJsonAsync<APITournamentsResponse>(ct)
+                         ?? throw new HttpRequestException("Empty response");
+
+            return (result.CompetitionEvents ?? []).Select(e => e.Id).ToList();
+        }
+
         public async Task<List<APIGame>> GetTournamentGames(int playerId, int tournamentId, string tournamentDate, bool isSeason)
         {
             try
@@ -125,24 +146,20 @@ namespace RankingApp.Core.Services
         }
 
         /// <summary>
-        /// All events of one month (competition-events?year=2026&amp;month=11). month = 0 → the whole year.
+        /// All competitions (past and planned, with their events) of one year: competitions?year=2026.
         /// Throws on network / server errors so the caller can show them (and not cache an empty list).
+        /// Teams events are only partly in this list - see <see cref="GetTeamsEventsAsync"/>.
         /// </summary>
-        public async Task<List<APICompetitionEventListItem>> GetCompetitionEventsAsync(int year, int month)
+        public async Task<List<APICompetition>> GetAllCompetitionsAsync(int year)
         {
-            string url = $"{Data.ApiUrl}competition-events?year={year}";
-
-            if (month is >= 1 and <= 12)
-                url += $"&month={month}";
-
-            var response = await SendWithRetryAsync(url)
+            var response = await SendWithRetryAsync($"{Data.ApiUrl}competitions?year={year}")
                            ?? throw new HttpRequestException("Too many requests - try again in a minute.");
 
             response.EnsureSuccessStatusCode();
 
-            var result = await response.Content.ReadFromJsonAsync<APICompetitionEventsResponse>();
+            var result = await response.Content.ReadFromJsonAsync<APICompetitionsResponse>();
 
-            return result?.CompetitionEvents ?? [];
+            return result?.Competitions ?? [];
         }
 
         /// <summary>

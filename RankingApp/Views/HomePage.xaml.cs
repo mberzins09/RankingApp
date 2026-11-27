@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui.Storage;
+using RankingApp.Core.Services;
 using RankingApp.Core.ViewModels;
 using SQLite;
 
@@ -12,16 +13,18 @@ public partial class HomePage : BaseContentPage
 {
     private readonly HomeViewModel _viewModel;
     private readonly AllTournamentsViewModel _tournamentsViewModel;
+    private readonly PlayerEventsService _playerEvents;
 
     private bool _menuOpen = false;
 
     private SQLiteConnection? sqliteConnection;
 
-    public HomePage(HomeViewModel viewModel, AllTournamentsViewModel tournamentsViewModel)
+    public HomePage(HomeViewModel viewModel, AllTournamentsViewModel tournamentsViewModel, PlayerEventsService playerEvents)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _tournamentsViewModel = tournamentsViewModel;
+        _playerEvents = playerEvents;
         BindingContext = _viewModel;
         MoreMenuPanel.SizeChanged += MoreMenuPanel_SizeChanged;
     }
@@ -32,6 +35,9 @@ public partial class HomePage : BaseContentPage
 
         await _tournamentsViewModel.MigrateId();
         await _tournamentsViewModel.Migrate();
+
+        // Events of the app player + friends for the Calendar / Results marks - background, once per app run
+        _playerEvents.SyncOnStartup();
         await _tournamentsViewModel.CheckRankingUpdateAsync(DateTime.Now);
 
         await _viewModel.LoadDataAsync();

@@ -25,10 +25,20 @@ namespace RankingApp.Core.Models
         public string StartDate { get; set; } = "";
 
         [JsonPropertyName("end_date")]
-        public string EndDate { get; set; } = "";
+        public string? EndDate { get; set; }
+
+        /// <summary>Playing date of this instance (season events are listed once per playing date).</summary>
+        [JsonPropertyName("effective_date")]
+        public string? EffectiveDate { get; set; }
+
+        [JsonPropertyName("start_time")]
+        public string? StartTime { get; set; }
 
         [JsonPropertyName("ranking_coef")]
         public string RankingCoef { get; set; } = "0";
+
+        [JsonPropertyName("arena")]
+        public APIArena? Arena { get; set; }
 
         [JsonPropertyName("is_season_ranking_instance")]
         public bool IsSeasonRankingInstance { get; set; }
@@ -39,6 +49,9 @@ namespace RankingApp.Core.Models
 
     public class APICompetitionInfo
     {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
         [JsonPropertyName("name")]
         public string Name { get; set; } = "";
 
@@ -92,14 +105,23 @@ namespace RankingApp.Core.Models
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
+        /// <summary>Null for doubles pairs.</summary>
         [JsonPropertyName("player_id")]
-        public int PlayerId { get; set; }
+        public int? PlayerId { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; } = "";
+        public string? Name { get; set; }
 
         [JsonPropertyName("surname")]
-        public string Surname { get; set; } = "";
+        public string? Surname { get; set; }
+
+        /// <summary>"player" or "doubles_pair".</summary>
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        /// <summary>Doubles events: the pair, e.g. { "id": 4618, "name": "Pavāre Laura / Bokāne Kate" } (surname first).</summary>
+        [JsonPropertyName("doubles_pair")]
+        public APIDoublesPair? DoublesPair { get; set; }
 
         [JsonPropertyName("birth_date")]
         public string? BirthDate { get; set; }
@@ -160,16 +182,17 @@ namespace RankingApp.Core.Models
         public List<APINetGame>? Games { get; set; }
     }
 
+    /// <summary>A group row. In doubles events id / name / surname are null - the pairs are only in the games.</summary>
     public class APIGroupPlayer
     {
         [JsonPropertyName("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; } = "";
+        public string? Name { get; set; }
 
         [JsonPropertyName("surname")]
-        public string Surname { get; set; } = "";
+        public string? Surname { get; set; }
 
         [JsonPropertyName("position")]
         public int Position { get; set; }

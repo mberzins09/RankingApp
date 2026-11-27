@@ -9,19 +9,30 @@ using System.Globalization;
 namespace RankingApp.Core.ViewModels
 {
     /// <summary>
-    /// Results: events of the selected year + month (competition-events?year=..&amp;month=..), grouped by competition.
-    /// Every loaded year/month is kept in memory, so switching the pickers back and forth needs no new API call.
+    /// Results: events of the selected year + month that have started (system date), grouped by competition.
+    /// Events of a year come from competitions?year=.. (singles, doubles) plus competition-events?type=teams (teams events,
+    /// seasons split by playing date). Every loaded year is kept in memory, so switching the pickers needs no new API call.
     /// The ranking of the selected month is preloaded for the event results page.
     /// </summary>
-    public partial class ResultsViewModel(TournamentService tournamentService, MonthRankingService rankingService, INavigationService navigation) : BaseViewModel
+    public partial class ResultsViewModel(TournamentService tournamentService, MonthRankingService rankingService, INavigationService navigation,
+        PlayerEventsService playerEvents) : BaseViewModel
     {
+        private readonly PlayerEventsService _playerEvents = playerEvents;
+
         private static readonly TimeSpan CacheLifetime = TimeSpan.FromMinutes(10);
 
         private readonly TournamentService _tournamentService = tournamentService;
         private readonly MonthRankingService _rankingService = rankingService;
         private readonly INavigationService _navigation = navigation;
 
+        // Groups shown for a year + month (built from the year's events)
         private readonly Dictionary<(int Year, int Month), (DateTime LoadedAt, List<CompetitionGroupItem> Groups)> _cache = [];
+
+        // All events of a year (both API lists together)
+        private readonly Dictionary<int, (DateTime LoadedAt, List<CalendarEventItem> Events)> _yearCache = [];
+
+        // Teams events of all years (one call for every year) - not cached when the call failed / was empty
+        private (DateTime LoadedAt, List<APITeamsEventListItem> Events)? _teamsCache;
 
         private int _loadVersion;
         private bool _initialized;
@@ -66,6 +77,7 @@ namespace RankingApp.Core.ViewModels
             if (!_initialized)
             {
                 _initialized = true;
+                _playerEvents.Changed += OnPlayerEventsChanged;
 
                 var now = DateTime.Now;
                 var names = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames;
@@ -150,36 +162,21 @@ namespace RankingApp.Core.ViewModels
                 IsLoading = true;
                 StatusText = "Loading events...";
 
-                var apiEvents = await _tournamentService.GetCompetitionEventsAsync(key.Year, key.Month);
+                var (loadedAt, yearEvents) = await GetYearEventsAsync(key.Year, forceReload);
 
                 if (version != _loadVersion)
                     return;
 
                 var today = DateTime.Today;
 
-                var events = apiEvents
-                    .Select(e =>
+                var events = yearEvents
+                    .Where(e =>
                     {
-                        // Teams event longer than 3 days (season): this row is one playing date and its results are asked for that date
-                        string playingDate = e.NeedsPlayingDate
-                            ? (string.IsNullOrWhiteSpace(e.EffectiveDate) ? e.StartDate : e.EffectiveDate!)
-                            : "";
-
-                        return new CalendarEventItem
-                        {
-                            EventId = e.Id,
-                            CompetitionId = e.Competition?.Id ?? -e.Id,   // no competition - the event is its own group
-                            CompetitionName = string.IsNullOrWhiteSpace(e.Competition?.Name) ? e.Name : e.Competition.Name,
-                            EventName = e.Name,
-                            StartDate = playingDate.Length > 0 ? playingDate : e.StartDate,
-                            StartTime = e.StartTime ?? "",
-                            RankingCoef = e.RankingCoef,
-                            City = e.Arena?.City ?? "",
-                            PlayingDate = playingDate
-                        };
+                        // Results only: events that have started (future ones are in the Calendar)
+                        var date = CompetitionListBuilder.ParseDate(e.StartDate);
+                        return date != null && date.Value <= today &&
+                               (key.Month == 0 || (date.Value.Year == key.Year && date.Value.Month == key.Month));
                     })
-                    // Results only: events that have started (future ones are in the Calendar)
-                    .Where(e => (CompetitionListBuilder.ParseDate(e.StartDate) ?? DateTime.MinValue) <= today)
                     .ToList();
 
                 var groups = CompetitionListBuilder.Group(events, newestFirst: true);
@@ -187,7 +184,12 @@ namespace RankingApp.Core.ViewModels
                 foreach (var g in groups)
                     g.OpensDirectly = g.Events.Count == 1;
 
-                _cache[key] = (DateTime.UtcNow, groups);
+                CompetitionListBuilder.ApplyMarks(groups, await _playerEvents.GetMarksAsync());
+
+                if (version != _loadVersion)
+                    return;
+
+                _cache[key] = (loadedAt, groups);
                 Show(key, groups);
             }
             catch (Exception ex)
@@ -201,6 +203,60 @@ namespace RankingApp.Core.ViewModels
                     IsLoading = false;
             }
         }
+
+        /// <summary>
+        /// All events of the year: competitions?year=.. (throws on failure, so nothing is cached) + teams events.
+        /// A failed teams call only leaves the teams events out.
+        /// </summary>
+        private async Task<(DateTime LoadedAt, List<CalendarEventItem> Events)> GetYearEventsAsync(int year, bool forceReload)
+        {
+            if (!forceReload && _yearCache.TryGetValue(year, out var cached) && DateTime.UtcNow - cached.LoadedAt <= CacheLifetime)
+                return cached;
+
+            var competitionsTask = _tournamentService.GetAllCompetitionsAsync(year);
+            var teamsTask = GetTeamsEventsAsync(forceReload);
+
+            await Task.WhenAll(competitionsTask, teamsTask);
+
+            var loaded = (DateTime.UtcNow, CompetitionListBuilder.ResultsEvents(year, competitionsTask.Result, teamsTask.Result));
+
+            // Groups of this year's months were built from the old list
+            foreach (var key in _cache.Keys.Where(k => k.Year == year).ToList())
+                _cache.Remove(key);
+
+            _yearCache[year] = loaded;
+            return loaded;
+        }
+
+        private async Task<List<APITeamsEventListItem>> GetTeamsEventsAsync(bool forceReload)
+        {
+            if (!forceReload && _teamsCache is { } cached && DateTime.UtcNow - cached.LoadedAt <= CacheLifetime)
+                return cached.Events;
+
+            var events = await _tournamentService.GetTeamsEventsAsync();
+
+            if (events.Count > 0)
+                _teamsCache = (DateTime.UtcNow, events);
+
+            return events.Count > 0 ? events : _teamsCache?.Events ?? [];
+        }
+
+        /// <summary>Background sync stored new event ids - update the gold / blue marks of every loaded month.</summary>
+        private void OnPlayerEventsChanged(object? sender, EventArgs e) =>
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                try
+                {
+                    var marks = await _playerEvents.GetMarksAsync();
+
+                    foreach (var (_, groups) in _cache.Values)
+                        CompetitionListBuilder.ApplyMarks(groups, marks);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Results marks not updated: {ex.Message}");
+                }
+            });
 
         private void Show((int Year, int Month) key, List<CompetitionGroupItem> groups)
         {

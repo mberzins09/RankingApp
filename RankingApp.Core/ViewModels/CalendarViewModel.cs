@@ -12,9 +12,14 @@ namespace RankingApp.Core.ViewModels
     /// grouped by competition. Tapping a competition shows its events.
     /// Participants of future events are ranked by the current month's ranking.
     /// </summary>
-    public partial class CalendarViewModel(TournamentService tournamentService, MonthRankingService rankingService, INavigationService navigation) : BaseViewModel
+    public partial class CalendarViewModel(TournamentService tournamentService, MonthRankingService rankingService, INavigationService navigation,
+        PlayerEventsService playerEvents) : BaseViewModel
     {
         private readonly TournamentService _tournamentService = tournamentService;
+        private readonly PlayerEventsService _playerEvents = playerEvents;
+
+        // Groups shown now - re-marked when the app player's / friends' events change
+        private List<CompetitionGroupItem> _groups = [];
         private readonly MonthRankingService _rankingService = rankingService;
         private readonly INavigationService _navigation = navigation;
 
@@ -54,6 +59,7 @@ namespace RankingApp.Core.ViewModels
                 return;
 
             _initialized = true;
+            _playerEvents.Changed += OnPlayerEventsChanged;
 
             Years = new ObservableCollection<int>(Enumerable.Range(2020, now.Year + 2 - 2020).OrderByDescending(y => y));
             SelectedYear = now.Year;   // triggers loading
@@ -90,6 +96,20 @@ namespace RankingApp.Core.ViewModels
             });
         }
 
+        /// <summary>Background sync stored new event ids - update the gold / blue marks of the shown list.</summary>
+        private void OnPlayerEventsChanged(object? sender, EventArgs e) =>
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                try
+                {
+                    CompetitionListBuilder.ApplyMarks(_groups, await _playerEvents.GetMarksAsync());
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Calendar marks not updated: {ex.Message}");
+                }
+            });
+
         private async Task LoadEventsAsync()
         {
             int version = ++_loadVersion;
@@ -124,6 +144,13 @@ namespace RankingApp.Core.ViewModels
 
                 foreach (var g in groups)
                     g.OpensDirectly = g.Events.Count == 1;
+
+                CompetitionListBuilder.ApplyMarks(groups, await _playerEvents.GetMarksAsync());
+
+                if (version != _loadVersion)
+                    return;
+
+                _groups = groups;
                 CompetitionListBuilder.Fill(Rows, groups);
 
                 StatusText = groups.Count == 0 ? $"No planned events found for {year}." : "";

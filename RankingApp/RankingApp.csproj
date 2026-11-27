@@ -30,8 +30,8 @@
 		<!-- <ApplicationId>com.mberzins.rankingapp</ApplicationId> -->
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>4.3</ApplicationDisplayVersion>
-		<ApplicationVersion>34</ApplicationVersion>
+		<ApplicationDisplayVersion>4.5</ApplicationDisplayVersion>
+		<ApplicationVersion>36</ApplicationVersion>
 		<Version>$(ApplicationDisplayVersion)</Version>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>

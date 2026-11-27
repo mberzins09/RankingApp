@@ -164,13 +164,12 @@
         <!-- Row 3: participants list OR a drawn group table / bracket (built in code, cached per option) -->
         <Grid Grid.Row="3" Grid.Column="1">
             <CollectionView Margin="-6,0" ItemsSource="{Binding Participants}" SelectionMode="None" IsVisible="{Binding IsParticipantsSelected}">
-                <!-- Columns: ranking points with bonus | points (rating is calculated from these) | sum of this event's rating changes -->
+                <!-- Columns: ranking points with bonus | sum of this event's rating changes (calculated from Points, not shown) -->
                 <CollectionView.Header>
                     <!-- Same columns as the rows (the Auto column holds the "● T5" badge there) -->
-                    <Grid Padding="18,2,18,2" ColumnDefinitions="34, *, Auto, 50, 50, 42" ColumnSpacing="6">
-                        <Label Grid.Column="1" Grid.ColumnSpan="3" Text="PointsWithBonus" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
-                        <Label Grid.Column="4" Text="Points" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
-                        <Label Grid.Column="5" Text="+/-" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                    <Grid Padding="18,2,18,2" ColumnDefinitions="34, *, Auto, 50, 42" ColumnSpacing="6">
+                        <Label Grid.Column="1" Grid.ColumnSpan="3" Text="Points" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
+                        <Label Grid.Column="4" Text="+/-" Style="{StaticResource ListItemSubLabel}" FontSize="11" HorizontalOptions="End"/>
                     </Grid>
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
@@ -188,7 +187,7 @@
                                         <Setter Property="BackgroundColor" Value="{StaticResource HighlightFriendTint}"/>
                                     </DataTrigger>
                                 </Border.Triggers>
-                                <Grid ColumnDefinitions="34, *, Auto, 50, 50, 42" ColumnSpacing="6">
+                                <Grid ColumnDefinitions="34, *, Auto, 50, 42" ColumnSpacing="6">
                                     <Label Text="{Binding Position, StringFormat='{0}.'}" Style="{StaticResource ListItemSubLabel}"
                                            HorizontalOptions="Start" VerticalOptions="Center"/>
                                     <Label Grid.Column="1" Text="{Binding Display}" Style="{StaticResource ListItemLabel}" FontSize="14"
@@ -214,9 +213,7 @@
                                     <Label Grid.Column="3" Text="{Binding PointsWithBonus}" Style="{StaticResource ListItemLabel}" FontSize="14"
                                            FontFamily="OpenSansSemibold" TextColor="{StaticResource Accent}"
                                            HorizontalOptions="End" VerticalOptions="Center"/>
-                                    <Label Grid.Column="4" Text="{Binding Points}" Style="{StaticResource ListItemSubLabel}" FontSize="13"
-                                           HorizontalOptions="End" VerticalOptions="Center"/>
-                                    <Label Grid.Column="5" Text="{Binding RatingChangeText}" IsVisible="{Binding HasRatingChange}"
+                                    <Label Grid.Column="4" Text="{Binding RatingChangeText}" IsVisible="{Binding HasRatingChange}"
                                            Style="{StaticResource ListItemSubLabel}" FontSize="13" FontFamily="OpenSansSemibold"
                                            HorizontalOptions="End" VerticalOptions="Center">
                                         <Label.Triggers>

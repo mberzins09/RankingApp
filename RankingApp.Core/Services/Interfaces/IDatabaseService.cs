@@ -25,5 +25,8 @@ namespace RankingApp.Core.Services.Interfaces
         Task SaveMonthRankingAsync(int year, int month, List<MonthRankingRow> rows);
         Task<bool> HasMonthRankingAsync(int year, int month);
         Task UpdatePointsChangedAsync(Dictionary<string, int> changesByKey);
+
+        Task ReplacePlayerEventsAsync(string keyName, IEnumerable<int> eventIds);
+        Task DeletePlayerEventsAsync(string keyName);
     }
 }

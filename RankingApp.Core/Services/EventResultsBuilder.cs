@@ -26,6 +26,13 @@ namespace RankingApp.Core.Services
 
             foreach (var p in participants ?? [])
             {
+                // Doubles event: the participant is a pair, numbered by the sum of both players' points
+                if (p.DoublesPair != null && string.IsNullOrWhiteSpace(p.Name) && string.IsNullOrWhiteSpace(p.Surname))
+                {
+                    items.Add(BuildPair(p.DoublesPair.Name, ranking, marks));
+                    continue;
+                }
+
                 string key = NameNormalizer.NormalizeKey($"{p.Name}{p.Surname}");
                 var ranked = ranking?.Find(p.Name, p.Surname);
 
@@ -37,8 +44,8 @@ namespace RankingApp.Core.Services
 
                 items.Add(new CalendarParticipantItem
                 {
-                    Name = p.Name,
-                    Surname = p.Surname,
+                    Name = p.Name ?? "",
+                    Surname = p.Surname ?? "",
                     Age = string.IsNullOrWhiteSpace(birth) ? 0 : AgeCalculator.Calculate(birth),
                     PointsWithBonus = ranked?.PointsWithBonus ?? 0,
                     Points = ranked?.Points ?? 0,
@@ -58,6 +65,53 @@ namespace RankingApp.Core.Services
                 sorted[i].Position = i + 1;
 
             return sorted;
+        }
+
+        /// <summary>
+        /// A doubles pair "Pavāre Laura / Bokāne Kate". The order of name and surname is not known (participants list
+        /// has surname first, games have name first) and names can have several words, so every split is tried.
+        /// </summary>
+        private static CalendarParticipantItem BuildPair(string pairName, MonthRanking? ranking, PlayerMarks? marks)
+        {
+            var item = new CalendarParticipantItem { PairName = pairName.Trim(), Surname = pairName.Trim() };
+
+            foreach (var part in pairName.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                PlayerDB? ranked = null;
+                var mark = PlayerMark.None;
+
+                foreach (var (name, surname) in NameSplits(part))
+                {
+                    ranked ??= ranking?.Find(name, surname);
+
+                    var m = marks?.OfKey(NameNormalizer.NormalizeKey($"{name}{surname}")) ?? PlayerMark.None;
+                    if (m > mark)
+                        mark = m;
+                }
+
+                item.PointsWithBonus += ranked?.PointsWithBonus ?? 0;
+                item.Points += ranked?.Points ?? 0;
+
+                if (mark > item.Mark)
+                    item.Mark = mark;
+            }
+
+            return item;
+        }
+
+        /// <summary>"Kučinska Elīza Paula" → (Elīza Paula, Kučinska), (Kučinska, Elīza Paula), (Paula, Kučinska Elīza), ...</summary>
+        private static IEnumerable<(string Name, string Surname)> NameSplits(string fullName)
+        {
+            var words = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = 1; i < words.Length; i++)
+            {
+                string first = string.Join(' ', words[..i]);
+                string rest = string.Join(' ', words[i..]);
+
+                yield return (rest, first);   // surname first (participants list)
+                yield return (first, rest);   // name first (games)
+            }
         }
 
         // ── Rating changes ──────────────────────────────────────────────
@@ -391,38 +445,47 @@ namespace RankingApp.Core.Services
         {
             marks ??= PlayerMarks.Empty;
 
-            var games = (group.Games ?? []).Where(g => g.Player1 != null && g.Player2 != null).ToList();
+            var games = (group.Games ?? []).Where(g => Side1Key(g) != null && Side2Key(g) != null).ToList();
 
-            // Order of players = their place in the group; without a players list - from the games
-            var players = (group.Players ?? [])
-                .OrderBy(p => p.Position)
-                .Select(p => (p.Id, Name: FullName(p.Name, p.Surname), Points: p.Points?.ToString() ?? "", Place: p.Position > 0 ? p.Position.ToString() : "",
-                    Mark: marks.Of(p.Name, p.Surname)))
-                .ToList();
+            // Order of players = their place in the group; doubles - pairs from the games; no players list - from the games
+            var listed = (group.Players ?? []).Where(p => p.Id != null).ToList();
+            List<GroupSide> sides;
 
-            if (players.Count == 0)
+            if (listed.Count > 0)
             {
-                players = games
+                sides = listed
+                    .OrderBy(p => p.Position)
+                    .Select(p => new GroupSide($"p:{p.Id}", FullName(p.Name, p.Surname), p.Points?.ToString() ?? "",
+                        p.Position > 0 ? p.Position.ToString() : "", marks.Of(p.Name, p.Surname)))
+                    .ToList();
+            }
+            else if (games.Any(g => g.Player1DoublesPair != null || g.Player2DoublesPair != null))
+            {
+                sides = DoublesSides(group, games, marks);
+            }
+            else
+            {
+                sides = games
                     .SelectMany(g => new[] { g.Player1!, g.Player2! })
                     .GroupBy(p => p.Id)
-                    .Select(g => (g.Key, Name: FullName(g.First().Name, g.First().Surname), Points: "", Place: "", Mark: marks.Of(g.First())))
+                    .Select(g => new GroupSide($"p:{g.Key}", FullName(g.First().Name, g.First().Surname), "", "", marks.Of(g.First())))
                     .ToList();
             }
 
             var model = new GroupTableModel { Title = title };
 
-            for (int i = 0; i < players.Count; i++)
+            for (int i = 0; i < sides.Count; i++)
             {
                 var row = new GroupTableRow
                 {
                     Number = i + 1,
-                    PlayerName = players[i].Name,
-                    Points = players[i].Points,
-                    Place = players[i].Place,
-                    Mark = players[i].Mark
+                    PlayerName = sides[i].Name,
+                    Points = sides[i].Points,
+                    Place = sides[i].Place,
+                    Mark = sides[i].Mark
                 };
 
-                for (int j = 0; j < players.Count; j++)
+                for (int j = 0; j < sides.Count; j++)
                 {
                     if (i == j)
                     {
@@ -431,8 +494,8 @@ namespace RankingApp.Core.Services
                     }
 
                     // Every game of a highlighted player is tinted - his row and his column
-                    var cell = BuildCell(games, players[i].Id, players[j].Id, ratings, live);
-                    cell.Mark = players[i].Mark > players[j].Mark ? players[i].Mark : players[j].Mark;
+                    var cell = BuildCell(games, sides[i].Key, sides[j].Key, ratings, live);
+                    cell.Mark = sides[i].Mark > sides[j].Mark ? sides[i].Mark : sides[j].Mark;
                     row.Cells.Add(cell);
                 }
 
@@ -442,28 +505,72 @@ namespace RankingApp.Core.Services
             return model;
         }
 
-        /// <summary>Result of the game "me" against "opponent" as seen by "me".</summary>
-        private static GroupTableCell BuildCell(List<APINetGame> games, int me, int opponent, EventRatingChanges? ratings, EventLiveInfo? live)
+        /// <summary>A row of the group table: a player ("p:id") or a doubles pair ("d:id").</summary>
+        private sealed record GroupSide(string Key, string Name, string Points, string Place, PlayerMark Mark);
+
+        private static string? SideKey(APIGamePlayer? player, APIDoublesPair? pair) =>
+            player != null ? $"p:{player.Id}" : pair != null ? $"d:{pair.Id}" : null;
+
+        private static string? Side1Key(APINetGame game) => SideKey(game.Player1, game.Player1DoublesPair);
+        private static string? Side2Key(APINetGame game) => SideKey(game.Player2, game.Player2DoublesPair);
+
+        /// <summary>
+        /// Doubles group: the API rows have only position + points (no pair), so the pairs are taken from the games and their
+        /// points summed from the games. A pair gets the place of the API row with the same points; on a tie the shared range ("1-3").
+        /// </summary>
+        private static List<GroupSide> DoublesSides(APINetGroup group, List<APINetGame> games, PlayerMarks marks)
+        {
+            var order = new List<APIDoublesPair>();
+            var points = new Dictionary<int, int>();
+
+            foreach (var game in games.OrderBy(g => g.Id))
+            {
+                foreach (var (pair, pts) in new[] { (game.Player1DoublesPair, game.Player1Points), (game.Player2DoublesPair, game.Player2Points) })
+                {
+                    if (pair == null)
+                        continue;
+
+                    if (!points.ContainsKey(pair.Id))
+                        order.Add(pair);
+
+                    points[pair.Id] = points.GetValueOrDefault(pair.Id) + (pts ?? 0);
+                }
+            }
+
+            var apiRows = (group.Players ?? []).Where(p => p.Position > 0 && p.Points != null).ToList();
+            bool hasPoints = apiRows.Count > 0 || points.Values.Any(v => v > 0);
+
+            string PlaceOf(int pts)
+            {
+                var places = apiRows.Where(r => r.Points == pts).Select(r => r.Position).Order().ToList();
+                return places.Count == 0 ? "" : places.Count == 1 ? $"{places[0]}" : $"{places[0]}-{places[^1]}";
+            }
+
+            return order
+                .OrderByDescending(p => points[p.Id])   // stable: ties keep the order of the games
+                .Select(p => new GroupSide($"d:{p.Id}", ShortPairName(p.Name), hasPoints ? $"{points[p.Id]}" : "",
+                    PlaceOf(points[p.Id]), marks.Of(null, p)))
+                .ToList();
+        }
+
+        /// <summary>Result of the game "me" against "opponent" (side keys) as seen by "me".</summary>
+        private static GroupTableCell BuildCell(List<APINetGame> games, string me, string opponent, EventRatingChanges? ratings, EventLiveInfo? live)
         {
             var game = games.FirstOrDefault(g =>
-                (g.Player1!.Id == me && g.Player2!.Id == opponent) ||
-                (g.Player2!.Id == me && g.Player1!.Id == opponent));
+                (Side1Key(g) == me && Side2Key(g) == opponent) ||
+                (Side2Key(g) == me && Side1Key(g) == opponent));
 
             if (game == null)
                 return new GroupTableCell();
 
-            bool meIsFirst = game.Player1!.Id == me;
+            bool meIsFirst = Side1Key(game) == me;
 
             string myScore = (meIsFirst ? game.Player1Score : game.Player2Score) ?? "";
             string oppScore = (meIsFirst ? game.Player2Score : game.Player1Score) ?? "";
             int? myPoints = meIsFirst ? game.Player1Points : game.Player2Points;
 
-            CellOutcome outcome = CellOutcome.None;
-
-            if (game.Winner != null)
-                outcome = game.Winner.Id == me ? CellOutcome.Win : CellOutcome.Loss;
-            else if (int.TryParse(myScore, out int a) && int.TryParse(oppScore, out int b) && a != b)
-                outcome = a > b ? CellOutcome.Win : CellOutcome.Loss;
+            int winner = WinnerOf(game);
+            var outcome = winner == 0 ? CellOutcome.None : (winner == 1) == meIsFirst ? CellOutcome.Win : CellOutcome.Loss;
 
             // Live scores can already show a leader - the game is decided only when it is finished
             var (table, isLive) = TableOf(game, live, game.Winner != null);
@@ -552,7 +659,24 @@ namespace RankingApp.Core.Services
             if (player != null)
                 return FullName(player.Name, player.Surname);
 
-            return pair?.Name ?? "";
+            return ShortPairName(pair?.Name);
+        }
+
+        /// <summary>
+        /// Drawn doubles: "Laura Krūmiņa / Yvonne Fischer" → "L.Krūmiņa / Y.Fischer" (games have the name first;
+        /// with more words the first is taken as the name and the last as the surname).
+        /// </summary>
+        public static string ShortPairName(string? pairName)
+        {
+            var players = (pairName ?? "")
+                .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(part =>
+                {
+                    var words = part.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    return words.Length < 2 ? part : $"{words[0][0]}.{words[^1]}";
+                });
+
+            return string.Join(" / ", players);
         }
 
         private static string FullName(string? name, string? surname) => $"{name} {surname}".Trim();
